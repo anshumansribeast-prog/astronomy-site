@@ -62,30 +62,33 @@
     </div>
   </section>
 
-  <!-- ============ QUIZ ============ -->
+  <!-- ============ QUIZ CALL-TO-ACTION ============ -->
   <section id="quiz-section">
     <div class="wrap">
       <div class="section-head reveal">
-        <span class="eyebrow">Ten questions</span>
+        <span class="eyebrow">Four levels · earn your rank</span>
         <h2>Test <span class="grad">Yourself</span></h2>
-        <p>No timer, no pressure. Every answer comes with an explanation —
-           including the ones you get right.</p>
+        <p>Read the facts, then go and prove it. Start as a Stargazer and work
+           your way up — each level unlocks the next, and the questions get
+           genuinely harder as you climb.</p>
       </div>
 
-      <div class="quiz" id="quiz">
-        <div class="quiz-progress"><span id="quizBar"></span></div>
+      <div class="quiz-cta">
+        <ol class="cta-ladder">
+          <li style="--lv:#2dd4bf"><strong>Stargazer</strong><span>Easy</span></li>
+          <li style="--lv:#60a5fa"><strong>Observer</strong><span>Medium</span></li>
+          <li style="--lv:#a78bfa"><strong>Sky Navigator</strong><span>Hard</span></li>
+          <li style="--lv:#fbbf24"><strong>Astronomer</strong><span>Expert</span></li>
+        </ol>
 
-        <div id="quizStage">
-          <div class="quiz-q" id="quizQuestion"></div>
-          <div class="quiz-options" id="quizOptions"></div>
-          <div class="quiz-explain" id="quizExplain"></div>
-          <div class="quiz-foot">
-            <span class="quiz-score" id="quizScore"></span>
-            <button class="btn btn-primary" id="quizNext" style="visibility:hidden;">Next question →</button>
-          </div>
+        <p class="cta-note">
+          32 questions. Score 75% to pass a level. Every answer comes with an
+          explanation — including the ones you get right.
+        </p>
+
+        <div class="btn-row">
+          <a class="btn btn-primary" href="quiz.html">Take the quiz →</a>
         </div>
-
-        <div id="quizResult" style="display:none;"></div>
       </div>
     </div>
   </section>

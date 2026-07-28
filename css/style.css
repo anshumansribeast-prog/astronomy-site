@@ -995,3 +995,35 @@ input[type="date"]:focus { outline: none; border-color: var(--teal); }
   .level-grid { grid-template-columns: 1fr; }
   .rank-card { flex-direction: row; }
 }
+
+/* ---- quiz call-to-action on facts.html ---------------------------- */
+.quiz-cta {
+  max-width: 720px; margin: 0 auto; text-align: center;
+  padding: 2rem 1.6rem;
+  background: var(--grad-panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.cta-ladder {
+  list-style: none; display: flex; gap: .6rem; flex-wrap: wrap;
+  justify-content: center; margin: 0 0 1.3rem; padding: 0;
+  counter-reset: rung;
+}
+.cta-ladder li {
+  counter-increment: rung;
+  flex: 1 1 132px; padding: .8rem .6rem;
+  border: 1px solid color-mix(in srgb, var(--lv) 45%, transparent);
+  border-top: 3px solid var(--lv);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--lv) 8%, transparent);
+}
+.cta-ladder li::before {
+  content: counter(rung); display: block;
+  font-size: .72rem; letter-spacing: .1em; color: var(--muted); margin-bottom: .2rem;
+}
+.cta-ladder strong { display: block; color: var(--lv); font-size: .98rem; }
+.cta-ladder span   { display: block; font-size: .76rem; letter-spacing: .1em;
+                     text-transform: uppercase; color: var(--muted); margin-top: .15rem; }
+.cta-note { font-size: .92rem; color: var(--muted); margin-bottom: 1.4rem; }
+
+@media (max-width: 560px) { .cta-ladder li { flex-basis: 100%; } }
