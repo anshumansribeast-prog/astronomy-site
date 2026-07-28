@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Moon Phases — Cosmos</title>
+  <meta name="description" content="Tonight's moon phase calculated live, a full month calendar, and the phase for any date in history or the future.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<canvas id="starfield" aria-hidden="true"></canvas>
+
+<header class="site-header">
+  <nav class="wrap nav" aria-label="Main">
+    <a class="logo" href="index.html"><span class="logo-mark" aria-hidden="true"></span> COSMOS</a>
+    <button class="nav-toggle" aria-expanded="false" aria-controls="navLinks" aria-label="Toggle menu">☰</button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="planets.html">Planets</a></li>
+      <li><a href="constellations.html">Constellations</a></li>
+      <li><a href="moon.html">Moon</a></li>
+      <li><a href="facts.html">Facts &amp; Quiz</a></li>
+      <li><a href="about.html">About</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main>
+  <section>
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Our nearest neighbour</span>
+        <h2>The <span class="grad">Moon</span> Tonight</h2>
+        <p>
+          Nothing here is downloaded — the phase is worked out from the length of the
+          lunar cycle. Pick any date, forwards or backwards, and you'll see the shape
+          the Moon had on that night.
+        </p>
+      </div>
+
+      <div class="date-row">
+        <label class="sr-only" for="moonDate">Choose a date</label>
+        <input type="date" id="moonDate" min="1900-01-01" max="2100-12-31">
+        <button class="chip" id="moonToday">Back to today</button>
+      </div>
+
+      <div class="moon-layout">
+        <div class="moon-viz">
+          <div class="moon-disc" id="moonDisc"></div>
+          <div class="moon-readout">
+            <div class="moon-phase-name" id="moonPhaseName">—</div>
+            <div class="moon-illum" id="moonIllum">—</div>
+          </div>
+        </div>
+
+        <div>
+          <ul class="stat-list" id="moonStats"></ul>
+          <div class="fact-note" style="margin-top:1.4rem;">
+            <strong>Why does it change shape?</strong>
+            The Moon doesn't glow — it reflects sunlight, and exactly half of it is always lit.
+            What changes is how much of that lit half faces us as it orbits. A full moon means
+            we're looking straight at the sunlit side; a new moon means we're looking at the night side.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MONTH CALENDAR ============ -->
+  <section>
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">The whole cycle</span>
+        <h2 id="calTitle">This month</h2>
+        <p>Every night of the month at a glance. Click any day to jump to it.</p>
+      </div>
+      <div class="moon-calendar" id="moonCalendar"></div>
+      <p class="scale-note">
+        Phases are calculated from a synodic month of 29.530589 days.
+        Accurate to within a few hours — good enough for the naked eye, not for a spacecraft.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ MOON FACTS ============ -->
+  <section>
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">Moon facts</span>
+        <h2>Things worth knowing about it</h2>
+      </div>
+
+      <div class="grid grid-3">
+        <div class="card reveal">
+          <div class="card-icon" aria-hidden="true">🔒</div>
+          <h3>You've never seen its back</h3>
+          <p>The Moon rotates exactly once per orbit, so the same face always points at us.
+             This is called tidal locking, and Earth's gravity caused it. The far side was
+             first photographed by the Soviet Luna 3 probe in 1959.</p>
+        </div>
+        <div class="card reveal">
+          <div class="card-icon" aria-hidden="true">🌊</div>
+          <h3>It pulls the oceans</h3>
+          <p>The Moon's gravity drags water toward it, creating a bulge — and another on the
+             opposite side of Earth. As the planet rotates through those bulges, coastlines
+             get roughly two high tides a day.</p>
+        </div>
+        <div class="card reveal">
+          <div class="card-icon" aria-hidden="true">📏</div>
+          <h3>It's drifting away</h3>
+          <p>About 3.8 cm further from Earth every year — measured by bouncing lasers off
+             mirrors the Apollo astronauts left behind. In the age of the dinosaurs, the Moon
+             looked noticeably bigger.</p>
+        </div>
+        <div class="card reveal">
+          <div class="card-icon" aria-hidden="true">💥</div>
+          <h3>It was probably a collision</h3>
+          <p>The leading theory says a Mars-sized body called Theia struck the young Earth
+             about 4.5 billion years ago. The debris thrown into orbit clumped together and
+             became the Moon.</p>
+        </div>
+        <div class="card reveal">
+          <div class="card-icon" aria-hidden="true">🌡️</div>
+          <h3>No air, huge extremes</h3>
+          <p>With almost no atmosphere to hold heat, the surface swings from about 127 °C
+             in sunlight to −173 °C in shadow. And the sky there is black even at noon.</p>
+        </div>
+        <div class="card reveal">
+          <div class="card-icon" aria-hidden="true">🌑</div>
+          <h3>It fits the Sun exactly</h3>
+          <p>The Sun is about 400 times wider than the Moon — and about 400 times further
+             away. That coincidence is why total solar eclipses work at all. No other planet
+             in the solar system gets this.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <h4>Cosmos</h4>
+        <p style="font-size:.92rem;">An offline-first astronomy guide built with plain
+           HTML, CSS and JavaScript.</p>
+      </div>
+      <div>
+        <h4>Explore</h4>
+        <ul>
+          <li><a href="planets.html">Planets</a></li>
+          <li><a href="constellations.html">Constellations</a></li>
+          <li><a href="moon.html">Moon Phases</a></li>
+          <li><a href="facts.html">Facts &amp; Quiz</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Go deeper</h4>
+        <ul>
+          <li><a href="https://science.nasa.gov/moon/" target="_blank" rel="noopener">NASA — Earth's Moon</a></li>
+          <li><a href="https://svs.gsfc.nasa.gov/gallery/moonphase/" target="_blank" rel="noopener">NASA Moon Phase Visualisation</a></li>
+          <li><a href="https://www.space.com/" target="_blank" rel="noopener">Space.com</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      Built with HTML, CSS &amp; JavaScript · <span class="js-year"></span> ·
+      Planet and star data from NASA planetary fact sheets
+    </div>
+  </div>
+</footer>
+
+<script src="js/starfield.js"></script>
+<script src="js/main.js"></script>
+<script src="js/moon.js"></script>
+</body>
+</html>

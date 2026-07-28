@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cosmos — Explore the Universe</title>
+  <meta name="description" content="An interactive guide to the planets, constellations, moon phases and the facts that make our universe strange and wonderful.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- The animated starfield is painted onto this canvas by js/starfield.js -->
+<canvas id="starfield" aria-hidden="true"></canvas>
+
+<header class="site-header">
+  <nav class="wrap nav" aria-label="Main">
+    <a class="logo" href="index.html"><span class="logo-mark" aria-hidden="true"></span> COSMOS</a>
+    <button class="nav-toggle" aria-expanded="false" aria-controls="navLinks" aria-label="Toggle menu">☰</button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="planets.html">Planets</a></li>
+      <li><a href="constellations.html">Constellations</a></li>
+      <li><a href="moon.html">Moon</a></li>
+      <li><a href="facts.html">Facts &amp; Quiz</a></li>
+      <li><a href="about.html">About</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main>
+
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <div class="wrap">
+      <div class="hero-orbit" aria-hidden="true"></div>
+      <span class="eyebrow">A field guide to everything above you</span>
+      <h1>Explore the <span class="grad">Universe</span></h1>
+      <p class="lede">
+        Eight worlds, twelve constellations, a Moon that changes shape every night,
+        and a sky full of things that sound impossible but aren't.
+        Everything here runs in your browser — no internet required.
+      </p>
+      <div class="btn-row">
+        <a class="btn btn-primary" href="planets.html">Tour the planets</a>
+        <a class="btn btn-ghost" href="#discover">What's inside</a>
+      </div>
+
+      <div class="fact-ticker">
+        <span class="eyebrow">Did you know</span>
+        <div id="tickerText">Loading a fact from across the universe…</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SECTIONS OVERVIEW ============ -->
+  <section id="discover">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">Start anywhere</span>
+        <h2>Five ways in</h2>
+        <p>Each section stands on its own. Follow whichever one you're curious about today.</p>
+      </div>
+
+      <div class="grid grid-3">
+        <a class="card reveal" href="planets.html">
+          <div class="card-icon" aria-hidden="true">🪐</div>
+          <h3>The Planets</h3>
+          <p>All eight worlds with real numbers — size, distance, orbit, moons. Includes a
+             true-to-scale switch that shows just how enormous Jupiter really is.</p>
+        </a>
+
+        <a class="card reveal" href="constellations.html">
+          <div class="card-icon" aria-hidden="true">✨</div>
+          <h3>Constellations</h3>
+          <p>Twelve star patterns drawn from real star positions, each with the myth
+             behind it and the season you can actually spot it.</p>
+        </a>
+
+        <a class="card reveal" href="moon.html">
+          <div class="card-icon" aria-hidden="true">🌘</div>
+          <h3>Moon Phases</h3>
+          <p>Tonight's phase, calculated live from the lunar cycle. Pick any date in
+             history or the future and see exactly what the Moon looked like.</p>
+        </a>
+
+        <a class="card reveal" href="facts.html">
+          <div class="card-icon" aria-hidden="true">💫</div>
+          <h3>Facts &amp; Quiz</h3>
+          <p>Thirty genuinely strange facts about space, filterable by topic —
+             then a ten-question quiz to find out what stuck.</p>
+        </a>
+
+        <a class="card reveal" href="about.html">
+          <div class="card-icon" aria-hidden="true">🛰️</div>
+          <h3>About This Site</h3>
+          <p>How it was built, where the numbers came from, and what every
+             part of the code is doing.</p>
+        </a>
+
+        <div class="card reveal">
+          <div class="card-icon" aria-hidden="true">📡</div>
+          <h3>Works Offline</h3>
+          <p>No accounts, no tracking, no internet connection needed. Every planet
+             and star on this site is drawn with code, not downloaded as a picture.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SCALE OF THINGS ============ -->
+  <section>
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">Perspective</span>
+        <h2>The numbers that don't fit in your head</h2>
+        <p>Space is mostly the distance between things. These four are worth sitting with.</p>
+      </div>
+
+      <div class="grid grid-4">
+        <div class="card reveal">
+          <h3 class="grad">1.3 million</h3>
+          <p>Earths would fit inside the Sun. And the Sun is an average star — there are
+             far larger ones in our own galaxy.</p>
+        </div>
+        <div class="card reveal">
+          <h3 class="grad">4.24 light-years</h3>
+          <p>To Proxima Centauri, the nearest star after the Sun. Voyager 1, our fastest
+             probe, would need roughly 73,000 years to get there.</p>
+        </div>
+        <div class="card reveal">
+          <h3 class="grad">100 billion</h3>
+          <p>Stars in the Milky Way, give or take. And roughly two trillion galaxies
+             in the observable universe.</p>
+        </div>
+        <div class="card reveal">
+          <h3 class="grad">13.8 billion</h3>
+          <p>Years since the Big Bang. The Earth has only been here for the last
+             4.5 billion of them — under a third.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CTA ============ -->
+  <section>
+    <div class="wrap">
+      <div class="card reveal" style="text-align:center; padding: clamp(2rem, 6vw, 3.4rem);">
+        <span class="eyebrow">Ready?</span>
+        <h2>Start with the planets</h2>
+        <p style="max-width:52ch; margin-inline:auto;">
+          Every planet on the next page is drawn entirely in CSS — the bands on Jupiter,
+          the rings of Saturn, the ice caps on Mars. No images were downloaded to make them.
+        </p>
+        <div class="btn-row" style="margin-top:1.4rem;">
+          <a class="btn btn-primary" href="planets.html">Begin the tour</a>
+          <a class="btn btn-ghost" href="facts.html">Take the quiz instead</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <h4>Cosmos</h4>
+        <p style="font-size:.92rem;">An offline-first astronomy guide built with plain
+           HTML, CSS and JavaScript.</p>
+      </div>
+      <div>
+        <h4>Explore</h4>
+        <ul>
+          <li><a href="planets.html">Planets</a></li>
+          <li><a href="constellations.html">Constellations</a></li>
+          <li><a href="moon.html">Moon Phases</a></li>
+          <li><a href="facts.html">Facts &amp; Quiz</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Go deeper</h4>
+        <ul>
+          <li><a href="https://science.nasa.gov/solar-system/" target="_blank" rel="noopener">NASA — Solar System</a></li>
+          <li><a href="https://www.esa.int/" target="_blank" rel="noopener">European Space Agency</a></li>
+          <li><a href="https://www.space.com/" target="_blank" rel="noopener">Space.com</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      Built with HTML, CSS &amp; JavaScript · <span class="js-year"></span> ·
+      Planet and star data from NASA planetary fact sheets
+    </div>
+  </div>
+</footer>
+
+<script src="js/starfield.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

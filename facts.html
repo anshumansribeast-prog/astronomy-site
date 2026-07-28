@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Facts &amp; Quiz — Cosmos</title>
+  <meta name="description" content="Thirty strange and true facts about space, filterable by topic — plus a ten-question astronomy quiz.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<canvas id="starfield" aria-hidden="true"></canvas>
+
+<header class="site-header">
+  <nav class="wrap nav" aria-label="Main">
+    <a class="logo" href="index.html"><span class="logo-mark" aria-hidden="true"></span> COSMOS</a>
+    <button class="nav-toggle" aria-expanded="false" aria-controls="navLinks" aria-label="Toggle menu">☰</button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="planets.html">Planets</a></li>
+      <li><a href="constellations.html">Constellations</a></li>
+      <li><a href="moon.html">Moon</a></li>
+      <li><a href="facts.html">Facts &amp; Quiz</a></li>
+      <li><a href="about.html">About</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main>
+  <section>
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">True, and hard to believe</span>
+        <h2>Thirty <span class="grad">Facts</span></h2>
+        <p>
+          Filter by topic, or search for something you're curious about.
+          Then scroll down and see how many of them stuck.
+        </p>
+      </div>
+
+      <div class="toolbar">
+        <div class="search-box">
+          <span class="icon" aria-hidden="true">🔍</span>
+          <label class="sr-only" for="factSearch">Search facts</label>
+          <input type="search" id="factSearch" placeholder="Search facts… try &quot;black hole&quot; or &quot;Moon&quot;" autocomplete="off">
+        </div>
+        <button class="chip" data-cat="all" aria-pressed="true">All</button>
+        <button class="chip" data-cat="Solar System" aria-pressed="false">Solar System</button>
+        <button class="chip" data-cat="Stars" aria-pressed="false">Stars</button>
+        <button class="chip" data-cat="Galaxies" aria-pressed="false">Galaxies</button>
+        <button class="chip" data-cat="Space Travel" aria-pressed="false">Space Travel</button>
+        <button class="chip" data-cat="Extremes" aria-pressed="false">Extremes</button>
+      </div>
+
+      <div class="grid grid-3" id="factWall"></div>
+
+      <div class="empty-state" id="factEmpty">
+        <span class="big" aria-hidden="true">🛰️</span>
+        No facts match that search. Try a shorter word, or press "All".
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section id="quiz-section">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">Ten questions</span>
+        <h2>Test <span class="grad">Yourself</span></h2>
+        <p>No timer, no pressure. Every answer comes with an explanation —
+           including the ones you get right.</p>
+      </div>
+
+      <div class="quiz" id="quiz">
+        <div class="quiz-progress"><span id="quizBar"></span></div>
+
+        <div id="quizStage">
+          <div class="quiz-q" id="quizQuestion"></div>
+          <div class="quiz-options" id="quizOptions"></div>
+          <div class="quiz-explain" id="quizExplain"></div>
+          <div class="quiz-foot">
+            <span class="quiz-score" id="quizScore"></span>
+            <button class="btn btn-primary" id="quizNext" style="visibility:hidden;">Next question →</button>
+          </div>
+        </div>
+
+        <div id="quizResult" style="display:none;"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <h4>Cosmos</h4>
+        <p style="font-size:.92rem;">An offline-first astronomy guide built with plain
+           HTML, CSS and JavaScript.</p>
+      </div>
+      <div>
+        <h4>Explore</h4>
+        <ul>
+          <li><a href="planets.html">Planets</a></li>
+          <li><a href="constellations.html">Constellations</a></li>
+          <li><a href="moon.html">Moon Phases</a></li>
+          <li><a href="facts.html">Facts &amp; Quiz</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Go deeper</h4>
+        <ul>
+          <li><a href="https://science.nasa.gov/" target="_blank" rel="noopener">NASA Science</a></li>
+          <li><a href="https://www.space.com/" target="_blank" rel="noopener">Space.com</a></li>
+          <li><a href="https://hubblesite.org/" target="_blank" rel="noopener">HubbleSite</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      Built with HTML, CSS &amp; JavaScript · <span class="js-year"></span> ·
+      Planet and star data from NASA planetary fact sheets
+    </div>
+  </div>
+</footer>
+
+<script src="js/starfield.js"></script>
+<script src="js/main.js"></script>
+<script src="js/facts.js"></script>
+</body>
+</html>

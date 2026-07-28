@@ -1,0 +1,27 @@
+# ===================================================================
+# Astronomy site (v1) — a static site with no build step.
+#
+# Almost nothing needs ignoring here, because there is almost nothing
+# generated. That is worth noticing: a simple project has a short
+# .gitignore, and that is a good sign, not a missing one.
+# ===================================================================
+
+# Secrets
+.env
+.env.local
+
+# Netlify's local link file — keeps deploys from silently retargeting.
+.netlify/
+
+# Logs
+*.log
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini

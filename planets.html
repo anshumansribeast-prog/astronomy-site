@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Planets — Cosmos</title>
+  <meta name="description" content="All eight planets of the solar system with size, distance, orbital period, moons and key facts — plus a true-to-scale view.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<canvas id="starfield" aria-hidden="true"></canvas>
+
+<header class="site-header">
+  <nav class="wrap nav" aria-label="Main">
+    <a class="logo" href="index.html"><span class="logo-mark" aria-hidden="true"></span> COSMOS</a>
+    <button class="nav-toggle" aria-expanded="false" aria-controls="navLinks" aria-label="Toggle menu">☰</button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="planets.html">Planets</a></li>
+      <li><a href="constellations.html">Constellations</a></li>
+      <li><a href="moon.html">Moon</a></li>
+      <li><a href="facts.html">Facts &amp; Quiz</a></li>
+      <li><a href="about.html">About</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main>
+  <section>
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">The Solar System</span>
+        <h2>Eight <span class="grad">Worlds</span></h2>
+        <p>
+          Four small rocky planets, two gas giants and two ice giants — all orbiting one
+          ordinary star. Click any planet to open its numbers. Every world below is drawn
+          in pure CSS: no images are loaded.
+        </p>
+      </div>
+
+      <!-- Search + filter + scale toggle -->
+      <div class="toolbar">
+        <div class="search-box">
+          <span class="icon" aria-hidden="true">🔍</span>
+          <label class="sr-only" for="planetSearch">Search planets</label>
+          <input type="search" id="planetSearch" placeholder="Search planets… try &quot;rings&quot; or &quot;Mars&quot;" autocomplete="off">
+        </div>
+        <button class="chip" data-filter="all" aria-pressed="true">All</button>
+        <button class="chip" data-filter="rocky" aria-pressed="false">Rocky</button>
+        <button class="chip" data-filter="gas" aria-pressed="false">Gas giants</button>
+        <button class="chip" data-filter="ice" aria-pressed="false">Ice giants</button>
+        <button class="chip" id="scaleToggle" aria-pressed="false">↔ Show true scale</button>
+      </div>
+
+      <!-- planets.js fills this in -->
+      <div class="grid planet-grid" id="planetGrid"></div>
+
+      <div class="empty-state" id="planetEmpty">
+        <span class="big" aria-hidden="true">🔭</span>
+        No planets match that search. Try clearing the box, or check the spelling.
+      </div>
+
+      <p class="scale-note" id="scaleNote">
+        Sizes are adjusted so every planet stays visible — <strong>not to scale</strong>.
+        Press the button above to see the real proportions.
+      </p>
+    </div>
+  </section>
+
+  <!-- A little context section under the grid -->
+  <section>
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">Worth knowing</span>
+        <h2>Why the planets split into groups</h2>
+      </div>
+      <div class="grid grid-3">
+        <div class="card reveal">
+          <div class="card-icon" aria-hidden="true">🪨</div>
+          <h3>Rocky planets</h3>
+          <p>Mercury, Venus, Earth and Mars formed close to the young Sun, where it was too
+             hot for ice to survive. Only heavy rock and metal could condense, so these
+             worlds ended up small, dense and solid.</p>
+        </div>
+        <div class="card reveal">
+          <div class="card-icon" aria-hidden="true">🌪️</div>
+          <h3>Gas giants</h3>
+          <p>Beyond the "frost line", ice survived and planets grew huge fast. Jupiter and
+             Saturn got big enough to hold onto hydrogen and helium — the lightest and most
+             common elements in the universe. They have no solid surface to stand on.</p>
+        </div>
+        <div class="card reveal">
+          <div class="card-icon" aria-hidden="true">🧊</div>
+          <h3>Ice giants</h3>
+          <p>Uranus and Neptune formed further out and later, so they captured much less
+             hydrogen. They are mostly water, ammonia and methane — and it is the methane
+             that makes them look blue.</p>
+        </div>
+      </div>
+      <p class="scale-note">
+        Moon counts are confirmed moons and change as astronomers find more —
+        Saturn gained 128 in 2025. Figures follow NASA's planetary fact sheets.
+      </p>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <h4>Cosmos</h4>
+        <p style="font-size:.92rem;">An offline-first astronomy guide built with plain
+           HTML, CSS and JavaScript.</p>
+      </div>
+      <div>
+        <h4>Explore</h4>
+        <ul>
+          <li><a href="planets.html">Planets</a></li>
+          <li><a href="constellations.html">Constellations</a></li>
+          <li><a href="moon.html">Moon Phases</a></li>
+          <li><a href="facts.html">Facts &amp; Quiz</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Go deeper</h4>
+        <ul>
+          <li><a href="https://science.nasa.gov/solar-system/planets/" target="_blank" rel="noopener">NASA — All About the Planets</a></li>
+          <li><a href="https://nssdc.gsfc.nasa.gov/planetary/factsheet/" target="_blank" rel="noopener">NASA Planetary Fact Sheets</a></li>
+          <li><a href="https://www.space.com/" target="_blank" rel="noopener">Space.com</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      Built with HTML, CSS &amp; JavaScript · <span class="js-year"></span> ·
+      Planet and star data from NASA planetary fact sheets
+    </div>
+  </div>
+</footer>
+
+<script src="js/starfield.js"></script>
+<script src="js/main.js"></script>
+<script src="js/planets.js"></script>
+</body>
+</html>

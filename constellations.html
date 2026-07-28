@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Constellations — Cosmos</title>
+  <meta name="description" content="Twelve major constellations with star maps, the myths behind them, and the season to look for each one.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<canvas id="starfield" aria-hidden="true"></canvas>
+
+<header class="site-header">
+  <nav class="wrap nav" aria-label="Main">
+    <a class="logo" href="index.html"><span class="logo-mark" aria-hidden="true"></span> COSMOS</a>
+    <button class="nav-toggle" aria-expanded="false" aria-controls="navLinks" aria-label="Toggle menu">☰</button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="planets.html">Planets</a></li>
+      <li><a href="constellations.html">Constellations</a></li>
+      <li><a href="moon.html">Moon</a></li>
+      <li><a href="facts.html">Facts &amp; Quiz</a></li>
+      <li><a href="about.html">About</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main>
+  <section>
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Patterns in the dark</span>
+        <h2>Twelve <span class="grad">Constellations</span></h2>
+        <p>
+          A constellation isn't a real group of stars — the stars in each pattern are usually
+          nowhere near each other, just lined up by chance from where we happen to sit.
+          What's real is the story people told about the shape. Click any map to read it.
+        </p>
+      </div>
+
+      <div class="toolbar">
+        <div class="search-box">
+          <span class="icon" aria-hidden="true">🔍</span>
+          <label class="sr-only" for="conSearch">Search constellations</label>
+          <input type="search" id="conSearch" placeholder="Search constellations, stars or myths…" autocomplete="off">
+        </div>
+        <button class="chip" data-season="all" aria-pressed="true">All</button>
+        <button class="chip" data-season="Spring" aria-pressed="false">Spring</button>
+        <button class="chip" data-season="Summer" aria-pressed="false">Summer</button>
+        <button class="chip" data-season="Autumn" aria-pressed="false">Autumn</button>
+        <button class="chip" data-season="Winter" aria-pressed="false">Winter</button>
+      </div>
+
+      <div class="grid con-grid" id="conGrid"></div>
+
+      <div class="empty-state" id="conEmpty">
+        <span class="big" aria-hidden="true">🌌</span>
+        Nothing in the sky matches that. Try a different word, or press "All".
+      </div>
+
+      <p class="scale-note">
+        Star maps are plotted from real relative positions and brightnesses.
+        Seasons given are for the northern hemisphere unless noted.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">Before you go outside</span>
+        <h2>Four things that make stargazing work</h2>
+      </div>
+      <div class="grid grid-4">
+        <div class="card reveal">
+          <div class="card-icon" aria-hidden="true">🌑</div>
+          <h3>Wait for dark eyes</h3>
+          <p>Your eyes need about 20–30 minutes to fully adapt. One glance at a phone
+             screen resets the clock. Use a red light if you need one.</p>
+        </div>
+        <div class="card reveal">
+          <div class="card-icon" aria-hidden="true">🏙️</div>
+          <h3>Escape the glow</h3>
+          <p>City lighting washes out all but the brightest stars. Even a short trip
+             away from streetlights can multiply how many you can see.</p>
+        </div>
+        <div class="card reveal">
+          <div class="card-icon" aria-hidden="true">🌗</div>
+          <h3>Mind the Moon</h3>
+          <p>A full Moon is a floodlight. For faint stars and the Milky Way, go out
+             near a new Moon — check the Moon page to find one.</p>
+        </div>
+        <div class="card reveal">
+          <div class="card-icon" aria-hidden="true">👁️</div>
+          <h3>Look slightly away</h3>
+          <p>The edges of your vision are more light-sensitive than the centre. To see
+             a faint object better, look just beside it. It's called averted vision.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- The pop-up panel, filled in by constellations.js -->
+<div class="modal" id="conModal" role="dialog" aria-modal="true" aria-label="Constellation details">
+  <div class="modal-panel">
+    <button class="modal-close" aria-label="Close">✕</button>
+    <div id="conModalBody"></div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <h4>Cosmos</h4>
+        <p style="font-size:.92rem;">An offline-first astronomy guide built with plain
+           HTML, CSS and JavaScript.</p>
+      </div>
+      <div>
+        <h4>Explore</h4>
+        <ul>
+          <li><a href="planets.html">Planets</a></li>
+          <li><a href="constellations.html">Constellations</a></li>
+          <li><a href="moon.html">Moon Phases</a></li>
+          <li><a href="facts.html">Facts &amp; Quiz</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Go deeper</h4>
+        <ul>
+          <li><a href="https://science.nasa.gov/skywatching/" target="_blank" rel="noopener">NASA Skywatching</a></li>
+          <li><a href="https://www.iau.org/public/themes/constellations/" target="_blank" rel="noopener">IAU — The Constellations</a></li>
+          <li><a href="https://www.space.com/" target="_blank" rel="noopener">Space.com</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      Built with HTML, CSS &amp; JavaScript · <span class="js-year"></span> ·
+      Planet and star data from NASA planetary fact sheets
+    </div>
+  </div>
+</footer>
+
+<script src="js/starfield.js"></script>
+<script src="js/main.js"></script>
+<script src="js/constellations.js"></script>
+</body>
+</html>
