@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Quiz — Cosmos</title>
+  <meta name="description" content="A four-level astronomy quiz. Work up from Stargazer to Astronomer — each level unlocks the next, and the questions get harder as you climb.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<canvas id="starfield" aria-hidden="true"></canvas>
+
+<header class="site-header">
+  <nav class="wrap nav" aria-label="Main">
+    <a class="logo" href="index.html"><span class="logo-mark" aria-hidden="true"></span> COSMOS</a>
+    <button class="nav-toggle" aria-expanded="false" aria-controls="navLinks" aria-label="Toggle menu">☰</button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="planets.html">Planets</a></li>
+      <li><a href="constellations.html">Constellations</a></li>
+      <li><a href="moon.html">Moon</a></li>
+      <li><a href="facts.html">Facts</a></li>
+      <li><a href="quiz.html" aria-current="page">Quiz</a></li>
+      <li><a href="about.html">About</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main>
+  <section>
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Four levels · earn your rank</span>
+        <h2>Become an <span class="grad">Astronomer</span></h2>
+        <p>
+          Start as a Stargazer and work your way up. Each level is locked until
+          you pass the one before it, and the questions get genuinely harder as
+          you climb. Score 75% to pass.
+        </p>
+      </div>
+
+      <div id="rankBanner"></div>
+
+      <!-- ============ LEVEL CHOOSER ============ -->
+      <div id="levelChooser">
+        <div class="level-grid" id="levelGrid"></div>
+
+        <p class="quiz-note">
+          Every answer comes with an explanation — including the ones you get
+          right, because guessing correctly and knowing the answer look
+          identical from the outside.
+          <button class="linklike" id="qReset" type="button">Reset my progress</button>
+        </p>
+      </div>
+
+      <!-- ============ THE QUIZ ITSELF ============ -->
+      <div class="quiz" id="quizStage" style="display:none;">
+        <div class="quiz-head">
+          <strong id="qLevelTitle"></strong>
+          <button class="linklike" id="qQuit" type="button">← Back to levels</button>
+        </div>
+
+        <div class="quiz-progress"><span id="qBar"></span></div>
+
+        <div class="quiz-q" id="qQuestion"></div>
+        <div class="quiz-options" id="qOptions"></div>
+        <div class="quiz-explain" id="qExplain"></div>
+
+        <div class="quiz-foot">
+          <span class="quiz-score" id="qScore"></span>
+          <button class="btn btn-primary" id="qNext" style="visibility:hidden;">Next question →</button>
+        </div>
+      </div>
+
+      <div id="qResult" style="display:none;"></div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <h4>Cosmos</h4>
+        <p style="font-size:.92rem;">An offline-first astronomy guide built with plain
+           HTML, CSS and JavaScript.</p>
+      </div>
+      <div>
+        <h4>Explore</h4>
+        <ul>
+          <li><a href="planets.html">Planets</a></li>
+          <li><a href="constellations.html">Constellations</a></li>
+          <li><a href="moon.html">Moon Phases</a></li>
+          <li><a href="quiz.html">Quiz</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Go deeper</h4>
+        <ul>
+          <li><a href="https://science.nasa.gov/" target="_blank" rel="noopener">NASA Science</a></li>
+          <li><a href="https://www.space.com/" target="_blank" rel="noopener">Space.com</a></li>
+          <li><a href="https://hubblesite.org/" target="_blank" rel="noopener">HubbleSite</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      Built with HTML, CSS &amp; JavaScript · <span class="js-year"></span> ·
+      Planet and star data from NASA planetary fact sheets
+    </div>
+  </div>
+</footer>
+
+<script src="js/starfield.js"></script>
+<script src="js/main.js"></script>
+<script src="js/quiz.js"></script>
+</body>
+</html>

@@ -103,3 +103,49 @@
     el.textContent = new Date().getFullYear();
   });
 })();
+
+/* ===================================================================
+   RANK PILL — shows your quiz rank in the header on EVERY page.
+
+   main.js loads everywhere, quiz.js only loads on quiz.html, so this
+   reads localStorage directly rather than calling into quiz.js. It has
+   to stand on its own.
+
+   If there is no rank yet it adds nothing at all. An empty badge
+   saying "no rank" would be clutter on every page of the site.
+   =================================================================== */
+(function () {
+  "use strict";
+
+  var RANK_COLOURS = {
+    "Stargazer":     "#2dd4bf",
+    "Observer":      "#60a5fa",
+    "Sky Navigator": "#a78bfa",
+    "Astronomer":    "#fbbf24"
+  };
+
+  var rank = null;
+  try {
+    var raw = localStorage.getItem("cosmos_quiz_progress_v1");
+    if (raw) rank = JSON.parse(raw).rank;
+  } catch (e) {
+    return;                 // storage blocked — just don't show a badge
+  }
+  if (!rank || !RANK_COLOURS[rank]) return;
+
+  var menu = document.getElementById("navLinks");
+  if (!menu) return;
+
+  var li = document.createElement("li");
+  var a = document.createElement("a");
+  a.className = "nav-rank";
+  a.href = "quiz.html";
+  a.title = "Your Cosmos rank — earned in the quiz";
+  a.textContent = "\u2605 " + rank;
+  a.style.background = "color-mix(in srgb, " + RANK_COLOURS[rank] + " 16%, transparent)";
+  a.style.borderColor = RANK_COLOURS[rank];
+  a.style.color = RANK_COLOURS[rank];
+
+  li.appendChild(a);
+  menu.appendChild(li);
+})();
