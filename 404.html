@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lost in space — Cosmos</title>
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .nf { max-width: 42rem; margin: 0 auto; padding: 5rem 1.25rem 6rem; text-align: center; }
+    .nf .code { font-size: 4.5rem; font-weight: 700; line-height: 1; opacity: .3; margin-bottom: .4rem; }
+    .nf h1 { font-size: 2rem; margin: 0 0 .8rem; }
+    .nf p { margin: 0 auto 1rem; max-width: 34rem; }
+    .nf .where { font-family: ui-monospace, Consolas, monospace; font-size: .9rem;
+                 word-break: break-all; opacity: .7; }
+    .nf .links { display: flex; flex-wrap: wrap; gap: .6rem; justify-content: center; margin-top: 2.2rem; }
+    .nf .links a { display: inline-block; padding: .6rem 1.1rem; border-radius: 999px;
+                   border: 1px solid rgba(148,163,184,.4); text-decoration: none; }
+  </style>
+</head>
+<body>
+
+<canvas id="starfield" aria-hidden="true"></canvas>
+
+<header class="site-header">
+  <nav class="wrap nav" aria-label="Main">
+    <a class="logo" href="/index.html"><span class="logo-mark" aria-hidden="true"></span> COSMOS</a>
+  </nav>
+</header>
+
+<main class="nf">
+  <div class="code">404</div>
+  <h1>Nothing orbits at that address</h1>
+
+  <p>The link was probably mistyped, or it pointed at a page that has since moved.
+     Nothing is broken — this address just doesn't exist.</p>
+
+  <p class="where">you asked for: <span id="what">…</span></p>
+
+  <p><strong>Worth checking:</strong> if you typed <code>www.</code> at the start,
+     remove it. This site lives at <code>cosmos-anshuman.netlify.app</code> with no
+     <code>www</code>, and adding one stops the page loading at all.</p>
+
+  <div class="links">
+    <a href="/index.html">Home</a>
+    <a href="/planets.html">Planets</a>
+    <a href="/constellations.html">Constellations</a>
+    <a href="/moon.html">Moon</a>
+    <a href="/quiz.html">Quiz</a>
+  </div>
+</main>
+
+<script src="/js/starfield.js"></script>
+<script>
+  document.getElementById("what").textContent = location.pathname + location.search;
+</script>
+
+</body>
+</html>
