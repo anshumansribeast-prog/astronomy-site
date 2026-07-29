@@ -1,0 +1,33 @@
+# ===================================================================
+# nginx.conf.template — how the container answers a request.
+#
+# Ends in .template on purpose: the official nginx image runs every
+# file in /etc/nginx/templates/*.template through envsubst at startup
+# and writes the result to /etc/nginx/conf.d/, substituting real
+# environment variables (like ${PORT} below) while leaving nginx's own
+# $uri, $host and friends alone — those aren't OS environment
+# variables, so envsubst never touches them. That is what makes this
+# safe rather than a footgun: only what Docker actually set gets
+# replaced.
+# ===================================================================
+
+server {
+    listen ${PORT};
+    server_name _;
+
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # The site already ships its own dark, in-universe 404 page —
+    # nginx's default is a bare white "404 Not Found". Use the one
+    # that was actually designed for this site.
+    error_page 404 /404.html;
+
+    location / {
+        # Every link in this site already spells out the .html
+        # extension (href="/planets.html", not href="/planets"), so
+        # there is no clean-URL rewriting to do here — just serve the
+        # file that was asked for, or fall through to the 404 page.
+        try_files $uri $uri/ =404;
+    }
+}
