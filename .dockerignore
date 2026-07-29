@@ -1,0 +1,30 @@
+# ===================================================================
+# .dockerignore — what NEVER goes into the image.
+#
+# This is not the same job as .gitignore. Git decides what gets
+# SHARED; this decides what gets BUILT INTO a thing that runs on a
+# stranger's machine. Every extra file here makes the image bigger and
+# slower to pull, and tells anyone who pulls it more than they need to
+# know.
+# ===================================================================
+
+# Version control history. Megabytes, and none of it runs.
+.git
+.gitignore
+.github
+
+# Host-specific link files.
+.netlify/
+
+# Editors and OS junk.
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
+
+# This Dockerfile's own build context has no README/docs worth shipping
+# into a container whose only job is to serve HTML.
+*.md
