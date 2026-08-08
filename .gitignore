@@ -1,14 +1,18 @@
 # ===================================================================
-# Astronomy site (v1) — a static site with no build step.
-#
-# Almost nothing needs ignoring here, because there is almost nothing
-# generated. That is worth noticing: a simple project has a short
-# .gitignore, and that is a good sign, not a missing one.
+# Astronomy site — mostly static, with a small Node server for
+# accounts. Almost nothing needs ignoring, and that is a good sign.
 # ===================================================================
 
 # Secrets
 .env
 .env.local
+
+# The account/session database — real people's data, never committed.
+# Schema (server/db/schema.sql) is tracked; the data it produces isn't.
+/data/
+*.db
+*.db-shm
+*.db-wal
 
 # Netlify's local link file — keeps deploys from silently retargeting.
 .netlify/

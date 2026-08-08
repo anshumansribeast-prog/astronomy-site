@@ -1,54 +1,58 @@
 # ===================================================================
 # Dockerfile — the recipe for building the astronomy site into an image.
 #
-# This site is plain HTML/CSS/JS with no build step and no server code
-# of its own — the only job a container has to do is hand out files.
-# nginx is the standard tool for exactly that: small, fast, and it has
-# already been solving "serve a folder of static files well" longer
-# than most alternatives have existed.
+# This used to be nginx serving plain files — accurate right up until
+# real accounts needed a server to actually check a password against.
+# Now the same site is served BY that server (server/app.js), which
+# hands out the static files itself and answers /api/auth/* — one
+# process doing both jobs, same as cosmos-v2's Dockerfile does it, and
+# for the same reason: node:sqlite + node:crypto are built into Node,
+# so this still needs zero npm installs despite gaining a real backend.
 #
 # Build it:  docker build -t astronomy-site .
-# Run it:    docker run -p 8080:8080 astronomy-site
+# Run it:    docker run -p 8899:8899 -v astronomy-data:/data astronomy-site
 # ===================================================================
 
-# PIN THE VERSION. Not `nginx:latest` — see cosmos-v2's Dockerfile for
-# why an unpinned tag makes a build silently different next month.
-# Alpine again, for the same reason: smaller image, faster pull.
-FROM nginx:1.27-alpine
+FROM node:24-alpine
 
-# The port nginx listens on. nginx.conf.template reads this at
-# container start (see that file for how); this just states the
-# default so a reader does not have to go looking for it.
-ENV PORT=8080
+WORKDIR /app
 
-# The template that becomes the real nginx config. Files placed in
-# /etc/nginx/templates/*.template are run through envsubst by the base
-# image's own startup script before nginx ever reads them — nothing
-# extra to install for that to work.
-COPY nginx.conf.template /etc/nginx/templates/default.conf.template
+ENV NODE_ENV=production
+ENV PORT=8899
 
-# THE SITE ITSELF.
-#
-# Everything nginx serves lives under /usr/share/nginx/html by
-# convention in this image. Named explicitly rather than `COPY . .` —
-# this is the recipe's own build context too (Dockerfile, this
-# template), and neither of those is a page anyone should be able to
-# request.
-WORKDIR /usr/share/nginx/html
-COPY *.html ./
-COPY css ./css
-COPY js ./js
+# Where the account/session database lives. A container's own
+# filesystem is thrown away on restart — anything that must survive
+# has to live on a mounted volume, attached at a path given through an
+# environment variable so nothing in the code has to know it in advance.
+ENV ASTRO_DATA_DIR=/data
 
-# Documentation, not a firewall rule — see cosmos-v2's Dockerfile for
-# why EXPOSE alone publishes nothing.
-EXPOSE 8080
+# No dependencies to install (package.json declares none), so there's
+# no separate install-then-copy step to cache — just copy the source.
+COPY --chown=node:node package.json ./
+COPY --chown=node:node server ./server
+COPY --chown=node:node *.html ./
+COPY --chown=node:node css ./css
+COPY --chown=node:node js ./js
 
-# IS IT ACTUALLY ALIVE? A container that started is not the same as a
-# server that answers — ask it the way a visitor would.
-HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
-  CMD wget -q -O /dev/null "http://127.0.0.1:${PORT}/" || exit 1
+# Must exist and be writable before the process drops root — a
+# non-root user can't create a folder at the filesystem root itself.
+RUN mkdir -p /data && chown -R node:node /data
+VOLUME ["/data"]
 
-# The nginx base image's own CMD already runs nginx correctly as PID 1
-# in the foreground with signals forwarded — restating it here is just
-# being explicit about what actually runs.
-CMD ["nginx", "-g", "daemon off;"]
+# Don't run as root — the `node` base image ships a `node` user for
+# exactly this, and using it removes a whole class of "how bad could
+# it get" if a hole is ever found in the server.
+USER node
+
+EXPOSE 8899
+
+# A process that's running isn't the same as a server that's working —
+# ask it the way a visitor's browser would, through the real route.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD node -e "fetch('http://127.0.0.1:'+(process.env.PORT||8899)+'/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+
+# Exec form, not shell form — this makes Node process 1 so it receives
+# SIGTERM directly. In shell form Node would be a child of /bin/sh,
+# which doesn't forward signals, and the clean shutdown in index.js
+# would never fire on a redeploy.
+CMD ["node", "server/index.js"]
