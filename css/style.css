@@ -1026,3 +1026,110 @@ input[type="date"]:focus { outline: none; border-color: var(--teal); }
                      text-transform: uppercase; color: var(--muted); margin-top: .15rem; }
 .cta-note { font-size: .92rem; color: var(--muted); margin-bottom: 1.4rem; }
 
+/* ===================================================================
+   20. BEAST — chat page (js/chat.js, rendered into #beastChat on
+   beast.html). Its own page rather than a floating overlay, so it
+   never covers content on the pages you're actually reading.
+   =================================================================== */
+.beast-page {
+  display: flex; flex-direction: column;
+  height: min(560px, calc(100vh - 16rem));
+  min-height: 380px;
+  background: var(--grad-panel);
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--line-bright);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow), var(--glow);
+  overflow: hidden;
+}
+
+.beast-log {
+  flex: 1; overflow-y: auto; padding: 1.1rem 1.2rem;
+  display: flex; flex-direction: column; gap: .6rem;
+}
+.beast-bubble {
+  max-width: 78%; padding: .65rem .9rem; border-radius: var(--radius-sm);
+  font-size: .92rem; line-height: 1.55; white-space: pre-line;
+}
+.beast-bot {
+  align-self: flex-start;
+  background: rgba(255, 255, 255, .06);
+  border: 1px solid var(--line);
+}
+.beast-user {
+  align-self: flex-end;
+  background: var(--grad-cosmic);
+  color: #07091b;
+}
+.beast-thinking { opacity: .6; font-style: italic; }
+
+.beast-form {
+  display: flex; gap: .6rem; padding: .9rem 1rem;
+  border-top: 1px solid var(--line);
+}
+.beast-form input {
+  flex: 1; min-width: 0;
+  background: rgba(255, 255, 255, .05);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: .65rem 1rem;
+  color: var(--text);
+  font: inherit; font-size: .92rem;
+}
+.beast-form input:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+.beast-send { padding: .65rem 1.2rem; font-size: .92rem; }
+
+/* ===================================================================
+   21. ACCOUNT — sign-in/sign-up (js/account.js), on every page's nav
+   and on the full account.html page.
+   =================================================================== */
+#navAccount a {
+  display: inline-block;
+  padding: .45rem 1rem;
+  border-radius: 999px;
+  border: 1px solid var(--line-bright);
+  font-size: .88rem;
+  text-decoration: none;
+}
+#navAccount a:hover { background: rgba(255, 255, 255, .06); }
+
+.btn-quiet {
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--text);
+}
+.btn-quiet:hover { background: rgba(255, 255, 255, .06); }
+
+.account-panel {
+  max-width: 26rem;
+  margin: 0 auto;
+  padding: 1.6rem;
+  background: var(--grad-panel);
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--line-bright);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow), var(--glow);
+}
+.account-panel .who { font-size: 1.05rem; margin-bottom: .3rem; }
+.account-panel .panel-hint { font-size: .86rem; color: var(--muted); margin-bottom: 1rem; }
+
+.account-form { display: flex; flex-direction: column; gap: .9rem; }
+.account-form .field {
+  display: flex; flex-direction: column; gap: .35rem;
+  font-size: .86rem; color: var(--muted);
+}
+.account-form input {
+  background: rgba(255, 255, 255, .05);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: .65rem .85rem;
+  color: var(--text);
+  font: inherit; font-size: .94rem;
+}
+.account-form input:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+.account-form .actions { display: flex; gap: .6rem; flex-wrap: wrap; }
+.form-msg { min-height: 1.2em; font-size: .86rem; }
+.form-msg.is-error { color: #ff8080; }
+
+@media (max-width: 560px) { .cta-ladder li { flex-basis: 100%; } }
+
