@@ -111,6 +111,65 @@
       " · " + p.temp + "\n" + fact;
   }
 
+  /* Someone who names a planet AND a specific field ("how far is Mars",
+     "how many moons does Jupiter have") gets a longer answer about just
+     that field, with an Earth comparison where that's meaningful, instead
+     of the generic planetReply() summary. Ask a bare planet name and you
+     still get the summary — this only kicks in on top of a field word. */
+  function findEarth() {
+    if (typeof PLANETS === "undefined") return null;
+    return PLANETS.find(function (p) { return p.name === "Earth"; });
+  }
+  var FIELD_QUERIES = [
+    { keys: ["diameter", "size", "big", "large", "wide"], detail: function (p) {
+      var earth = findEarth();
+      var cmp = "";
+      if (earth && p.name !== "Earth") {
+        cmp = p.diameter >= earth.diameter
+          ? " — about " + (p.diameter / earth.diameter).toFixed(1) + "x wider than Earth."
+          : " — about " + (earth.diameter / p.diameter).toFixed(1) + "x narrower than Earth.";
+      }
+      return p.name + " is " + p.diameter.toLocaleString() + " km across" + cmp;
+    } },
+    { keys: ["distance", "far", "away", "close"], detail: function (p) {
+      return p.name + " orbits about " + p.distanceKm.toLocaleString() +
+        " million km from the Sun on average (" + p.distanceAu + " AU — " +
+        p.distanceAu + "x Earth's distance from the Sun).";
+    } },
+    { keys: ["moon", "moons"], detail: function (p) {
+      return p.moons === 0
+        ? p.name + " has no confirmed moons."
+        : p.name + " has " + p.moons.toLocaleString() + " confirmed moon" + (p.moons === 1 ? "" : "s") + ".";
+    } },
+    { keys: ["year", "years", "orbit", "orbital period"], detail: function (p) {
+      return "A year on " + p.name + " (one full orbit of the Sun) takes " + p.year + ".";
+    } },
+    { keys: ["day", "days", "rotation", "spin", "rotate"], detail: function (p) {
+      return "A day on " + p.name + " (one full spin) takes " + p.day + ".";
+    } },
+    { keys: ["temperature", "temp", "hot", "cold"], detail: function (p) {
+      return "Surface temperatures on " + p.name + " range " + p.temp + ".";
+    } },
+    { keys: ["gravity", "weight", "heavy"], detail: function (p) {
+      var earthG = 9.8;
+      var g = parseFloat(p.gravity);
+      var cmp = p.name !== "Earth" && !isNaN(g)
+        ? " — about " + (g / earthG).toFixed(1) + "x Earth's gravity."
+        : "";
+      return "Gravity on " + p.name + " is " + p.gravity + cmp;
+    } },
+    { keys: ["type", "rocky", "gas giant", "made of"], detail: function (p) {
+      var article = /^[aeiou]/i.test(p.type) ? "an" : "a";
+      return p.name + " is " + article + " " + p.type + " planet (" + p.tag + ").";
+    } }
+  ];
+  function fieldReply(p, lower) {
+    var hit = FIELD_QUERIES.find(function (fq) {
+      return fq.keys.some(function (k) { return hasWord(lower, k); });
+    });
+    return hit ? hit.detail(p) : null;
+  }
+
   /* Same CONSTELLATIONS array constellations.html draws its star maps from. */
   function findConstellation(lower) {
     if (typeof CONSTELLATIONS === "undefined") return null;
@@ -167,7 +226,7 @@
     var lower = text.toLowerCase();
 
     var planet = findPlanet(lower);
-    if (planet) return planetReply(planet);
+    if (planet) return fieldReply(planet, lower) || planetReply(planet);
 
     var constellation = findConstellation(lower);
     if (constellation) return constellationReply(constellation);
