@@ -1062,6 +1062,11 @@ input[type="date"]:focus { outline: none; border-color: var(--teal); }
   color: #07091b;
 }
 .beast-thinking { opacity: .6; font-style: italic; }
+.beast-apod-img {
+  display: block; width: 100%; max-width: 100%;
+  margin-top: .5rem; border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+}
 
 .beast-form {
   display: flex; gap: .6rem; padding: .9rem 1rem;

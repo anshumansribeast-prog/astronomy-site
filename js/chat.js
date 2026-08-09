@@ -45,18 +45,34 @@
   var form = container.querySelector("#beastForm");
   var input = container.querySelector("#beastInput");
 
-  function addMessage(text, from) {
+  function addMessage(text, from, imageUrl) {
     var bubble = document.createElement("div");
     bubble.className = "beast-bubble beast-" + from;
     bubble.textContent = text;
+    if (imageUrl) {
+      var img = document.createElement("img");
+      img.src = imageUrl;
+      img.alt = "NASA Astronomy Picture of the Day";
+      img.className = "beast-apod-img";
+      bubble.appendChild(img);
+    }
     log.appendChild(bubble);
     log.scrollTop = log.scrollHeight;
   }
 
+  function showThinking() {
+    var thinking = document.createElement("div");
+    thinking.className = "beast-bubble beast-bot beast-thinking";
+    thinking.textContent = "Thinking…";
+    log.appendChild(thinking);
+    log.scrollTop = log.scrollHeight;
+    return thinking;
+  }
+
   function greet(user) {
     var hello = user
-      ? "Hey " + user.username + "! Ask me about a planet, a constellation, the Moon, or say 'fact' for something strange and true."
-      : "Hey, I'm Beast! Ask me about a planet, a constellation, the Moon, or say 'fact' for something strange and true.";
+      ? "Hey " + user.username + "! Ask me about a planet, a constellation, the Moon, say 'fact' for something strange and true, or 'picture of the day' for NASA's latest."
+      : "Hey, I'm Beast! Ask me about a planet, a constellation, the Moon, say 'fact' for something strange and true, or 'picture of the day' for NASA's latest.";
     addMessage(hello, "bot");
   }
 
@@ -213,12 +229,61 @@
       .finally(function () { clearTimeout(timer); });
   }
 
+  /* ---------------- live NASA data: Astronomy Picture of the Day ----------------
+     Real API call, unlike everything else above (which reads this site's own
+     baked-in data). NASA's APOD endpoint allows CORS and works straight from
+     the browser with no server involved. DEMO_KEY is NASA's shared public key
+     (30 req/hour, 50/day per IP) — fine for a small site; swap in a free
+     personal key from https://api.nasa.gov/ if that limit ever gets hit.
+  */
+  var NASA_API_KEY = "DEMO_KEY";
+  var NASA_APOD_URL = "https://api.nasa.gov/planetary/apod?api_key=" + NASA_API_KEY;
+  var NASA_TIMEOUT_MS = 15000;
+
+  var APOD_PHRASES = ["picture of the day", "photo of the day", "apod", "space picture", "nasa picture", "today's picture"];
+  function isApodRequest(lower) {
+    return APOD_PHRASES.some(function (phrase) { return hasWord(lower, phrase); });
+  }
+
+  function fetchApod() {
+    var controller = new AbortController();
+    var timer = setTimeout(function () { controller.abort(); }, NASA_TIMEOUT_MS);
+
+    return fetch(NASA_APOD_URL, { signal: controller.signal })
+      .then(function (resp) {
+        if (!resp.ok) throw new Error("NASA HTTP " + resp.status);
+        return resp.json();
+      })
+      .then(function (data) {
+        var text = (data.title || "NASA's Astronomy Picture of the Day") +
+          (data.date ? " (" + data.date + ")" : "") + "\n" +
+          (data.explanation || "");
+        var image = data.media_type === "image" ? (data.url || data.hdurl) : null;
+        if (data.media_type === "video") text += "\nToday's is a video — see it at " + data.url;
+        return { text: text, image: image };
+      })
+      .catch(function () {
+        return { text: "Couldn't reach NASA's picture-of-the-day service right now — try again in a bit.", image: null };
+      })
+      .finally(function () { clearTimeout(timer); });
+  }
+
   form.addEventListener("submit", function (e) {
     e.preventDefault();
     var text = input.value.trim();
     if (!text) return;
     addMessage(text, "user");
     input.value = "";
+    var lower = text.toLowerCase();
+
+    if (isApodRequest(lower)) {
+      var apodThinking = showThinking();
+      fetchApod().then(function (result) {
+        apodThinking.remove();
+        addMessage(result.text, "bot", result.image);
+      });
+      return;
+    }
 
     var reply = ruleReply(text);
     if (reply) {
@@ -226,12 +291,7 @@
       return;
     }
 
-    var thinking = document.createElement("div");
-    thinking.className = "beast-bubble beast-bot beast-thinking";
-    thinking.textContent = "Thinking…";
-    log.appendChild(thinking);
-    log.scrollTop = log.scrollHeight;
-
+    var thinking = showThinking();
     askOllama(text).then(function (ollamaReply) {
       thinking.remove();
       addMessage(ollamaReply || DEFAULT_REPLY, "bot");
