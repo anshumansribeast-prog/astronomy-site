@@ -86,10 +86,21 @@ export function logout(req, res, db) {
   send(res, 200, { data: { signed_out: true } });
 }
 
+// One username, set via the ADMIN_USERNAME env var at deploy time, gets
+// isAdmin: true — everyone else is a normal account. There's no roles
+// table; this is deliberately the simplest thing that works for "just
+// me" access to /backend.
+const ADMIN_USERNAME = (process.env.ADMIN_USERNAME || "").toLowerCase();
+
+function isAdmin(user) {
+  return Boolean(ADMIN_USERNAME) && user.username.toLowerCase() === ADMIN_USERNAME;
+}
+
 // Not signed in is a normal answer (200, user: null), not a 401 — this
 // endpoint is "who am I", which anyone is allowed to ask.
 export function me(res, user) {
-  send(res, 200, { data: { user: user ? { username: user.username } : null } });
+  if (!user) return send(res, 200, { data: { user: null } });
+  send(res, 200, { data: { user: { username: user.username, isAdmin: isAdmin(user) } } });
 }
 
 function startSession(req, res, db, user, status) {
@@ -102,5 +113,10 @@ function startSession(req, res, db, user, status) {
 
   // Token goes in the cookie header only, never in the JSON body — the
   // browser handles it automatically and the page never needs to see it.
-  send(res, status, { data: { user: { username: user.username } } });
+  // isAdmin included here too, not just in me() — the login/register
+  // response is what the page actually renders from immediately after
+  // signing in, so leaving it out here meant the admin panel looked
+  // "unauthorized" for a beat right after logging in as commander,
+  // until something happened to trigger a fresh /api/auth/me.
+  send(res, status, { data: { user: { username: user.username, isAdmin: isAdmin(user) } } });
 }

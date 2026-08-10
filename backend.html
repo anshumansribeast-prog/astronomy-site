@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Backend — Cosmos</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<canvas id="starfield" aria-hidden="true"></canvas>
+
+<header class="site-header">
+  <nav class="wrap nav" aria-label="Main">
+    <a class="logo" href="index.html"><span class="logo-mark" aria-hidden="true"></span> COSMOS</a>
+    <button class="nav-toggle" aria-expanded="false" aria-controls="navLinks" aria-label="Toggle menu">☰</button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html">Home</a></li>
+      <li id="navAccount"></li>
+    </ul>
+  </nav>
+</header>
+
+<main>
+  <section>
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Private</span>
+        <h2>Backend</h2>
+      </div>
+
+      <div id="backendPage"></div>
+    </div>
+  </section>
+</main>
+
+<script src="js/starfield.js"></script>
+<script src="js/main.js"></script>
+<script src="js/account.js"></script>
+<script src="js/backend.js"></script>
+</body>
+</html>
