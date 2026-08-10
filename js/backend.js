@@ -71,11 +71,48 @@
     input.type = "text";
     input.placeholder = "Talk to Jarvis…";
     input.autocomplete = "off";
+
+    // Speaking to Jarvis, not just typing — mic button uses the
+    // browser's built-in speech recognition, same "no extra server"
+    // approach as the speak() output side. Only added if the browser
+    // actually supports it (Chrome/Brave/Edge do; not every browser
+    // does), so this degrades to text-only rather than showing a
+    // button that doesn't work.
+    const SpeechRecognitionCtor = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognizer = null;
+    let mic = null;
+    if (SpeechRecognitionCtor) {
+      mic = document.createElement("button");
+      mic.type = "button";
+      mic.className = "btn btn-quiet beast-send";
+      mic.textContent = "🎤";
+      mic.setAttribute("aria-label", "Speak to Jarvis");
+      mic.addEventListener("click", function () {
+        if (recognizer) return; // already listening
+        recognizer = new SpeechRecognitionCtor();
+        recognizer.lang = "en-US";
+        recognizer.interimResults = false;
+        recognizer.maxAlternatives = 1;
+        mic.textContent = "●";
+        recognizer.onresult = function (e) {
+          input.value = e.results[0][0].transcript;
+          form.requestSubmit();
+        };
+        recognizer.onerror = recognizer.onend = function () {
+          mic.textContent = "🎤";
+          recognizer = null;
+        };
+        recognizer.start();
+      });
+    }
+
     const send = document.createElement("button");
     send.type = "submit";
     send.className = "btn btn-primary beast-send";
     send.textContent = "Send";
-    form.append(input, send);
+    form.append(input);
+    if (mic) form.append(mic);
+    form.append(send);
 
     pageSlot.append(log, form);
 
@@ -89,7 +126,7 @@
     }
 
     const greeting =
-      "Jarvis here. I only answer while backend_server.py is running on Anshuman's laptop and you're viewing this page from that same machine.";
+      "Jarvis here — you can also call me Friday. I only answer while backend_server.py is running on Anshuman's laptop and you're viewing this page from that same machine.";
     addBubble(greeting, "bot");
     speak(greeting);
 
