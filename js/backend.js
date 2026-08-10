@@ -23,6 +23,18 @@
 
   const history = [];
 
+  // Jarvis answers out loud here — the browser's own speech synthesis,
+  // no extra server or audio streaming needed. Text still shows too
+  // (so it's clear what was said, and works if speakers are off), but
+  // every real reply from Jarvis is spoken, not just displayed.
+  function speak(text) {
+    if (!window.speechSynthesis || !text) return;
+    window.speechSynthesis.cancel(); // don't overlap with a reply still talking
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 1;
+    window.speechSynthesis.speak(utterance);
+  }
+
   function renderSignedOut() {
     pageSlot.replaceChildren();
     pageSlot.className = "";
@@ -76,10 +88,10 @@
       return el;
     }
 
-    addBubble(
-      "Jarvis here. I only answer while backend_server.py is running on Anshuman's laptop and you're viewing this page from that same machine.",
-      "bot"
-    );
+    const greeting =
+      "Jarvis here. I only answer while backend_server.py is running on Anshuman's laptop and you're viewing this page from that same machine.";
+    addBubble(greeting, "bot");
+    speak(greeting);
 
     form.addEventListener("submit", async function (e) {
       e.preventDefault();
@@ -102,14 +114,18 @@
         });
         if (!resp.ok) throw new Error("bad status " + resp.status);
         const data = await resp.json();
-        thinking.textContent = data.reply || "I didn't get that — try again?";
+        const reply = data.reply || "I didn't get that — try again?";
+        thinking.textContent = reply;
         thinking.classList.remove("beast-thinking");
         history.push({ role: "assistant", content: data.reply || "" });
+        speak(reply);
       } catch (err) {
-        thinking.textContent =
+        const offline =
           "Jarvis is offline — this only works while backend_server.py is running on Anshuman's laptop, " +
           "and only when you're viewing this page from that same machine.";
+        thinking.textContent = offline;
         thinking.classList.remove("beast-thinking");
+        speak(offline);
       } finally {
         input.disabled = false;
         send.disabled = false;
