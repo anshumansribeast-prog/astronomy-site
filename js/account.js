@@ -30,7 +30,10 @@
   window.AstroAccount = {
     get user() { return current; },
     onChange(fn) { listeners.push(fn); fn(current); },
-    refresh: load
+    refresh: load,
+    displayName // shared with other pages (e.g. Beast's greeting) so the
+                // "everyone but the admin shows as Commander" rule lives
+                // in exactly one place
   };
 
   function setUser(user) {
@@ -67,6 +70,14 @@
     }
   }
 
+  /* Everyone except the real admin (isAdmin, set server-side) is shown
+     as "Commander" rather than their real typed username — a fun rank
+     rather than a security feature; the actual username is still what
+     signs them in and is never hidden from the server itself. */
+  function displayName(user) {
+    return user.isAdmin ? user.username : "Commander";
+  }
+
   /* ---- header pill, every page ---- */
 
   function renderNav() {
@@ -77,7 +88,7 @@
     link.href = "account.html";
     // textContent only, never innerHTML — a username is untrusted text
     // and must never be parsed as markup (that's how stored XSS happens).
-    link.textContent = current ? `Hi, ${current.username}` : "Sign in";
+    link.textContent = current ? `Hi, ${displayName(current)}` : "Sign in";
     navSlot.append(link);
   }
 
@@ -93,7 +104,7 @@
     who.className = "who";
     who.append("Signed in as ");
     const name = document.createElement("strong");
-    name.textContent = current.username;
+    name.textContent = displayName(current);
     who.append(name);
 
     const note = document.createElement("p");

@@ -70,8 +70,9 @@
   }
 
   function greet(user) {
-    var hello = user
-      ? "Hey " + user.username + "! Ask me about a planet, a constellation, the Moon, say 'fact' for something strange and true, or 'picture of the day' for NASA's latest."
+    var name = user && window.AstroAccount ? window.AstroAccount.displayName(user) : null;
+    var hello = name
+      ? "Hey " + name + "! Ask me about a planet, a constellation, the Moon, say 'fact' for something strange and true, or 'picture of the day' for NASA's latest."
       : "Hey, I'm Beast! Ask me about a planet, a constellation, the Moon, say 'fact' for something strange and true, or 'picture of the day' for NASA's latest.";
     addMessage(hello, "bot");
   }
