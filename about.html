@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>About — Cosmos</title>
-  <meta name="description" content="How this astronomy site was built, where its data comes from, and what every part of the code does.">
+  <meta name="description" content="Cosmos is a small, honest astronomy guide for anyone who's ever looked up and wondered what they were seeing. Built by a class-8 student who couldn't find a website that felt friendly enough.">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -30,133 +30,151 @@
 </header>
 
 <main>
+  <!-- ============ WHAT THIS IS ============ -->
   <section>
     <div class="wrap">
       <div class="section-head">
         <span class="eyebrow">About</span>
-        <h2>How this <span class="grad">site</span> works</h2>
+        <h2>A small, honest <span class="grad">guide to the sky</span></h2>
         <p>
-          Cosmos is a small astronomy guide built with nothing but HTML, CSS and
-          JavaScript. No frameworks, no build step, no internet connection. Open the
-          folder, double-click a page, and it runs.
+          Cosmos is a website for anyone who has ever looked up at night, seen a
+          bright dot, and wondered <em>what is that</em>. It doesn't try to be the
+          biggest astronomy site on the internet. It tries to be the friendliest
+          one.
         </p>
       </div>
 
-      <div class="grid grid-3">
+      <div class="grid grid-2" style="margin-top:2rem;">
         <div class="card reveal">
-          <div class="card-icon" aria-hidden="true">🎨</div>
-          <h3>Every planet is CSS</h3>
-          <p>There isn't a single image file in this project. Jupiter's bands are a
-             repeating gradient, Saturn's rings are a rotated ellipse made from a border,
-             and the shading that makes each planet look round is an inset shadow.</p>
+          <div class="card-icon" aria-hidden="true">🪐</div>
+          <h3>If you just want to learn</h3>
+          <p>Every page is built to teach one thing well. The planets page lets you
+             compare worlds side by side. The moon page tells you what phase the
+             moon is in tonight, and why. The constellations page shows you what
+             shape the stars are actually drawing when you look up.</p>
         </div>
         <div class="card reveal">
-          <div class="card-icon" aria-hidden="true">📐</div>
-          <h3>Constellations are geometry</h3>
-          <p>Each star pattern is stored as a list of coordinates and a list of which
-             stars to join. The SVG is generated from those numbers, so the shapes stay
-             sharp at any size — and the dot sizes match real star brightness.</p>
+          <div class="card-icon" aria-hidden="true">💬</div>
+          <h3>If you want to ask something</h3>
+          <p>Beast is a chatbot that lives right here on the site. Ask it things
+             like "how big is Jupiter compared to Earth?" or "what's that bright
+             star next to the moon tonight?" It runs on a real AI, so you can
+             talk to it like a person.</p>
         </div>
         <div class="card reveal">
-          <div class="card-icon" aria-hidden="true">🌙</div>
-          <h3>Moon phases are calculated</h3>
-          <p>No lookup table and no API. The code knows the date of one new moon in the
-             year 2000 and the length of the lunar cycle, and works out everything else
-             with arithmetic.</p>
+          <div class="card-icon" aria-hidden="true">🧠</div>
+          <h3>If you want to test what you know</h3>
+          <p>The quiz section throws quick questions at you — planet sizes, lunar
+             phases, the names of the constellations you've been staring at. It's
+             short, and it doesn't keep score of you. It just wants you to learn
+             something.</p>
+        </div>
+        <div class="card reveal">
+          <div class="card-icon" aria-hidden="true">🌌</div>
+          <h3>If you want to just look</h3>
+          <p>Open the site, scroll slowly, and let the starfield do its job. There
+             is no count of how long you've been here, no popups, no newsletter
+             begging for your email. It's the web the way it used to feel.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ============ THE FILES ============ -->
+  <!-- ============ WHO MADE IT ============ -->
   <section>
     <div class="wrap">
       <div class="section-head reveal">
-        <span class="eyebrow">Structure</span>
-        <h2>What's in the folder</h2>
-        <p>Six pages, one stylesheet, five scripts. Every file has one job.</p>
+        <span class="eyebrow">Who built this</span>
+        <h2>One student, one laptop, a lot of curiosity</h2>
+        <p>
+          Cosmos is made by a class-8 student who likes space and got tired of
+          astronomy websites that either felt like textbooks or felt like they
+          were written for grown-ups. This one is for everyone, but especially
+          for the kid who just wants to know what they're looking at tonight.
+        </p>
       </div>
 
-      <ul class="timeline reveal">
-        <li>
-          <h4>index.html · planets.html · constellations.html · moon.html · facts.html · about.html</h4>
-          <p>The six pages. Each one holds only its own content — the shared header,
-             footer and starfield are repeated in each file so that every page works
-             on its own, with no server required.</p>
-        </li>
-        <li>
-          <h4>css/style.css</h4>
-          <p>One stylesheet for the whole site, split into numbered sections. All colours
-             and sizes are defined once at the top as CSS variables, so the entire theme
-             can be changed from about twenty lines.</p>
-        </li>
-        <li>
-          <h4>js/starfield.js</h4>
-          <p>Draws the moving night sky on a canvas: roughly a thousand stars in three
-             depth layers, twinkling at different speeds, drifting as you scroll, with the
-             occasional shooting star.</p>
-        </li>
-        <li>
-          <h4>js/main.js</h4>
-          <p>The behaviour every page shares — the mobile menu, highlighting the current
-             page in the nav, fading sections in as you scroll, and the rotating fact on
-             the home page.</p>
-        </li>
-        <li>
-          <h4>js/planets.js · js/constellations.js · js/moon.js · js/facts.js</h4>
-          <p>One script per section. Each stores its content as an array of data at the
-             top, then builds the page from it. Changing a fact means editing one line,
-             not hunting through HTML.</p>
-        </li>
-      </ul>
+      <div class="card reveal" style="margin-top:1.5rem;">
+        <p>
+          Every page, every planet, every star you see here was put together by
+          hand. The numbers come from NASA. The code was written one evening at
+          a time. The chatbot is run on a real AI model, not a script pretending
+          to be one. If something is wrong, it's wrong honestly — and there is a
+          section below that says so.
+        </p>
+      </div>
     </div>
   </section>
 
-  <!-- ============ DATA + HONESTY ============ -->
+  <!-- ============ HONEST ABOUT THE NUMBERS ============ -->
   <section>
     <div class="wrap">
       <div class="section-head reveal">
-        <span class="eyebrow">Sources &amp; limits</span>
+        <span class="eyebrow">Things worth knowing</span>
         <h2>Where the numbers come from</h2>
+        <p>A site that teaches you about space should be honest about space.
+           Here is what every number on this site is based on, and where the
+           approximations are.</p>
       </div>
 
-      <div class="grid grid-3">
+      <div class="grid grid-3" style="margin-top:1.5rem;">
         <div class="card reveal">
-          <h3>Planet data</h3>
-          <p>Diameters, distances, orbital periods, gravity and temperatures follow
+          <h3>Planet facts</h3>
+          <p>Diameters, distances, gravity, surface temperatures and orbital
+             periods all come from
              <a href="https://nssdc.gsfc.nasa.gov/planetary/factsheet/" target="_blank" rel="noopener">NASA's
-             planetary fact sheets</a>.</p>
+             planetary fact sheet</a> — the same place professional textbooks
+             pull from.</p>
         </div>
         <div class="card reveal">
-          <h3>Moon counts change</h3>
-          <p>Moon totals are <em>confirmed</em> moons and genuinely move. Saturn gained 128
-             in 2025 alone, overtaking Jupiter. Any number you see quoted has a date attached
-             to it, whether or not it's stated.</p>
+          <h3>Moon counts move</h3>
+          <p>Moon totals are not fixed. Saturn gained 128 new confirmed moons
+             in 2025 and overtook Jupiter. If you see a moon count on this site
+             and a year, the number is right for that year.</p>
         </div>
         <div class="card reveal">
-          <h3>The phase maths is approximate</h3>
-          <p>The moon calculation assumes a perfectly even 29.530589-day cycle. The real
-             orbit speeds up and slows down slightly, so results can be a few hours out.
-             Fine for the naked eye; not good enough to land a spacecraft.</p>
+          <h3>The moon phase is close, not exact</h3>
+          <p>The phase calculation assumes the moon orbits in a perfectly even
+             29.5-day cycle. The real orbit speeds up and slows down a little,
+             so the result can be a few hours off. Fine for looking up. Not
+             fine for launching rockets.</p>
         </div>
         <div class="card reveal">
-          <h3>Constellation maps are simplified</h3>
-          <p>Star positions are plotted to look right rather than to catalogue precision,
-             and only the main stars of each pattern are drawn. Real constellations contain
-             far more stars than the ones joined by lines.</p>
+          <h3>Constellations are simplified</h3>
+          <p>The star maps show the main stars and the shape most people
+             recognize. Real constellations contain many more stars. The
+             patterns are drawn to look right, not to catalogue precision.</p>
         </div>
         <div class="card reveal">
-          <h3>Sizes, not distances</h3>
-          <p>The true-scale switch on the planets page resizes the planets correctly, but
-             the gaps between them are still nothing like real. Space is mostly emptiness,
-             and emptiness doesn't fit on a screen.</p>
+          <h3>Planets are sized right, space is not</h3>
+          <p>The true-scale toggle on the planets page resizes every world
+             correctly. The gaps between them are still nothing like real.
+             Space is mostly emptiness, and emptiness does not fit on a screen.</p>
         </div>
         <div class="card reveal">
-          <h3>Nothing is tracked</h3>
-          <p>No analytics, no cookies, no accounts, no network requests of any kind. The
-             only links that leave this site are the ones in the footer, and they are
-             clearly marked.</p>
+          <h3>Beast is honest about what it knows</h3>
+          <p>Beast is an AI. Sometimes it is wrong. When you ask it a real
+             question, it tries to give a real answer — but it will tell you when
+             it is guessing, and it will point you back to the static pages on
+             this site when it is not sure.</p>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PRIVACY ============ -->
+  <section>
+    <div class="wrap">
+      <div class="card reveal" style="text-align:center; padding: clamp(2rem, 6vw, 3.4rem);">
+        <span class="eyebrow">One more thing</span>
+        <h2>Nothing here is tracking you</h2>
+        <p style="max-width:56ch; margin-inline:auto;">
+          No analytics. No cookies. No accounts required to look around. The
+          only account system on this site is the one you can sign into if you
+          want to chat with Beast — and even then, nothing you say is stored or
+          sold. The only links that leave this site are the ones in the footer,
+          and they are clearly marked.
+        </p>
       </div>
     </div>
   </section>
@@ -165,17 +183,39 @@
   <section>
     <div class="wrap">
       <div class="card reveal" style="text-align:center; padding: clamp(2rem, 6vw, 3.4rem);">
-        <span class="eyebrow">Make it yours</span>
-        <h2>Change something</h2>
-        <p style="max-width:56ch; margin-inline:auto;">
-          Open <code>css/style.css</code> and change <code>--teal</code> at the top of the file
-          to any colour you like. Save, refresh, and watch it ripple through every page at once.
-          That's the whole reason those variables are there.
-        </p>
+        <span class="eyebrow">Go on</span>
+        <h2>Pick somewhere to start</h2>
         <div class="btn-row" style="margin-top:1.4rem;">
-          <a class="btn btn-primary" href="index.html">Back to the start</a>
-          <a class="btn btn-ghost" href="facts.html">Take the quiz</a>
+          <a class="btn btn-primary" href="planets.html">Tour the planets</a>
+          <a class="btn btn-ghost" href="beast.html">Ask Beast something</a>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FOR THE CURIOUS ============ -->
+  <section>
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">For the curious</span>
+        <h2>A small note on the build</h2>
+        <p>This section is hidden at the bottom for the people who like to know
+           how things were made. If that's not you, the rest of the site works
+           perfectly well without it.</p>
+      </div>
+
+      <div class="card reveal">
+        <p>Cosmos is built with plain HTML, CSS and JavaScript. No frameworks, no
+           build step, no install. The planets are drawn entirely in CSS — there
+           is not a single image file in the whole project. The starfield is
+           drawn live on a canvas. The constellations are generated from
+           coordinates at runtime. The moon phase is calculated with arithmetic,
+           not looked up. The whole folder can be opened by double-clicking
+           <code>index.html</code> and it just runs.</p>
+        <p style="margin-top:1rem;">If you want to change a colour, open
+           <code>css/style.css</code>, find <code>--teal</code> at the top, and
+           replace it with any colour you like. Save, refresh, and watch it
+           ripple through every page.</p>
       </div>
     </div>
   </section>
