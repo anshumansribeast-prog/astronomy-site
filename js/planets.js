@@ -285,7 +285,8 @@ var PLANETS = [
     PLANETS.forEach(function (p, i) {
       var card = grid.querySelector('[data-index="' + i + '"]');
       // Search across name, tag and the highlight sentence
-      var haystack = (p.name + " " + p.tag + " " + p.highlight).toLowerCase();
+      var haystack = (p.name + " " + p.tag + " " + p.type + " " + p.highlight + " " +
+                      p.facts.join(" ")).toLowerCase();
       var matchText = q === "" || haystack.indexOf(q) !== -1;
       var matchType = filter === "all" || p.type === filter;
       var show = matchText && matchType;

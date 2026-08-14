@@ -207,7 +207,9 @@ function moonSVG(date, detailed) {
       // see that day rather than one teetering on the boundary.
       var d = new Date(year, month, day, 12);
       var key = toInputValue(d);
-      var cls = "moon-cell" + (key === selKey || key === todayKey ? " today" : "");
+      var cls = "moon-cell";
+      if (key === todayKey) cls += " today";
+      if (key === selKey) cls += " selected";
       html += '<div class="' + cls + '" data-date="' + key + '" role="button" tabindex="0" ' +
               'title="' + moonPhaseName(moonPhaseFraction(d)) + '">' +
                 '<div class="d">' + day + '</div>' + moonSVG(d, false) +
