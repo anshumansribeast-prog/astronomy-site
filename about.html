@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>About — Cosmos</title>
-  <meta name="description" content="Cosmos is a small, honest astronomy guide for anyone who's ever looked up and wondered what they were seeing. Built by a class-8 student who couldn't find a website that felt friendly enough.">
+  <meta name="description" content="Cosmos is a friendly astronomy field guide: planets, constellations, live Moon phases, facts, a ranked quiz, and Beast. Built to teach how the sky actually works.">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -34,74 +34,194 @@
   <section>
     <div class="wrap">
       <div class="section-head">
-        <span class="eyebrow">About</span>
-        <h2>A small, honest <span class="grad">guide to the sky</span></h2>
+        <span class="eyebrow">About Cosmos</span>
+        <h2>A field guide to the <span class="grad">night sky</span></h2>
         <p>
-          Cosmos is a website for anyone who has ever looked up at night, seen a
-          bright dot, and wondered <em>what is that</em>. It doesn't try to be the
-          biggest astronomy site on the internet. It tries to be the friendliest
-          one.
+          Cosmos is an astronomy site for anyone who has looked up, seen a
+          bright dot, and wanted a clear answer. It is not an encyclopedia of
+          every object in the universe. It is a careful tour of the things you
+          can actually learn, compare, and then go outside and find.
         </p>
       </div>
 
-      <div class="grid grid-2" style="margin-top:2rem;">
-        <div class="card reveal">
-          <div class="card-icon" aria-hidden="true">🪐</div>
-          <h3>If you just want to learn</h3>
-          <p>Every page is built to teach one thing well. The planets page lets you
-             compare worlds side by side. The moon page tells you what phase the
-             moon is in tonight, and why. The constellations page shows you what
-             shape the stars are actually drawing when you look up.</p>
-        </div>
-        <div class="card reveal">
-          <div class="card-icon" aria-hidden="true">💬</div>
-          <h3>If you want to ask something</h3>
-          <p>Beast is a chatbot that lives right here on the site. Ask it things
-             like "how big is Jupiter compared to Earth?" or "what's that bright
-             star next to the moon tonight?" It runs on a real AI, so you can
-             talk to it like a person.</p>
-        </div>
-        <div class="card reveal">
-          <div class="card-icon" aria-hidden="true">🧠</div>
-          <h3>If you want to test what you know</h3>
-          <p>The quiz section throws quick questions at you — planet sizes, lunar
-             phases, the names of the constellations you've been staring at. It's
-             short, and it doesn't keep score of you. It just wants you to learn
-             something.</p>
-        </div>
-        <div class="card reveal">
-          <div class="card-icon" aria-hidden="true">🌌</div>
-          <h3>If you want to just look</h3>
-          <p>Open the site, scroll slowly, and let the starfield do its job. There
-             is no count of how long you've been here, no popups, no newsletter
-             begging for your email. It's the web the way it used to feel.</p>
-        </div>
+      <div class="card reveal about-lead">
+        <p>
+          The name is the old Greek word for the universe as an ordered whole —
+          not chaos, but a place with rules. That is the spirit of the site:
+          real NASA numbers, real Moon-phase maths, real star patterns, and
+          honest notes wherever a number is an approximation.
+        </p>
+        <p>
+          It was built by a class-8 student who likes space and got tired of
+          astronomy pages that either read like a textbook or talked past
+          beginners. Cosmos is for everyone, especially the person who just
+          wants to know what they are looking at tonight.
+        </p>
       </div>
     </div>
   </section>
 
-  <!-- ============ WHO MADE IT ============ -->
+  <!-- ============ WHAT'S ON THE SITE ============ -->
   <section>
     <div class="wrap">
       <div class="section-head reveal">
-        <span class="eyebrow">Who built this</span>
-        <h2>One student, one laptop, a lot of curiosity</h2>
+        <span class="eyebrow">What's here</span>
+        <h2>Six rooms, one sky</h2>
+        <p>Each page teaches one idea well. You can start anywhere and skip the rest.</p>
+      </div>
+
+      <div class="grid grid-2" style="margin-top:2rem;">
+        <a class="card reveal" href="planets.html">
+          <div class="card-icon" aria-hidden="true">🪐</div>
+          <h3>The planets</h3>
+          <p>All eight worlds with diameter, distance, orbit, day length, gravity,
+             temperature and moons. A true-scale switch shows how small Earth is
+             beside Jupiter. Every globe is drawn in CSS, not downloaded as a photo.</p>
+        </a>
+        <a class="card reveal" href="constellations.html">
+          <div class="card-icon" aria-hidden="true">✨</div>
+          <h3>Constellations</h3>
+          <p>Twelve patterns plotted from relative star positions and brightness.
+             Each one has the myth behind the shape and a plain-language note on
+             how to find it in a real sky.</p>
+        </a>
+        <a class="card reveal" href="moon.html">
+          <div class="card-icon" aria-hidden="true">🌘</div>
+          <h3>Moon phases</h3>
+          <p>Tonight's phase is calculated from the synodic month — the 29.53-day
+             cycle from one new Moon to the next. Pick any date and a month grid
+             of tiny moons comes with it.</p>
+        </a>
+        <a class="card reveal" href="facts.html">
+          <div class="card-icon" aria-hidden="true">💫</div>
+          <h3>Facts</h3>
+          <p>Thirty strange-and-true notes, grouped by solar system, stars,
+             galaxies, space travel and extremes. Filter or search, then take
+             what stuck into the quiz.</p>
+        </a>
+        <a class="card reveal" href="quiz.html">
+          <div class="card-icon" aria-hidden="true">🧠</div>
+          <h3>The quiz</h3>
+          <p>Four locked levels — Stargazer, Observer, Sky Navigator, Astronomer.
+             Score 75% to unlock the next. Your rank stays in this browser and
+             shows in the header. Every answer, right or wrong, gets an explanation.</p>
+        </a>
+        <a class="card reveal" href="beast.html">
+          <div class="card-icon" aria-hidden="true">💬</div>
+          <h3>Beast</h3>
+          <p>A chat assistant that answers from the same planet, constellation,
+             fact and Moon data the rest of the site uses. Ask “how big is Jupiter”,
+             “Orion”, “moon”, “fact”, or “picture of the day” for NASA’s APOD.</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ASTRONOMY PRIMER ============ -->
+  <section>
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">Astronomy, in plain language</span>
+        <h2>The ideas the rest of the site sits on</h2>
         <p>
-          Cosmos is made by a class-8 student who likes space and got tired of
-          astronomy websites that either felt like textbooks or felt like they
-          were written for grown-ups. This one is for everyone, but especially
-          for the kid who just wants to know what they're looking at tonight.
+          You do not need a telescope to start. You need a few pictures in your
+          head: where we live, what a star is, why the Moon changes shape, and
+          how huge the distances really are.
         </p>
       </div>
 
-      <div class="card reveal" style="margin-top:1.5rem;">
-        <p>
-          Every page, every planet, every star you see here was put together by
-          hand. The numbers come from NASA. The code was written one evening at
-          a time. The chatbot is run on a real AI model, not a script pretending
-          to be one. If something is wrong, it's wrong honestly — and there is a
-          section below that says so.
-        </p>
+      <div class="grid grid-2 knowledge-grid">
+        <article class="card reveal">
+          <h3>Where we live</h3>
+          <p>Earth is a rocky planet orbiting an ordinary star we call the Sun.
+             Together they belong to a flat, spinning disc of stars — the Milky
+             Way. The pale band you see on a dark night is that disc viewed
+             edge-on from the inside.</p>
+          <p>The Sun is not special. It is a main-sequence star, fusing hydrogen
+             into helium in its core. That reaction has been running for about
+             4.6 billion years and has roughly as long again to go.</p>
+        </article>
+        <article class="card reveal">
+          <h3>Why planets come in families</h3>
+          <p>Close to the young Sun it was too hot for ice. Only rock and metal
+             could stick together, so Mercury, Venus, Earth and Mars stayed small
+             and solid. Past the frost line, ice survived, worlds grew fast, and
+             Jupiter and Saturn became gas giants with no surface to stand on.</p>
+          <p>Uranus and Neptune, farther still, are ice giants: mostly water,
+             ammonia and methane. Methane in their atmospheres is why they look
+             blue. Pluto is a dwarf planet in the Kuiper Belt, not a ninth planet.</p>
+        </article>
+        <article class="card reveal">
+          <h3>Light is a clock and a ruler</h3>
+          <p>Light takes 8 minutes 20 seconds to travel from the Sun to Earth.
+             You never see the Sun as it is — only as it was. A light-year is
+             how far light travels in one year, about 9.46 trillion kilometres.
+             It is a distance, not a length of time.</p>
+          <p>The nearest star after the Sun, Proxima Centauri, is 4.24 light-years
+             away. Voyager 1, our farthest spacecraft, would need tens of thousands
+             of years to get there. Space is mostly the gap between things.</p>
+        </article>
+        <article class="card reveal">
+          <h3>The Moon does not change</h3>
+          <p>Half the Moon is always lit by the Sun. Phases happen because the
+             Moon orbits us, so we see different amounts of that lit half. A new
+             Moon is the night side facing us; a full Moon is the day side.
+             Earth’s shadow only matters during a lunar eclipse.</p>
+          <p>The Moon is tidally locked: it rotates once per orbit, so the same
+             face stays pointed at Earth. The far side is not dark — it gets
+             just as much sunlight. “Month” comes from “moon” for a reason.</p>
+        </article>
+        <article class="card reveal">
+          <h3>Stars are not forever</h3>
+          <p>A star is a ball of gas held up by fusion. When the fuel runs out,
+             the ending depends on mass: a Sun-like star sheds its outer layers
+             and leaves a white dwarf; a heavier star can explode as a supernova
+             and leave a neutron star or a black hole.</p>
+          <p>Every atom of iron in your blood was forged in a star that died
+             before the Sun was born. Constellations are not physical groups —
+             the stars in a pattern are usually at wildly different distances,
+             lined up only from our point of view.</p>
+        </article>
+        <article class="card reveal">
+          <h3>The universe has a beginning</h3>
+          <p>The observable universe is about 13.8 billion years old and still
+             expanding. Distant galaxies recede; their light stretches to redder
+             wavelengths — redshift. Leftover glow from when atoms first formed,
+             about 380,000 years after the Big Bang, still arrives as the cosmic
+             microwave background.</p>
+          <p>Most of the cosmos is dark matter and dark energy: we measure their
+             effects on galaxies and expansion, but we have not seen what they
+             are made of. That is a real, open question — not a plot hole.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SCALE ============ -->
+  <section>
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">Scale</span>
+        <h2>Numbers worth sitting with</h2>
+        <p>Astronomy is the art of not letting your brain round these down to “big”.</p>
+      </div>
+      <div class="grid grid-4">
+        <div class="card reveal">
+          <h3 class="grad">1.3 million</h3>
+          <p>Earths would fit inside the Sun. The Sun itself is an average star.</p>
+        </div>
+        <div class="card reveal">
+          <h3 class="grad">8 min 20 s</h3>
+          <p>For sunlight to reach Earth. Radio from Mars takes minutes; from Pluto, hours.</p>
+        </div>
+        <div class="card reveal">
+          <h3 class="grad">100–400 billion</h3>
+          <p>Stars in the Milky Way, give or take. Andromeda, our neighbour, holds more.</p>
+        </div>
+        <div class="card reveal">
+          <h3 class="grad">93 billion ly</h3>
+          <p>Across the observable universe — larger than its age in light-years, because space itself expanded.</p>
+        </div>
       </div>
     </div>
   </section>
@@ -110,53 +230,52 @@
   <section>
     <div class="wrap">
       <div class="section-head reveal">
-        <span class="eyebrow">Things worth knowing</span>
+        <span class="eyebrow">Sources &amp; limits</span>
         <h2>Where the numbers come from</h2>
-        <p>A site that teaches you about space should be honest about space.
-           Here is what every number on this site is based on, and where the
-           approximations are.</p>
+        <p>A site that teaches space should be honest about space. Here is what
+           is exact, what is rounded, and what will change next year.</p>
       </div>
 
       <div class="grid grid-3" style="margin-top:1.5rem;">
         <div class="card reveal">
           <h3>Planet facts</h3>
-          <p>Diameters, distances, gravity, surface temperatures and orbital
-             periods all come from
-             <a href="https://nssdc.gsfc.nasa.gov/planetary/factsheet/" target="_blank" rel="noopener">NASA's
-             planetary fact sheet</a> — the same place professional textbooks
-             pull from.</p>
+          <p>Diameters, distances, gravity, temperatures and orbital periods
+             follow
+             <a href="https://nssdc.gsfc.nasa.gov/planetary/factsheet/" target="_blank" rel="noopener">NASA’s
+             planetary fact sheet</a> — the same tables textbooks use.</p>
         </div>
         <div class="card reveal">
           <h3>Moon counts move</h3>
-          <p>Moon totals are not fixed. Saturn gained 128 new confirmed moons
-             in 2025 and overtook Jupiter. If you see a moon count on this site
-             and a year, the number is right for that year.</p>
+          <p>Confirmed moons are not a finished list. Saturn gained 128 in 2025
+             and overtook Jupiter. If you see a count here, it is right for that
+             announcement, not for eternity.</p>
         </div>
         <div class="card reveal">
-          <h3>The moon phase is close, not exact</h3>
-          <p>The phase calculation assumes the moon orbits in a perfectly even
-             29.5-day cycle. The real orbit speeds up and slows down a little,
-             so the result can be a few hours off. Fine for looking up. Not
-             fine for launching rockets.</p>
+          <h3>Moon phase is close</h3>
+          <p>The calculator assumes an even 29.530589-day cycle from a known new
+             Moon in January 2000. The real orbit speeds up and slows down, so
+             the result can be a few hours off. Fine for looking up. Not for
+             launching anything.</p>
         </div>
         <div class="card reveal">
-          <h3>Constellations are simplified</h3>
-          <p>The star maps show the main stars and the shape most people
-             recognize. Real constellations contain many more stars. The
-             patterns are drawn to look right, not to catalogue precision.</p>
+          <h3>Star maps are simplified</h3>
+          <p>Constellation drawings show the main stars and the shape people
+             recognise. Real constellations contain many more stars. Positions
+             are drawn to look right, not as a catalogue.</p>
         </div>
         <div class="card reveal">
-          <h3>Planets are sized right, space is not</h3>
-          <p>The true-scale toggle on the planets page resizes every world
-             correctly. The gaps between them are still nothing like real.
-             Space is mostly emptiness, and emptiness does not fit on a screen.</p>
+          <h3>Sizes yes, gaps no</h3>
+          <p>The true-scale toggle resizes every planet correctly. The gaps
+             between them are still nothing like real. If distances were to
+             scale, Neptune would be hundreds of screens away.</p>
         </div>
         <div class="card reveal">
-          <h3>Beast is honest about what it knows</h3>
-          <p>Beast is an AI. Sometimes it is wrong. When you ask it a real
-             question, it tries to give a real answer — but it will tell you when
-             it is guessing, and it will point you back to the static pages on
-             this site when it is not sure.</p>
+          <h3>Beast is honest too</h3>
+          <p>Planet, constellation, Moon and fact answers come from this site’s
+             own data, so they match the pages. Open questions may use a local
+             model when one is running; otherwise Beast says it does not know
+             instead of inventing a number. NASA’s picture of the day needs a
+             network connection.</p>
         </div>
       </div>
     </div>
@@ -166,14 +285,16 @@
   <section>
     <div class="wrap">
       <div class="card reveal" style="text-align:center; padding: clamp(2rem, 6vw, 3.4rem);">
-        <span class="eyebrow">One more thing</span>
-        <h2>Nothing here is tracking you</h2>
-        <p style="max-width:56ch; margin-inline:auto;">
-          No analytics. No cookies. No accounts required to look around. The
-          only account system on this site is the one you can sign into if you
-          want to chat with Beast — and even then, nothing you say is stored or
-          sold. The only links that leave this site are the ones in the footer,
-          and they are clearly marked.
+        <span class="eyebrow">Privacy</span>
+        <h2>Looking around is free and quiet</h2>
+        <p style="max-width:58ch; margin-inline:auto;">
+          You do not need an account to read the planets, watch the Moon, or
+          take the quiz. There is no advertising network and no third-party
+          analytics script. Quiz rank is stored only in this browser
+          (<code>localStorage</code>). An optional sign-in uses a session cookie
+          so Beast can greet you — it is not required, and it is not sold.
+          Links that leave Cosmos (NASA, and similar) are marked as ordinary
+          links you choose to click.
         </p>
       </div>
     </div>
@@ -188,6 +309,7 @@
         <div class="btn-row" style="margin-top:1.4rem;">
           <a class="btn btn-primary" href="planets.html">Tour the planets</a>
           <a class="btn btn-ghost" href="beast.html">Ask Beast something</a>
+          <a class="btn btn-ghost" href="quiz.html">Earn a rank</a>
         </div>
       </div>
     </div>
@@ -199,23 +321,19 @@
       <div class="section-head reveal">
         <span class="eyebrow">For the curious</span>
         <h2>A small note on the build</h2>
-        <p>This section is hidden at the bottom for the people who like to know
-           how things were made. If that's not you, the rest of the site works
-           perfectly well without it.</p>
+        <p>Skip this if you only came for the sky. The rest of the site does not
+           depend on it.</p>
       </div>
 
       <div class="card reveal">
-        <p>Cosmos is built with plain HTML, CSS and JavaScript. No frameworks, no
-           build step, no install. The planets are drawn entirely in CSS — there
-           is not a single image file in the whole project. The starfield is
-           drawn live on a canvas. The constellations are generated from
-           coordinates at runtime. The moon phase is calculated with arithmetic,
-           not looked up. The whole folder can be opened by double-clicking
-           <code>index.html</code> and it just runs.</p>
-        <p style="margin-top:1rem;">If you want to change a colour, open
-           <code>css/style.css</code>, find <code>--teal</code> at the top, and
-           replace it with any colour you like. Save, refresh, and watch it
-           ripple through every page.</p>
+        <p>Cosmos is plain HTML, CSS and JavaScript. Planets are CSS. The
+           starfield is a canvas. Constellations are SVG from coordinates. Moon
+           phase is arithmetic, not a lookup table. A small Node server handles
+           optional accounts; double-clicking <code>index.html</code> still
+           opens the guide without it.</p>
+        <p style="margin-top:1rem;">Want a different accent colour? Open
+           <code>css/style.css</code>, change <code>--teal</code> near the top,
+           save, and refresh. The variable is shared across every page.</p>
       </div>
     </div>
   </section>
@@ -224,10 +342,6 @@
 
 <script src="js/starfield.js"></script>
 <script src="js/main.js"></script>
-<script src="js/planets.js"></script>
-<script src="js/constellations.js"></script>
-<script src="js/moon.js"></script>
-<script src="js/facts.js"></script>
 <script src="js/account.js"></script>
 </body>
 </html>

@@ -278,7 +278,8 @@ var CONSTELLATIONS = [
       var haystack = (c.name + " " + c.latin + " " + c.brightest + " " +
                       c.hemisphere + " " + c.myth).toLowerCase();
       var matchText = q === "" || haystack.indexOf(q) !== -1;
-      var matchSeason = season === "all" || c.season.indexOf(season) === 0;
+      var matchSeason = season === "all" || c.season === "All year" ||
+                        c.season.indexOf(season) === 0;
       var show = matchText && matchSeason;
 
       card.style.display = show ? "" : "none";

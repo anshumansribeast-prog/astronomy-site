@@ -77,24 +77,9 @@
     addMessage(hello, "bot");
   }
 
-  /* account.js (loaded before this script) resolves who's signed in
-     asynchronously — its first onChange callback fires SYNCHRONOUSLY
-     with whatever it has right now (always null, since the /api/auth/me
-     fetch can't have finished yet), then fires again for real once that
-     fetch resolves. Skip that synchronous replay so Beast doesn't greet
-     twice — once generic, once personalized. */
-  if (window.AstroAccount) {
-    var isReplay = true;
-    var greeted = false;
-    window.AstroAccount.onChange(function (user) {
-      if (isReplay || greeted) return;
-      greeted = true;
-      greet(user);
-    });
-    isReplay = false;
-  } else {
-    greet(null);
-  }
+  /* Greet immediately. Waiting on /api/auth/me used to leave the chat
+     empty whenever the account check was slow or the server was down. */
+  greet(window.AstroAccount ? window.AstroAccount.user : null);
   input.focus();
 
   /* ---------------- real-data lookups ---------------- */

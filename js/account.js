@@ -44,11 +44,14 @@
   }
 
   async function api(path, options) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 8000);
     const res = await fetch(path, {
       ...options,
       headers: { "Content-Type": "application/json", ...(options && options.headers) },
-      credentials: "same-origin" // lets the session cookie ride along
-    });
+      credentials: "same-origin", // lets the session cookie ride along
+      signal: controller.signal
+    }).finally(() => clearTimeout(timer));
 
     const json = await res.json().catch(() => null);
     if (!res.ok) {
@@ -65,7 +68,6 @@
       // No server reachable (e.g. viewing the static files directly,
       // no `npm start` running) — degrade to "signed out", not a crash.
       setUser(null);
-      if (navSlot) navSlot.textContent = "";
       if (pageSlot) renderNoServer();
     }
   }
@@ -109,7 +111,7 @@
 
     const note = document.createElement("p");
     note.className = "panel-hint";
-    note.textContent = "Beast will greet you by name from now on.";
+    note.textContent = "You're signed in. Beast will know you're here when you chat.";
 
     const out = document.createElement("button");
     out.className = "btn btn-quiet";
