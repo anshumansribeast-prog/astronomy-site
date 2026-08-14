@@ -1,6 +1,12 @@
 {
   "name": "Astronomy Site",
   "install": ".cursor/scripts/install.sh",
-  "start": "npm start",
-  "ports": [8899]
+  "start": ".cursor/scripts/start.sh",
+  "ports": [8899],
+  "terminals": [
+    {
+      "name": "web",
+      "command": "npm start"
+    }
+  ]
 }
