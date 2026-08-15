@@ -7,6 +7,7 @@
 import { createServer } from "node:http";
 import { openDatabase, DATA_DIR, STORAGE_IS_PERSISTENT } from "./db/client.js";
 import { purgeExpiredSessions } from "./services/auth.js";
+import { ensureTodayBrain } from "./services/beast-brain.js";
 import { createApp } from "./app.js";
 
 const PORT = Number(process.env.PORT) || 8899;
@@ -27,6 +28,10 @@ if (!STORAGE_IS_PERSISTENT) {
 
 const purged = purgeExpiredSessions(db);
 if (purged > 0) console.log(`  cleared ${purged} expired session(s)`);
+
+ensureTodayBrain(db).catch(err => {
+  console.error("  Beast daily learning failed:", err.message);
+});
 
 const server = createServer(createApp(db));
 

@@ -139,6 +139,10 @@ jobs:
           echo "GET /api/beast/health -> ${code}"
           [ "$code" = "200" ] || { echo "::error::Beast health check failed"; docker logs astro; exit 1; }
 
+          learned=$(curl -fsS http://localhost:8899/api/beast/learned)
+          echo "$learned" | grep -q '"day"' || { echo "::error::Beast daily learning failed"; docker logs astro; exit 1; }
+          echo "Beast daily brain: ok"
+
       # Runs even if the smoke test failed — the logs are most wanted
       # precisely when something went wrong.
       - name: Container logs
