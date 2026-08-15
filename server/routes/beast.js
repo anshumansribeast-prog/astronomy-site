@@ -56,9 +56,10 @@ export async function beast(req, res, db) {
   }
 
   const history = Array.isArray(body.value.history) ? body.value.history.slice(-6) : [];
+  const visitor = (body.value.visitor || "").trim().slice(0, 64) || null;
 
   const brain = await ensureTodayBrain(db);
-  const system = buildSystemPrompt(db, brain);
+  const system = buildSystemPrompt(db, brain, visitor);
 
   let prompt = "";
   for (const turn of history) {

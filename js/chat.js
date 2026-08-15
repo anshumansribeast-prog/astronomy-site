@@ -79,9 +79,33 @@
   }
 
   var chatHistory = [];
+  var currentUser = null;
+  var greeted = false;
+  var learnedSummary = null;
+  var learnedReady = false;
+  var accountReady = !window.AstroAccount;
+
+  function visitorName(user) {
+    if (user && window.AstroAccount) return window.AstroAccount.displayName(user);
+    return null;
+  }
+
+  /* Pull a name out of chat text — e.g. "hi beast AnshuX HERE". */
+  function nameInMessage(text) {
+    if (/\banshux\b/i.test(text)) return "AnshuX";
+    var m = text.match(/\bbeast\b[,!]?\s+([A-Za-z0-9_]+)/i);
+    if (m && !/^(here|hi|hey|hello)$/i.test(m[1])) return m[1];
+    m = text.match(/\b([A-Za-z0-9_]+)\s+here\b/i);
+    if (m && !/^(hi|hey|hello|beast|i|im|i'm|here)$/i.test(m[1])) return m[1];
+    return null;
+  }
+
+  function resolveVisitorName(text) {
+    return nameInMessage(text) || visitorName(currentUser);
+  }
 
   function greet(user, learnedLine) {
-    var name = user && window.AstroAccount ? window.AstroAccount.displayName(user) : null;
+    var name = visitorName(user);
     var learnBit = learnedLine ? " " + learnedLine : " I study something new about the sky every day.";
     var hello = name
       ? "Hey " + name + "!" + learnBit + " Today's NASA picture is below. Ask me about a planet, a constellation, the Moon, or say 'fact'."
@@ -89,25 +113,38 @@
     addMessage(hello, "bot");
   }
 
-  function loadDailyLearning(user) {
+  function tryGreet() {
+    if (greeted || !accountReady || !learnedReady) return;
+    greeted = true;
+    greet(currentUser, learnedSummary);
+    input.focus();
+    showTodaysApod(false);
+    scheduleApodMidnightRefresh();
+  }
+
+  function loadDailyLearning() {
     fetch("/api/beast/learned")
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (data) {
-        var summary = data && (data.summary || (data.data && data.data.summary));
-        greet(user, summary || null);
-        input.focus();
-        showTodaysApod(false);
-        scheduleApodMidnightRefresh();
+        learnedSummary = (data && (data.summary || (data.data && data.data.summary))) || null;
+        learnedReady = true;
+        tryGreet();
       })
       .catch(function () {
-        greet(user, null);
-        input.focus();
-        showTodaysApod(false);
-        scheduleApodMidnightRefresh();
+        learnedSummary = null;
+        learnedReady = true;
+        tryGreet();
       });
   }
 
-  loadDailyLearning(window.AstroAccount ? window.AstroAccount.user : null);
+  if (window.AstroAccount) {
+    window.AstroAccount.onChange(function (user) { currentUser = user; });
+    window.AstroAccount.refresh().finally(function () {
+      accountReady = true;
+      tryGreet();
+    });
+  }
+  loadDailyLearning();
 
   /* ---------------- real-data lookups ---------------- */
 
@@ -210,9 +247,27 @@
   }
 
   /* ---------------- general astronomy replies ---------------- */
+  function isGreeting(lower) {
+    return hasWord(lower, "hi") || hasWord(lower, "hello") || hasWord(lower, "hey");
+  }
+
+  function greetingReply(text, lower) {
+    var mentionsBeast = hasWord(lower, "beast");
+    var isHere = hasWord(lower, "here");
+    if (!isGreeting(lower) && !mentionsBeast && !isHere) return null;
+
+    var name = resolveVisitorName(text);
+    if (name) {
+      return "Hey " + name + "! Good to have you here. Ask me about a planet, a constellation, the Moon, or say 'fact'.";
+    }
+    if (isGreeting(lower) || mentionsBeast) {
+      return "Hey! I'm Beast — good to see you. Ask me about a planet, a constellation, the Moon, or say 'fact'.";
+    }
+    return null;
+  }
+
   var REPLIES = [
     { match: ["your name", "who are you"], reply: "I'm Beast! I answer from the same real numbers this site is built on, not made-up ones." },
-    { match: ["hi", "hello", "hey"], reply: "Hey! Ask me about a planet, a constellation, or say 'moon' or 'fact'." },
     { match: ["quiz"], reply: "Head to the Quiz page — four levels, Stargazer through Astronomer, or the shorter quiz on the Facts page." },
     { match: ["solar system"], reply: "Our solar system is the Sun plus everything held by its gravity: 8 planets, their moons, dwarf planets like Pluto, and countless asteroids and comets — formed about 4.6 billion years ago." },
     { match: ["black hole", "blackhole"], reply: "A black hole is a region of space where gravity is so strong that nothing, not even light, can escape. They form when a massive star runs out of fuel and collapses in on itself." },
@@ -251,6 +306,9 @@
       if (f) return f;
     }
 
+    var greet = greetingReply(text, lower);
+    if (greet) return greet;
+
     var hit = REPLIES.find(function (r) {
       return r.match.some(function (phrase) { return hasWord(lower, phrase); });
     });
@@ -275,7 +333,11 @@
     return fetch(BEAST_SERVER_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: text, history: chatHistory.slice(-6) }),
+      body: JSON.stringify({
+        message: text,
+        history: chatHistory.slice(-6),
+        visitor: resolveVisitorName(text) || null
+      }),
       signal: controller.signal
     })
       .then(function (resp) {

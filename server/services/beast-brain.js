@@ -128,8 +128,12 @@ export function rememberConversation(db, question, answer) {
   }
 }
 
-export function buildSystemPrompt(db, brain) {
+export function buildSystemPrompt(db, brain, visitorName) {
   const parts = [BASE_PROMPT, `Today is ${brain.day}.`];
+
+  if (visitorName) {
+    parts.push(`The visitor's name is ${visitorName}. Use it naturally when greeting them.`);
+  }
 
   if (brain.moon_phase) {
     parts.push(`Tonight's Moon: ${brain.moon_phase}.`);
