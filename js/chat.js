@@ -239,15 +239,11 @@
   }
 
   /* Beast's brain for open questions the fixed rules above don't cover.
-     Talks to beast_server.py, a tiny local bridge to Ollama (same fix as
-     Ada's ada_server.py — a static site's browser JS can't reach Ollama
-     directly, since a JSON POST triggers a CORS preflight Ollama never
-     answers). Only reachable while THIS machine is running that script;
-     on the live public site that means Anshuman's own laptop, not a
-     visitor's. Fails silently (returns null) whenever that's not the
-     case, so DEFAULT_REPLY still applies.
+     Calls /api/beast on this same server, which proxies to Ollama on the
+     host. Fails silently (returns null) when Ollama is offline so the
+     DEFAULT_REPLY still applies.
   */
-  var BEAST_SERVER_URL = "http://localhost:8422/api/beast";
+  var BEAST_SERVER_URL = "/api/beast";
   // Generous: Ollama unloads an idle model and has to reload it into
   // memory on the next request, which alone can take 10+ seconds on this
   // laptop's CPU before the actual answer even starts generating.
@@ -268,7 +264,7 @@
         return resp.json();
       })
       .then(function (data) {
-        var reply = (data.reply || "").trim();
+        var reply = (data.reply || (data.data && data.data.reply) || "").trim();
         return reply || null;
       })
       .catch(function () { return null; })
