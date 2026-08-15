@@ -134,6 +134,11 @@ jobs:
 
           echo "accounts: register, session check, logout, and rejected login all behave correctly"
 
+          # Beast's Ollama bridge should be wired even when Ollama is absent in CI.
+          code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8899/api/beast/health)
+          echo "GET /api/beast/health -> ${code}"
+          [ "$code" = "200" ] || { echo "::error::Beast health check failed"; docker logs astro; exit 1; }
+
       # Runs even if the smoke test failed — the logs are most wanted
       # precisely when something went wrong.
       - name: Container logs
