@@ -25,6 +25,9 @@ ENV PORT=8899
 # has to live on a mounted volume, attached at a path given through an
 # environment variable so nothing in the code has to know it in advance.
 ENV ASTRO_DATA_DIR=/data
+# Overridden by docker compose to http://ollama:11434/api/generate
+ENV OLLAMA_URL=http://127.0.0.1:11434/api/generate
+ENV OLLAMA_MODEL=llama3.2:3b
 
 # No dependencies to install (package.json declares none), so there's
 # no separate install-then-copy step to cache — just copy the source.
