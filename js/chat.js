@@ -58,6 +58,7 @@
     }
     log.appendChild(bubble);
     log.scrollTop = log.scrollHeight;
+    return bubble;
   }
 
   function addTextNode(parent, text) {
@@ -77,18 +78,36 @@
     return thinking;
   }
 
-  function greet(user) {
+  var chatHistory = [];
+
+  function greet(user, learnedLine) {
     var name = user && window.AstroAccount ? window.AstroAccount.displayName(user) : null;
+    var learnBit = learnedLine ? " " + learnedLine : " I study something new about the sky every day.";
     var hello = name
-      ? "Hey " + name + "! Today's NASA picture is below — it refreshes every day. Ask me about a planet, a constellation, the Moon, or say 'fact' for something strange and true."
-      : "Hey, I'm Beast! Today's NASA picture is below — it refreshes every day. Ask me about a planet, a constellation, the Moon, or say 'fact' for something strange and true.";
+      ? "Hey " + name + "!" + learnBit + " Today's NASA picture is below. Ask me about a planet, a constellation, the Moon, or say 'fact'."
+      : "Hey, I'm Beast!" + learnBit + " Today's NASA picture is below. Ask me about a planet, a constellation, the Moon, or say 'fact'.";
     addMessage(hello, "bot");
   }
 
-  /* Greet immediately. Waiting on /api/auth/me used to leave the chat
-     empty whenever the account check was slow or the server was down. */
-  greet(window.AstroAccount ? window.AstroAccount.user : null);
-  input.focus();
+  function loadDailyLearning(user) {
+    fetch("/api/beast/learned")
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        var summary = data && (data.summary || (data.data && data.data.summary));
+        greet(user, summary || null);
+        input.focus();
+        showTodaysApod(false);
+        scheduleApodMidnightRefresh();
+      })
+      .catch(function () {
+        greet(user, null);
+        input.focus();
+        showTodaysApod(false);
+        scheduleApodMidnightRefresh();
+      });
+  }
+
+  loadDailyLearning(window.AstroAccount ? window.AstroAccount.user : null);
 
   /* ---------------- real-data lookups ---------------- */
 
@@ -256,7 +275,7 @@
     return fetch(BEAST_SERVER_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: text }),
+      body: JSON.stringify({ message: text, history: chatHistory.slice(-6) }),
       signal: controller.signal
     })
       .then(function (resp) {
@@ -456,14 +475,12 @@
     if (document.visibilityState === "visible") maybeRefreshApodForNewDay();
   });
 
-  showTodaysApod(false);
-  scheduleApodMidnightRefresh();
-
   form.addEventListener("submit", function (e) {
     e.preventDefault();
     var text = input.value.trim();
     if (!text) return;
     addMessage(text, "user");
+    chatHistory.push({ role: "user", content: text });
     input.value = "";
     var lower = text.toLowerCase();
 
@@ -475,13 +492,16 @@
     var reply = ruleReply(text);
     if (reply) {
       addMessage(reply, "bot");
+      chatHistory.push({ role: "assistant", content: reply });
       return;
     }
 
     var thinking = showThinking();
     askOllama(text).then(function (ollamaReply) {
       thinking.remove();
-      addMessage(ollamaReply || DEFAULT_REPLY, "bot");
+      var finalReply = ollamaReply || DEFAULT_REPLY;
+      addMessage(finalReply, "bot");
+      chatHistory.push({ role: "assistant", content: finalReply });
     });
   });
 })();

@@ -14,7 +14,7 @@
 
 import { send } from "../app.js";
 import { register, login, logout, me } from "./auth.js";
-import { beast, beastHealth } from "./beast.js";
+import { beast, beastHealth, beastLearned } from "./beast.js";
 import { userForToken } from "../services/auth.js";
 import { SESSION_COOKIE, parseCookies } from "../lib/cookies.js";
 
@@ -29,7 +29,7 @@ export async function handleApi(req, res, url, db) {
     if (path === "/api/auth/register") return await register(req, res, db);
     if (path === "/api/auth/login")    return await login(req, res, db);
     if (path === "/api/auth/logout")   return logout(req, res, db);
-    if (path === "/api/beast")         return await beast(req, res);
+    if (path === "/api/beast")         return await beast(req, res, db);
 
     return send(res, 405, { error: { code: "method_not_allowed", message: "No such write endpoint." } });
   }
@@ -37,6 +37,7 @@ export async function handleApi(req, res, url, db) {
   if (req.method === "GET") {
     if (path === "/api/health")        return send(res, 200, { data: { ok: true, user: user ? user.username : null } });
     if (path === "/api/beast/health")  return beastHealth(res);
+    if (path === "/api/beast/learned") return await beastLearned(res, db);
     if (path === "/api/auth/me")       return me(res, user);
 
     return send(res, 404, { error: { code: "not_found", message: "No such endpoint." } });

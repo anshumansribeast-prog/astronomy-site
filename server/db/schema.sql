@@ -15,3 +15,22 @@ CREATE TABLE IF NOT EXISTS sessions (
   expires_at TEXT    NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
+
+-- Beast's server-side brain: what he studies each day + visitor memories.
+CREATE TABLE IF NOT EXISTS beast_brain_days (
+  day          TEXT PRIMARY KEY,
+  apod_title   TEXT,
+  apod_summary TEXT,
+  moon_phase   TEXT,
+  daily_fact   TEXT,
+  refreshed_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS beast_memories (
+  id         INTEGER PRIMARY KEY,
+  learned_on TEXT NOT NULL,
+  question   TEXT NOT NULL,
+  answer     TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_beast_memories_day ON beast_memories(learned_on);
