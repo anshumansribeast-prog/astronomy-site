@@ -1,5 +1,8 @@
 {
   "name": "Astronomy Site",
+  "repositoryDependencies": [
+    "github.com/anshumansribeast-prog/semicolon"
+  ],
   "install": ".cursor/scripts/install.sh",
   "start": ".cursor/scripts/start.sh",
   "ports": [8899],
