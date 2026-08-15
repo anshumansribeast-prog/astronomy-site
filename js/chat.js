@@ -60,6 +60,14 @@
     log.scrollTop = log.scrollHeight;
   }
 
+  function addTextNode(parent, text) {
+    var parts = String(text).split("\n");
+    parts.forEach(function (part, i) {
+      if (i > 0) parent.appendChild(document.createElement("br"));
+      parent.appendChild(document.createTextNode(part));
+    });
+  }
+
   function showThinking() {
     var thinking = document.createElement("div");
     thinking.className = "beast-bubble beast-bot beast-thinking";
@@ -72,8 +80,8 @@
   function greet(user) {
     var name = user && window.AstroAccount ? window.AstroAccount.displayName(user) : null;
     var hello = name
-      ? "Hey " + name + "! Ask me about a planet, a constellation, the Moon, say 'fact' for something strange and true, or 'picture of the day' for NASA's latest."
-      : "Hey, I'm Beast! Ask me about a planet, a constellation, the Moon, say 'fact' for something strange and true, or 'picture of the day' for NASA's latest.";
+      ? "Hey " + name + "! Today's NASA picture is below — it refreshes every day. Ask me about a planet, a constellation, the Moon, or say 'fact' for something strange and true."
+      : "Hey, I'm Beast! Today's NASA picture is below — it refreshes every day. Ask me about a planet, a constellation, the Moon, or say 'fact' for something strange and true.";
     addMessage(hello, "bot");
   }
 
@@ -273,38 +281,187 @@
      the browser with no server involved. DEMO_KEY is NASA's shared public key
      (30 req/hour, 50/day per IP) — fine for a small site; swap in a free
      personal key from https://api.nasa.gov/ if that limit ever gets hit.
+
+     Cached in localStorage by calendar date so the same picture stays up all
+     day, then refreshes automatically after midnight or when you hit Refresh.
   */
   var NASA_API_KEY = "DEMO_KEY";
-  var NASA_APOD_URL = "https://api.nasa.gov/planetary/apod?api_key=" + NASA_API_KEY;
+  var NASA_APOD_BASE = "https://api.nasa.gov/planetary/apod?api_key=" + NASA_API_KEY;
   var NASA_TIMEOUT_MS = 15000;
+  var APOD_CACHE_KEY = "cosmos_beast_apod_v1";
+
+  var apodBubbleEl = null;
+  var apodDateShown = null;
+  var apodLoading = false;
+  var apodMidnightTimer = null;
 
   var APOD_PHRASES = ["picture of the day", "photo of the day", "apod", "space picture", "nasa picture", "today's picture"];
+  var APOD_REFRESH_PHRASES = ["refresh picture", "refresh apod", "new picture", "update picture", "reload picture"];
+
+  function pad2(n) { return n < 10 ? "0" + n : String(n); }
+
+  function todayDateString() {
+    var d = new Date();
+    return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate());
+  }
+
   function isApodRequest(lower) {
     return APOD_PHRASES.some(function (phrase) { return hasWord(lower, phrase); });
   }
 
-  function fetchApod() {
+  function isApodRefreshRequest(lower) {
+    return APOD_REFRESH_PHRASES.some(function (phrase) { return hasWord(lower, phrase); });
+  }
+
+  function readApodCache() {
+    try {
+      var raw = localStorage.getItem(APOD_CACHE_KEY);
+      if (!raw) return null;
+      var cached = JSON.parse(raw);
+      if (cached && cached.date === todayDateString()) return cached;
+    } catch (err) { /* private browsing / quota */ }
+    return null;
+  }
+
+  function writeApodCache(result) {
+    try {
+      localStorage.setItem(APOD_CACHE_KEY, JSON.stringify({
+        date: result.date || todayDateString(),
+        text: result.text,
+        image: result.image || null
+      }));
+    } catch (err) { /* ignore */ }
+  }
+
+  function parseApodResponse(data) {
+    var text = (data.title || "NASA's Astronomy Picture of the Day") +
+      (data.date ? " (" + data.date + ")" : "") + "\n" +
+      (data.explanation || "");
+    var image = data.media_type === "image" ? (data.url || data.hdurl) : null;
+    if (data.media_type === "video") text += "\nToday's is a video — see it at " + data.url;
+    return { date: data.date || todayDateString(), text: text, image: image };
+  }
+
+  function fetchApodFromNasa(date) {
     var controller = new AbortController();
     var timer = setTimeout(function () { controller.abort(); }, NASA_TIMEOUT_MS);
+    var url = NASA_APOD_BASE + "&date=" + encodeURIComponent(date || todayDateString());
 
-    return fetch(NASA_APOD_URL, { signal: controller.signal })
+    return fetch(url, { signal: controller.signal })
       .then(function (resp) {
         if (!resp.ok) throw new Error("NASA HTTP " + resp.status);
         return resp.json();
       })
-      .then(function (data) {
-        var text = (data.title || "NASA's Astronomy Picture of the Day") +
-          (data.date ? " (" + data.date + ")" : "") + "\n" +
-          (data.explanation || "");
-        var image = data.media_type === "image" ? (data.url || data.hdurl) : null;
-        if (data.media_type === "video") text += "\nToday's is a video — see it at " + data.url;
-        return { text: text, image: image };
-      })
+      .then(parseApodResponse)
       .catch(function () {
-        return { text: "Couldn't reach NASA's picture-of-the-day service right now — try again in a bit.", image: null };
+        return {
+          date: date || todayDateString(),
+          text: "Couldn't reach NASA's picture-of-the-day service right now — try again in a bit.",
+          image: null
+        };
       })
       .finally(function () { clearTimeout(timer); });
   }
+
+  function fetchApod(forceRefresh) {
+    if (!forceRefresh) {
+      var cached = readApodCache();
+      if (cached) return Promise.resolve(cached);
+    }
+    return fetchApodFromNasa(todayDateString()).then(function (result) {
+      writeApodCache(result);
+      return result;
+    });
+  }
+
+  function renderApodBubble(result) {
+    if (!apodBubbleEl) {
+      apodBubbleEl = document.createElement("div");
+      apodBubbleEl.className = "beast-bubble beast-bot beast-apod-card";
+      log.appendChild(apodBubbleEl);
+    }
+
+    apodBubbleEl.replaceChildren();
+
+    var head = document.createElement("div");
+    head.className = "beast-apod-head";
+
+    var label = document.createElement("span");
+    label.className = "beast-apod-label";
+    label.textContent = "Picture of the day · " + (result.date || todayDateString());
+
+    var refreshBtn = document.createElement("button");
+    refreshBtn.type = "button";
+    refreshBtn.className = "beast-apod-refresh";
+    refreshBtn.textContent = "Refresh";
+    refreshBtn.addEventListener("click", function () {
+      showTodaysApod(true);
+    });
+
+    head.append(label, refreshBtn);
+    apodBubbleEl.appendChild(head);
+
+    var body = document.createElement("div");
+    body.className = "beast-apod-body";
+    addTextNode(body, result.text);
+    apodBubbleEl.appendChild(body);
+
+    if (result.image) {
+      var img = document.createElement("img");
+      img.src = result.image;
+      img.alt = "NASA Astronomy Picture of the Day";
+      img.className = "beast-apod-img";
+      img.loading = "lazy";
+      apodBubbleEl.appendChild(img);
+    }
+
+    apodDateShown = result.date || todayDateString();
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function showTodaysApod(forceRefresh) {
+    if (apodLoading) return Promise.resolve();
+    apodLoading = true;
+
+    if (!forceRefresh && apodBubbleEl && apodDateShown === todayDateString()) {
+      apodLoading = false;
+      return Promise.resolve();
+    }
+
+    var thinking = apodBubbleEl ? null : showThinking();
+
+    return fetchApod(forceRefresh).then(function (result) {
+      if (thinking) thinking.remove();
+      renderApodBubble(result);
+    }).finally(function () {
+      apodLoading = false;
+    });
+  }
+
+  function msUntilNextMidnight() {
+    var now = new Date();
+    var next = new Date(now);
+    next.setHours(24, 0, 0, 0);
+    return Math.max(1000, next.getTime() - now.getTime() + 1000);
+  }
+
+  function scheduleApodMidnightRefresh() {
+    if (apodMidnightTimer) clearTimeout(apodMidnightTimer);
+    apodMidnightTimer = setTimeout(function () {
+      showTodaysApod(true).finally(scheduleApodMidnightRefresh);
+    }, msUntilNextMidnight());
+  }
+
+  function maybeRefreshApodForNewDay() {
+    if (apodDateShown !== todayDateString()) showTodaysApod(true);
+  }
+
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "visible") maybeRefreshApodForNewDay();
+  });
+
+  showTodaysApod(false);
+  scheduleApodMidnightRefresh();
 
   form.addEventListener("submit", function (e) {
     e.preventDefault();
@@ -314,12 +471,8 @@
     input.value = "";
     var lower = text.toLowerCase();
 
-    if (isApodRequest(lower)) {
-      var apodThinking = showThinking();
-      fetchApod().then(function (result) {
-        apodThinking.remove();
-        addMessage(result.text, "bot", result.image);
-      });
+    if (isApodRequest(lower) || isApodRefreshRequest(lower)) {
+      showTodaysApod(isApodRefreshRequest(lower));
       return;
     }
 
