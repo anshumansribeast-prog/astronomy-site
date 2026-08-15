@@ -1,0 +1,535 @@
+From 04e32914d64f5f979bd4bc31e4998f6a7ac46563 Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 15 Aug 2026 08:39:59 +0000
+Subject: [PATCH 1/2] Run Ada on the server and fix punah.pro site bugs
+
+- Proxy /api/ada through nginx to ada_server.py in the Docker image
+- Point ada.js at the same-origin API instead of localhost
+- Fix canonical, sitemap, robots, config and 404 URLs for semicolon.punah.pro
+- Fix typo in GitHub footer link on the Ada page
+- Add Ada health check to CI smoke tests
+---
+ .github/workflows/ci.yml |  9 ++++++++
+ 404.html                 |  2 +-
+ Dockerfile               | 16 +++++++--------
+ ada_server.py            | 37 ++++++++++++++++++---------------
+ docker-entrypoint.sh     |  8 ++++++++
+ index.html               |  2 +-
+ js/ada.js                | 26 ++++++++++--------------
+ js/config.js             |  2 +-
+ nginx.conf               |  8 ++++++++
+ pages/ada.html           | 15 +++++++-------
+ robots.txt               |  2 +-
+ sitemap.xml              | 44 ++++++++++++++++++++--------------------
+ 12 files changed, 98 insertions(+), 73 deletions(-)
+ create mode 100755 docker-entrypoint.sh
+
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+index 7e3c3e9..99423d4 100644
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -101,6 +101,15 @@ jobs:
+             exit 1
+           fi
+ 
++          # Ada's API bridge should be up even when Ollama is not (CI has no model).
++          code=$(curl -s -o /dev/null -w "%{http_code}" -X OPTIONS http://localhost:8080/api/ada)
++          echo "OPTIONS /api/ada -> ${code}"
++          [ "$code" = "204" ] || { echo "::error::Ada OPTIONS failed"; docker logs semicolon; exit 1; }
++
++          code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/api/ada/health)
++          echo "GET /api/ada/health -> ${code}"
++          [ "$code" = "200" ] || { echo "::error::Ada health check failed"; docker logs semicolon; exit 1; }
++
+       # Runs even if the smoke test failed — the logs are most wanted
+       # precisely when something went wrong.
+       - name: Container logs
+diff --git a/404.html b/404.html
+index 2fb2afe..d040f57 100644
+--- a/404.html
++++ b/404.html
+@@ -41,7 +41,7 @@
+ 
+   <p><strong>One thing worth checking:</strong> if you typed
+      <code>www.</code> at the start, remove it. This site lives at
+-     <code>semicolon-anshu.netlify.app</code> with no <code>www</code>,
++     <code>semicolon.punah.pro</code> with no <code>www</code>,
+      and adding one stops the page loading at all.</p>
+ 
+   <div class="links">
+diff --git a/Dockerfile b/Dockerfile
+index ed2531f..dc2cec2 100644
+--- a/Dockerfile
++++ b/Dockerfile
+@@ -1,17 +1,15 @@
+-# Semicolon is a static site (no build step, no server code), so all
+-# this image needs is a small web server to hand out the files.
+-# nginx:alpine is ~40MB and is the standard choice for that job.
++# Semicolon: static site (nginx) plus Ada's Python bridge to Ollama.
+ FROM nginx:alpine
+ 
+-# nginx's default config already serves /usr/share/nginx/html on port 80.
+-# We only override it to point 404s at the site's own 404.html instead
+-# of nginx's generic error page.
++RUN apk add --no-cache python3
++
+ COPY nginx.conf /etc/nginx/conf.d/default.conf
++COPY ada_server.py /opt/semicolon/ada_server.py
++COPY docker-entrypoint.sh /docker-entrypoint.sh
++RUN chmod +x /docker-entrypoint.sh
+ 
+-# Copy the site itself in. .dockerignore keeps .git, .env, and docs out.
+ COPY . /usr/share/nginx/html
+ 
+ EXPOSE 80
+ 
+-# nginx:alpine's base image already runs nginx in the foreground as the
+-# container's main process — nothing else to start here.
++ENTRYPOINT ["/docker-entrypoint.sh"]
+diff --git a/ada_server.py b/ada_server.py
+index 21a34b5..66028d6 100644
+--- a/ada_server.py
++++ b/ada_server.py
+@@ -1,24 +1,21 @@
+-"""Ada's brain — a tiny local HTTP server bridging Semicolon's Ada
+-chat widget (js/ada.js) to Ollama, the same local AI model Jarvis
+-uses. A static site's browser JS can't reach Ollama directly (it only
+-listens on localhost with no CORS headers), so this fills that gap.
++"""Ada's brain — bridges Semicolon's Ada chat (js/ada.js) to Ollama.
+ 
+-Run:  python ada_server.py     (needs `ollama serve` already running)
++In production the site container runs this alongside nginx; nginx proxies
++/api/ada here. Ollama should be running on the same host (or set OLLAMA_URL).
+ 
+-This only serves localhost. Ada only answers while THIS machine is
+-running this script — it does not make Ada work for a real visitor
+-on the deployed site unless this computer is itself the public server.
+-Zero extra dependencies: stdlib only, same spirit as Cosmos v2's server.
++Run locally:  python ada_server.py     (needs `ollama serve` already running)
+ """
+ 
+ import json
++import os
+ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+ from urllib import request as urlreq
+ from urllib.error import URLError
+ 
+-PORT = 8420
+-OLLAMA_URL = "http://localhost:11434/api/generate"
+-OLLAMA_MODEL = "llama3.2:3b"
++HOST = os.environ.get("ADA_HOST", "127.0.0.1")
++PORT = int(os.environ.get("ADA_PORT", "8420"))
++OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://127.0.0.1:11434/api/generate")
++OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "llama3.2:3b")
+ SYSTEM_PROMPT = (
+     "You are Ada, a friendly coding tutor on Semicolon, a free learn-to-code "
+     "site for a complete beginner (a class 8 student). When they're stuck, "
+@@ -31,7 +28,7 @@ SYSTEM_PROMPT = (
+ class AdaHandler(BaseHTTPRequestHandler):
+     def _cors(self):
+         self.send_header("Access-Control-Allow-Origin", "*")
+-        self.send_header("Access-Control-Allow-Methods", "POST, OPTIONS")
++        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+         self.send_header("Access-Control-Allow-Headers", "Content-Type")
+ 
+     def do_OPTIONS(self):
+@@ -39,6 +36,14 @@ class AdaHandler(BaseHTTPRequestHandler):
+         self._cors()
+         self.end_headers()
+ 
++    def do_GET(self):
++        if self.path == "/api/ada/health":
++            self._reply(200, {"ok": True})
++            return
++        self.send_response(404)
++        self._cors()
++        self.end_headers()
++
+     def do_POST(self):
+         if self.path != "/api/ada":
+             self.send_response(404)
+@@ -78,7 +83,7 @@ class AdaHandler(BaseHTTPRequestHandler):
+             with urlreq.urlopen(req, timeout=120) as resp:
+                 reply = json.loads(resp.read()).get("response", "").strip()
+         except (URLError, TimeoutError, ValueError):
+-            self._reply(502, {"error": "Ollama isn't reachable - is `ollama serve` running?"})
++            self._reply(502, {"error": "Ollama isn't reachable on the server."})
+             return
+ 
+         self._reply(200, {"reply": reply or "Hmm, I've got nothing - try rephrasing that?"})
+@@ -97,6 +102,6 @@ class AdaHandler(BaseHTTPRequestHandler):
+ 
+ 
+ if __name__ == "__main__":
+-    server = ThreadingHTTPServer(("localhost", PORT), AdaHandler)
+-    print(f"Ada server listening on http://localhost:{PORT} (Ollama model: {OLLAMA_MODEL})")
++    server = ThreadingHTTPServer((HOST, PORT), AdaHandler)
++    print(f"Ada server listening on http://{HOST}:{PORT} (Ollama: {OLLAMA_URL})")
+     server.serve_forever()
+diff --git a/docker-entrypoint.sh b/docker-entrypoint.sh
+new file mode 100755
+index 0000000..98e5192
+--- /dev/null
++++ b/docker-entrypoint.sh
+@@ -0,0 +1,8 @@
++#!/bin/sh
++set -eu
++
++# Ada's Python bridge talks to Ollama on this machine. With host networking
++# (recommended on punah.pro), 127.0.0.1 reaches the host's Ollama. Override
++# with OLLAMA_URL when Ollama runs elsewhere.
++python3 /opt/semicolon/ada_server.py &
++exec nginx -g 'daemon off;'
+diff --git a/index.html b/index.html
+index 9e9e513..273eeeb 100644
+--- a/index.html
++++ b/index.html
+@@ -14,7 +14,7 @@
+   <meta property="og:description" content="A free, plain-English introduction to programming for complete beginners.">
+   <meta name="twitter:card" content="summary_large_image">
+ 
+-  <link rel="canonical" href="https://semicolon-anshu.netlify.app/">
++  <link rel="canonical" href="https://semicolon.punah.pro/">
+   <link rel="stylesheet" href="css/style.css">
+   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%231d4ed8'/><text x='16' y='23' font-size='22' font-family='monospace' fill='white' text-anchor='middle'>;</text></svg>">
+ </head>
+diff --git a/js/ada.js b/js/ada.js
+index 84c7fc9..4d78662 100644
+--- a/js/ada.js
++++ b/js/ada.js
+@@ -1,22 +1,18 @@
+ /* ===================================================================
+    js/ada.js — Ada, Semicolon's tutor chat.
+ 
+-   Ada's brain is Ollama running LOCALLY on Anshuman's own computer
+-   (see ../ada_server.py) — same model Jarvis uses, no cloud, no API
+-   key. That means Ada only answers while that server is running on
+-   that machine; it can't work for a random visitor on the deployed
+-   site unless that's hosted somewhere reachable. Honest about that in
+-   the UI rather than pretending it's always on.
++   Talks to /api/ada on the same site. In production nginx proxies that
++   to ada_server.py inside the container, which calls Ollama on the host.
+    =================================================================== */
+ (function () {
+-  const ADA_URL = "http://localhost:8420/api/ada";
+-  const HISTORY_LIMIT = 6; // last N messages sent as context, so replies don't explode the prompt
++  const ADA_URL = "/api/ada";
++  const HISTORY_LIMIT = 6;
+ 
+   const log = document.getElementById("adaLog");
+   const form = document.getElementById("adaForm");
+   const input = document.getElementById("adaInput");
+   const sendBtn = document.getElementById("adaSend");
+-  if (!form) return; // not on the Ada page
++  if (!form) return;
+ 
+   const history = [];
+ 
+@@ -47,16 +43,17 @@
+         headers: { "Content-Type": "application/json" },
+         body: JSON.stringify({ message: text, history: history.slice(-HISTORY_LIMIT) }),
+       });
+-      if (!resp.ok) throw new Error("bad status " + resp.status);
+-      const data = await resp.json();
++      const data = await resp.json().catch(function () { return {}; });
++      if (!resp.ok) {
++        throw new Error(data.error || ("bad status " + resp.status));
++      }
+       thinking.textContent = data.reply || "I didn't get that — try asking again?";
+       thinking.className = "ada-bubble ada-bubble--bot";
+       history.push({ role: "assistant", content: data.reply || "" });
+     } catch (err) {
+       thinking.textContent =
+-        "Ada is offline right now — it only answers while Anshuman's " +
+-        "computer is running the Ada server (python ada_server.py) " +
+-        "with Ollama on. Ask him to start it.";
++        "Ada couldn't answer right now — the server's AI brain (Ollama) may be " +
++        "starting up or offline. Try again in a minute.";
+       thinking.className = "ada-bubble ada-bubble--error";
+     } finally {
+       input.disabled = false;
+@@ -65,7 +62,6 @@
+     }
+   });
+ 
+-  // Enter sends, Shift+Enter makes a new line — the usual chat convention.
+   input.addEventListener("keydown", function (e) {
+     if (e.key === "Enter" && !e.shiftKey) {
+       e.preventDefault();
+diff --git a/js/config.js b/js/config.js
+index 104646f..71e4327 100644
+--- a/js/config.js
++++ b/js/config.js
+@@ -18,7 +18,7 @@ const CONFIG = {
+     description:
+       "A free, plain-English introduction to programming — what code is, " +
+       "what it's used for, and how to write your first working program.",
+-    url:     "https://semicolon-anshu.netlify.app",     // live site
++    url:     "https://semicolon.punah.pro",     // live site
+     author:  "Anshuman Srivastava",
+     founded: 2026
+   },
+diff --git a/nginx.conf b/nginx.conf
+index 0eb6b4c..ea6b5ee 100644
+--- a/nginx.conf
++++ b/nginx.conf
+@@ -7,6 +7,14 @@ server {
+ 
+     error_page 404 /404.html;
+ 
++    location /api/ada {
++        proxy_pass http://127.0.0.1:8420;
++        proxy_http_version 1.1;
++        proxy_set_header Host $host;
++        proxy_set_header X-Real-IP $remote_addr;
++        proxy_read_timeout 180s;
++    }
++
+     location / {
+         try_files $uri $uri/ =404;
+     }
+diff --git a/pages/ada.html b/pages/ada.html
+index 08613f8..a90a1d1 100644
+--- a/pages/ada.html
++++ b/pages/ada.html
+@@ -51,9 +51,10 @@
+       <span class="eyebrow">Ada</span>
+       <h1>Ask Ada anything</h1>
+       <p class="lede">
+-        Ada is Semicolon's own tutor — it runs on the same local AI brain (Ollama)
+-        as Anshuman's Jarvis. It explains ideas and points you toward the fix rather
+-        than just handing over finished code, so you actually learn the thing.
++        Ada is Semicolon's own tutor — powered by Ollama on the server, the same
++        local AI brain Jarvis uses. It explains ideas and points you toward the
++        fix rather than just handing over finished code, so you actually learn
++        the thing.
+       </p>
+     </div>
+   </section>
+@@ -78,9 +79,9 @@
+       </div>
+ 
+       <p class="field-hint" style="margin-top:.8rem">
+-        Ada only answers while it's running on Anshuman's own computer (it uses
+-        Ollama, a local AI model — no cloud, no API key). If it says it's offline,
+-        that machine isn't running the Ada server right now.
++        Ada runs on the Semicolon server (not your laptop). If it says it's
++        offline, Ollama on the server may still be starting — try again in a
++        minute.
+       </p>
+     </div>
+   </section>
+@@ -95,7 +96,7 @@
+         <p>A free, plain-English introduction to programming. Built with HTML, CSS and
+            JavaScript — and readable by anyone who wants to see how.</p>
+         <div class="social">
+-          <a href="https://github.com/anshumansriada-prog/semicolon" target="_blank" rel="noopener" aria-label="Semicolon on GitHub"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.9a3.4 3.4 0 00-1-2.6c3.1-.3 6.4-1.5 6.4-7A5.4 5.4 0 0020 4.8 5 5 0 0019.9 1S18.7.6 16 2.5a13.4 13.4 0 00-7 0C6.3.6 5.1 1 5.1 1A5 5 0 005 4.8a5.4 5.4 0 00-1.4 3.8c0 5.4 3.3 6.6 6.4 7a3.4 3.4 0 00-1 2.6V22"/></svg></a>
++          <a href="https://github.com/anshumansribeast-prog/semicolon" target="_blank" rel="noopener" aria-label="Semicolon on GitHub"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.9a3.4 3.4 0 00-1-2.6c3.1-.3 6.4-1.5 6.4-7A5.4 5.4 0 0020 4.8 5 5 0 0019.9 1S18.7.6 16 2.5a13.4 13.4 0 00-7 0C6.3.6 5.1 1 5.1 1A5 5 0 005 4.8a5.4 5.4 0 00-1.4 3.8c0 5.4 3.3 6.6 6.4 7a3.4 3.4 0 00-1 2.6V22"/></svg></a>
+           <a data-config-mailto href="#" aria-label="Email"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 6 10-6"/></svg></a>
+         </div>
+       </div>
+diff --git a/robots.txt b/robots.txt
+index bfbfcfc..e4b3342 100644
+--- a/robots.txt
++++ b/robots.txt
+@@ -7,7 +7,7 @@ User-agent: *
+ Allow: /
+ 
+ # Point crawlers at the full page list
+-Sitemap: https://semicolon-anshu.netlify.app/sitemap.xml
++Sitemap: https://semicolon.punah.pro/sitemap.xml
+ 
+ # Be polite to smaller servers (ignored by Google, honoured by others)
+ Crawl-delay: 1
+diff --git a/sitemap.xml b/sitemap.xml
+index f99ab91..77c8cf9 100644
+--- a/sitemap.xml
++++ b/sitemap.xml
+@@ -12,56 +12,56 @@
+ <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+ 
+   <url>
+-    <loc>https://semicolon-anshu.netlify.app/</loc>
++    <loc>https://semicolon.punah.pro/</loc>
+     <changefreq>weekly</changefreq>
+     <priority>1.0</priority>
+   </url>
+ 
+   <url>
+-    <loc>https://semicolon-anshu.netlify.app/pages/learn.html</loc>
++    <loc>https://semicolon.punah.pro/pages/learn.html</loc>
+     <changefreq>weekly</changefreq>
+     <priority>0.9</priority>
+   </url>
+ 
+   <url>
+-    <loc>https://semicolon-anshu.netlify.app/pages/blog.html</loc>
++    <loc>https://semicolon.punah.pro/pages/blog.html</loc>
+     <changefreq>weekly</changefreq>
+     <priority>0.8</priority>
+   </url>
+ 
+   <url>
+-    <loc>https://semicolon-anshu.netlify.app/pages/about.html</loc>
++    <loc>https://semicolon.punah.pro/pages/about.html</loc>
+     <changefreq>monthly</changefreq>
+     <priority>0.6</priority>
+   </url>
+ 
+   <url>
+-    <loc>https://semicolon-anshu.netlify.app/pages/contact.html</loc>
++    <loc>https://semicolon.punah.pro/pages/contact.html</loc>
+     <changefreq>monthly</changefreq>
+     <priority>0.6</priority>
+   </url>
+ 
+   <!-- Blog posts -->
+-  <url><loc>https://semicolon-anshu.netlify.app/pages/post.html?slug=which-language-first</loc><priority>0.7</priority></url>
+-  <url><loc>https://semicolon-anshu.netlify.app/pages/post.html?slug=read-the-error-message</loc><priority>0.7</priority></url>
+-  <url><loc>https://semicolon-anshu.netlify.app/pages/post.html?slug=variables-are-boxes</loc><priority>0.7</priority></url>
+-  <url><loc>https://semicolon-anshu.netlify.app/pages/post.html?slug=three-loops</loc><priority>0.7</priority></url>
+-  <url><loc>https://semicolon-anshu.netlify.app/pages/post.html?slug=eight-planets-no-images</loc><priority>0.7</priority></url>
+-  <url><loc>https://semicolon-anshu.netlify.app/pages/post.html?slug=first-ten-git-commands</loc><priority>0.7</priority></url>
+-  <url><loc>https://semicolon-anshu.netlify.app/pages/post.html?slug=why-your-code-breaks</loc><priority>0.7</priority></url>
++  <url><loc>https://semicolon.punah.pro/pages/post.html?slug=which-language-first</loc><priority>0.7</priority></url>
++  <url><loc>https://semicolon.punah.pro/pages/post.html?slug=read-the-error-message</loc><priority>0.7</priority></url>
++  <url><loc>https://semicolon.punah.pro/pages/post.html?slug=variables-are-boxes</loc><priority>0.7</priority></url>
++  <url><loc>https://semicolon.punah.pro/pages/post.html?slug=three-loops</loc><priority>0.7</priority></url>
++  <url><loc>https://semicolon.punah.pro/pages/post.html?slug=eight-planets-no-images</loc><priority>0.7</priority></url>
++  <url><loc>https://semicolon.punah.pro/pages/post.html?slug=first-ten-git-commands</loc><priority>0.7</priority></url>
++  <url><loc>https://semicolon.punah.pro/pages/post.html?slug=why-your-code-breaks</loc><priority>0.7</priority></url>
+ 
+   <!-- Practice area -->
+-  <url><loc>https://semicolon-anshu.netlify.app/pages/playground.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
++  <url><loc>https://semicolon.punah.pro/pages/playground.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+ 
+   <!-- Lesson 1 of each track -->
+-  <url><loc>https://semicolon-anshu.netlify.app/pages/lesson.html?track=first-program&amp;n=1</loc><priority>0.7</priority></url>
+-  <url><loc>https://semicolon-anshu.netlify.app/pages/lesson.html?track=thinking-in-loops&amp;n=1</loc><priority>0.7</priority></url>
+-  <url><loc>https://semicolon-anshu.netlify.app/pages/lesson.html?track=first-web-page&amp;n=1</loc><priority>0.7</priority></url>
+-  <url><loc>https://semicolon-anshu.netlify.app/pages/lesson.html?track=interactive-pages&amp;n=1</loc><priority>0.7</priority></url>
+-  <url><loc>https://semicolon-anshu.netlify.app/pages/lesson.html?track=files-and-data&amp;n=1</loc><priority>0.7</priority></url>
+-  <url><loc>https://semicolon-anshu.netlify.app/pages/lesson.html?track=git-basics&amp;n=1</loc><priority>0.7</priority></url>
+-  <url><loc>https://semicolon-anshu.netlify.app/pages/lesson.html?track=debugging&amp;n=1</loc><priority>0.7</priority></url>
+-  <url><loc>https://semicolon-anshu.netlify.app/pages/lesson.html?track=ship-a-project&amp;n=1</loc><priority>0.7</priority></url>
+-  <url><loc>https://semicolon-anshu.netlify.app/pages/lesson.html?track=choosing-a-language&amp;n=1</loc><priority>0.7</priority></url>
++  <url><loc>https://semicolon.punah.pro/pages/lesson.html?track=first-program&amp;n=1</loc><priority>0.7</priority></url>
++  <url><loc>https://semicolon.punah.pro/pages/lesson.html?track=thinking-in-loops&amp;n=1</loc><priority>0.7</priority></url>
++  <url><loc>https://semicolon.punah.pro/pages/lesson.html?track=first-web-page&amp;n=1</loc><priority>0.7</priority></url>
++  <url><loc>https://semicolon.punah.pro/pages/lesson.html?track=interactive-pages&amp;n=1</loc><priority>0.7</priority></url>
++  <url><loc>https://semicolon.punah.pro/pages/lesson.html?track=files-and-data&amp;n=1</loc><priority>0.7</priority></url>
++  <url><loc>https://semicolon.punah.pro/pages/lesson.html?track=git-basics&amp;n=1</loc><priority>0.7</priority></url>
++  <url><loc>https://semicolon.punah.pro/pages/lesson.html?track=debugging&amp;n=1</loc><priority>0.7</priority></url>
++  <url><loc>https://semicolon.punah.pro/pages/lesson.html?track=ship-a-project&amp;n=1</loc><priority>0.7</priority></url>
++  <url><loc>https://semicolon.punah.pro/pages/lesson.html?track=choosing-a-language&amp;n=1</loc><priority>0.7</priority></url>
+ 
+ </urlset>
+-- 
+2.43.0
+
+
+From 87261842a5c7e07d93de7dda2df4364d63be9903 Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Sat, 15 Aug 2026 08:54:38 +0000
+Subject: [PATCH 2/2] Add Cloud Agent environment and fix Docker build for Ada
+ server
+
+- Add .cursor/environment.json with Docker-based install/start
+- Remove ada_server.py from .dockerignore so the image build succeeds
+---
+ .cursor/environment.json   | 12 ++++++++++++
+ .cursor/scripts/install.sh | 15 +++++++++++++++
+ .cursor/scripts/start.sh   | 24 ++++++++++++++++++++++++
+ .dockerignore              |  6 +-----
+ 4 files changed, 52 insertions(+), 5 deletions(-)
+ create mode 100644 .cursor/environment.json
+ create mode 100755 .cursor/scripts/install.sh
+ create mode 100755 .cursor/scripts/start.sh
+
+diff --git a/.cursor/environment.json b/.cursor/environment.json
+new file mode 100644
+index 0000000..1971eaa
+--- /dev/null
++++ b/.cursor/environment.json
+@@ -0,0 +1,12 @@
++{
++  "name": "Semicolon",
++  "install": ".cursor/scripts/install.sh",
++  "start": ".cursor/scripts/start.sh",
++  "ports": [8080],
++  "terminals": [
++    {
++      "name": "site",
++      "command": "docker run --rm --name semicolon-dev -p 8080:80 semicolon:dev"
++    }
++  ]
++}
+diff --git a/.cursor/scripts/install.sh b/.cursor/scripts/install.sh
+new file mode 100755
+index 0000000..a6a25b0
+--- /dev/null
++++ b/.cursor/scripts/install.sh
+@@ -0,0 +1,15 @@
++#!/usr/bin/env bash
++set -euo pipefail
++
++# Idempotent bootstrap for semicolon. Static site + Ada Python bridge in Docker.
++if ! command -v docker >/dev/null 2>&1; then
++  echo "Docker is required for local smoke tests (CI uses the same image build)."
++  exit 1
++fi
++
++if ! docker info >/dev/null 2>&1; then
++  echo "Docker daemon is not running. Start dockerd before building the image."
++  exit 1
++fi
++
++docker build -t semicolon:dev .
+diff --git a/.cursor/scripts/start.sh b/.cursor/scripts/start.sh
+new file mode 100755
+index 0000000..0efa1ee
+--- /dev/null
++++ b/.cursor/scripts/start.sh
+@@ -0,0 +1,24 @@
++#!/usr/bin/env bash
++set -euo pipefail
++
++PORT="${PORT:-8080}"
++
++if curl -fsS "http://127.0.0.1:${PORT}/api/ada/health" >/dev/null 2>&1; then
++  echo "Semicolon already running on port ${PORT}"
++  exit 0
++fi
++
++docker rm -f semicolon-dev >/dev/null 2>&1 || true
++docker run -d --name semicolon-dev -p "${PORT}:80" semicolon:dev
++
++for _ in $(seq 1 20); do
++  if curl -fsS "http://127.0.0.1:${PORT}/api/ada/health" >/dev/null 2>&1; then
++    echo "Semicolon ready on port ${PORT}"
++    exit 0
++  fi
++  sleep 1
++done
++
++echo "Semicolon failed to start within 20s" >&2
++docker logs semicolon-dev >&2 || true
++exit 1
+diff --git a/.dockerignore b/.dockerignore
+index 732d84f..004b6ca 100644
+--- a/.dockerignore
++++ b/.dockerignore
+@@ -13,9 +13,5 @@ build/
+ .vscode/
+ .idea/
+ 
+-# ada_server.py is a local-only backend for the Ada chat tutor — it
+-# needs Ollama running on the same machine, which this static nginx
+-# image never has. Shipping it here would just be dead weight (and
+-# would publish backend source through the web server for no reason).
+-ada_server.py
++# Ada's Python bridge runs inside the container (not served as static files).
+ __pycache__/
+-- 
+2.43.0
+
