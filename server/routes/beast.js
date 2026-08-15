@@ -13,12 +13,19 @@ import {
   getTodayBrain,
   learnedSummary,
 } from "../services/beast-brain.js";
-
-const OLLAMA_URL = process.env.OLLAMA_URL || "http://127.0.0.1:11434/api/generate";
-const OLLAMA_MODEL = process.env.OLLAMA_MODEL || "llama3.2:3b";
+import { pingOllama, ollamaGenerate } from "../lib/ollama.js";
 
 export async function beastHealth(res) {
-  return send(res, 200, { ok: true });
+  const ping = await pingOllama();
+  // Always 200: CI and uptime checks prove the route is wired.
+  // `ollama` is the real brain flag — false when the model is down.
+  return send(res, 200, {
+    ok: true,
+    ollama: ping.ok,
+    model: ping.model,
+    hasModel: ping.hasModel,
+    url: ping.url,
+  });
 }
 
 export async function beastLearned(res, db) {
@@ -61,21 +68,7 @@ export async function beast(req, res, db) {
   prompt += `Visitor: ${message}\nBeast:`;
 
   try {
-    const resp = await fetch(OLLAMA_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: OLLAMA_MODEL,
-        prompt,
-        system,
-        stream: false,
-      }),
-      signal: AbortSignal.timeout(120_000),
-    });
-
-    if (!resp.ok) throw new Error(`Ollama HTTP ${resp.status}`);
-
-    const data = await resp.json();
+    const data = await ollamaGenerate({ prompt, system });
     const reply = (data.response || "").trim() || "Hmm, I've got nothing - try rephrasing that?";
     rememberConversation(db, message, reply);
     return send(res, 200, { reply });

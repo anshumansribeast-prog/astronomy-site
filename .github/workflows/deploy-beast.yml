@@ -1,0 +1,47 @@
+# Deploys Cosmos + Ollama to the punah.pro VPS.
+# GitHub secrets required: COSMOS_SSH_PRIVATE_KEY, COSMOS_SSH_USER
+# Optional: COSMOS_SSH_HOST (default 65.109.15.219)
+#
+# Run from Actions → Deploy Beast brain → Run workflow.
+# Not on every push — missing SSH secrets would fail main.
+
+name: Deploy Beast brain
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: SSH and compose up Ollama
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v5
+
+      - name: Require SSH secrets
+        env:
+          SSH_KEY: ${{ secrets.COSMOS_SSH_PRIVATE_KEY }}
+          SSH_USER: ${{ secrets.COSMOS_SSH_USER }}
+        run: |
+          if [ -z "${SSH_KEY:-}" ] || [ -z "${SSH_USER:-}" ]; then
+            echo "::error::Add GitHub secrets COSMOS_SSH_PRIVATE_KEY and COSMOS_SSH_USER, then re-run this workflow."
+            exit 1
+          fi
+
+      - name: Copy compose file and restart stack
+        env:
+          SSH_KEY: ${{ secrets.COSMOS_SSH_PRIVATE_KEY }}
+          SSH_USER: ${{ secrets.COSMOS_SSH_USER }}
+          SSH_HOST: ${{ secrets.COSMOS_SSH_HOST }}
+        run: |
+          set -euo pipefail
+          HOST="${SSH_HOST:-65.109.15.219}"
+          mkdir -p "$HOME/.ssh"
+          chmod 700 "$HOME/.ssh"
+          KEYFILE="$HOME/.ssh/deploy_key"
+          printf '%s\n' "$SSH_KEY" > "$KEYFILE"
+          chmod 600 "$KEYFILE"
+          ssh-keyscan -H "$HOST" >> "$HOME/.ssh/known_hosts"
+          ssh -i "$KEYFILE" -o IdentitiesOnly=yes "$SSH_USER@$HOST" 'mkdir -p /opt/cosmos'
+          scp -i "$KEYFILE" -o IdentitiesOnly=yes docker-compose.yml "$SSH_USER@$HOST:/opt/cosmos/docker-compose.yml"
+          ssh -i "$KEYFILE" -o IdentitiesOnly=yes "$SSH_USER@$HOST" 'cd /opt/cosmos && docker compose pull && docker compose up -d'
