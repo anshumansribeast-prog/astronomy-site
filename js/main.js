@@ -78,7 +78,10 @@
       "The footprints left on the <b>Moon</b> by Apollo astronauts will likely still be there in a million years — there is no wind to erase them.",
       "<b>Olympus Mons</b> on Mars is the tallest volcano in the solar system: about 22 km high, nearly three times Mount Everest.",
       "Every atom of <b>iron in your blood</b> was forged inside a star that exploded long before the Sun was born.",
-      "<b>Voyager 1</b>, launched in 1977, is now over 24 billion km away — the most distant human-made object."
+      "<b>Voyager 1</b>, launched in 1977, is now over 24 billion km away — the most distant human-made object.",
+      "Most of the universe is <b>dark matter and dark energy</b> — we measure them, we have not seen them.",
+      "The <b>Andromeda galaxy</b> is 2.5 million light-years away and still visible as a faint oval on a dark night.",
+      "<b>JWST</b> looks in infrared so it can see the first galaxies and through clouds of dust."
     ];
 
     var idx = 0;

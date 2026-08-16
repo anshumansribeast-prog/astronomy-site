@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Learn — Cosmos</title>
+  <meta name="description" content="A clear astronomy primer: light, gravity, stars, galaxies, exoplanets, and how the universe began — written to be understood, not memorised.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<canvas id="starfield" aria-hidden="true"></canvas>
+
+<header class="site-header">
+  <nav class="wrap nav" aria-label="Main">
+    <a class="logo" href="index.html"><span class="logo-mark" aria-hidden="true"></span> COSMOS</a>
+    <button class="nav-toggle" aria-expanded="false" aria-controls="navLinks" aria-label="Toggle menu">☰</button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="planets.html">Planets</a></li>
+      <li><a href="constellations.html">Constellations</a></li>
+      <li><a href="moon.html">Moon</a></li>
+      <li><a href="facts.html">Facts</a></li>
+      <li><a href="quiz.html">Quiz</a></li>
+      <li><a href="beast.html">Beast</a></li>
+      <li><a href="knowledge.html">Learn</a></li>
+      <li><a href="about.html">About</a></li>
+      <li id="navAccount"></li>
+    </ul>
+  </nav>
+</header>
+
+<main>
+  <section>
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Astronomy, taught slowly</span>
+        <h2>How the sky actually <span class="grad">works</span></h2>
+        <p>
+          Eight ideas. Read them in order, or jump. None of them need a telescope —
+          they need a picture in your head that does not fall apart when you look up.
+        </p>
+      </div>
+
+      <div class="grid grid-4 toc-grid" style="margin-bottom:3rem;">
+        <a class="card reveal" href="#light"><h3>Light</h3></a>
+        <a class="card reveal" href="#gravity"><h3>Gravity</h3></a>
+        <a class="card reveal" href="#stars"><h3>Stars</h3></a>
+        <a class="card reveal" href="#planets-idea"><h3>Planets</h3></a>
+        <a class="card reveal" href="#galaxies"><h3>Galaxies</h3></a>
+        <a class="card reveal" href="#life"><h3>Life</h3></a>
+        <a class="card reveal" href="#beginning"><h3>Beginning</h3></a>
+        <a class="card reveal" href="#observe"><h3>Observing</h3></a>
+      </div>
+
+      <article class="lesson card reveal" id="light">
+        <h3>1. Light is a messenger from the past</h3>
+        <p>Nothing in astronomy is seen “now”. Light has a speed — about 300,000 km per second — so every photon is a delayed letter. The Sun you see is eight minutes old. The nearest other star is more than four years old. Some galaxies in deep photographs sent their light before Earth existed.</p>
+        <p>A <strong>light-year</strong> is how far that light travels in one year, not a length of time. Astronomers also use the <strong>astronomical unit</strong> (Earth–Sun distance) inside the solar system, and the <strong>parsec</strong> (about 3.26 light-years) for stars.</p>
+      </article>
+
+      <article class="lesson card reveal" id="gravity">
+        <h3>2. Gravity is a shape, not a pull you can see</h3>
+        <p>Mass tells spacetime how to curve; spacetime tells mass how to move. That is why the Moon stays with Earth, Earth stays with the Sun, and the Sun orbits the Milky Way. Orbits are not magic circles — they are free-fall that keeps missing the ground.</p>
+        <p>If you go fast enough sideways, you never come down. That is what a satellite is doing. Escape speed from Earth is about 11 km/s. Escape from the solar system from Earth’s orbit is higher still — which is why Voyager needed gravity assists from the giant planets.</p>
+      </article>
+
+      <article class="lesson card reveal" id="stars">
+        <h3>3. Stars are fusion engines</h3>
+        <p>A star is a ball of gas held up against its own weight by nuclear fusion in the core: hydrogen nuclei jammed into helium, with a little mass turned into light. The Sun will do this for about ten billion years. It is halfway through.</p>
+        <p>When the fuel runs out, mass decides the ending. A Sun-like star sheds its outer layers and leaves a <strong>white dwarf</strong>. A heavier star can explode as a <strong>supernova</strong> and leave a <strong>neutron star</strong> or a <strong>black hole</strong>. The iron in your blood was made in those explosions.</p>
+      </article>
+
+      <article class="lesson card reveal" id="planets-idea">
+        <h3>4. Planets are leftovers that grew</h3>
+        <p>The solar system formed from a spinning disc of gas and dust about 4.6 billion years ago. Close in, it was too hot for ice, so Mercury, Venus, Earth and Mars stayed small and rocky. Past the frost line, ice helped worlds grow huge: Jupiter and Saturn grabbed hydrogen; Uranus and Neptune are ice giants.</p>
+        <p>Moons, asteroids, comets and dwarf planets like Pluto are the rest of the disc. We have now found <strong>thousands of exoplanets</strong> around other stars — some lava worlds, some ice, some in the band where liquid water could exist.</p>
+      </article>
+
+      <article class="lesson card reveal" id="galaxies">
+        <h3>5. Galaxies are cities of stars</h3>
+        <p>The Milky Way is a barred spiral holding 100–400 billion stars, plus gas, dust, and a supermassive black hole — Sagittarius A* — at the centre. We live in a quiet suburb of the disc. The pale band on a dark night is that disc seen edge-on.</p>
+        <p>Galaxies come in spirals, ellipticals and irregulars. They gather in groups and clusters. Ours is heading toward a slow collision with Andromeda in about 4.5 billion years. Most of the mass holding galaxies together is <strong>dark matter</strong> — we see its gravity, not its light.</p>
+      </article>
+
+      <article class="lesson card reveal" id="life">
+        <h3>6. Life, as far as we know, needs time and water</h3>
+        <p>Earth is the only place confirmed to host life. The search elsewhere follows liquid water, a stable star, and chemistry that can copy itself. Mars once had rivers. Europa and Enceladus hide oceans under ice. Titan has lakes of methane. None of that is proof of biology — it is a list of places worth looking.</p>
+        <p>The <strong>habitable zone</strong> is the orbital range where a rocky planet could keep surface water. Atmosphere matters as much as distance: Venus is in a similar zone to Earth and is a 465 °C oven because of a runaway greenhouse.</p>
+      </article>
+
+      <article class="lesson card reveal" id="beginning">
+        <h3>7. The universe has a beginning we can still hear</h3>
+        <p>Space has been expanding for about 13.8 billion years. Distant galaxies recede; their light stretches to redder wavelengths — <strong>redshift</strong>. The leftover glow from when atoms first formed, about 380,000 years after the Big Bang, still arrives as the <strong>cosmic microwave background</strong>.</p>
+        <p>What the universe is made of, roughly: a few percent ordinary atoms, about a quarter dark matter, and the rest <strong>dark energy</strong> driving faster expansion. Those last two are measured, not understood. That is not a failure of the site. That is the frontier.</p>
+      </article>
+
+      <article class="lesson card reveal" id="observe">
+        <h3>8. How to actually look</h3>
+        <p>Give your eyes 20–30 minutes in the dark. Put the phone away. A red light is kinder than white. City glow hides the Milky Way; even a short trip helps. A full Moon is a floodlight — use the Moon page and go out near new Moon for faint stars.</p>
+        <p>Start with patterns you cannot miss: Orion’s belt in winter, the Big Dipper, Scorpius in summer, Crux in the south. Binoculars beat a cheap telescope for beginners. The edges of your vision are more sensitive than the centre — look slightly beside a faint object. That trick is called averted vision, and it is free.</p>
+      </article>
+
+      <div class="card reveal" style="text-align:center; padding: clamp(2rem, 5vw, 3rem); max-width: 68ch; margin: 2rem auto 0;">
+        <span class="eyebrow">Then go use it</span>
+        <h2>The sky is the homework</h2>
+        <div class="btn-row" style="margin-top:1.2rem;">
+          <a class="btn btn-primary" href="constellations.html">Find a pattern</a>
+          <a class="btn btn-ghost" href="quiz.html">Test yourself</a>
+          <a class="btn btn-ghost" href="beast.html">Ask Beast</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script src="js/starfield.js"></script>
+<script src="js/main.js"></script>
+<script src="js/account.js"></script>
+</body>
+</html>

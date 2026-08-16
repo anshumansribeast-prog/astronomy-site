@@ -89,6 +89,18 @@ var QUIZ_LEVELS = [
         options: ["About a week", "About a month", "About six months", "About a year"],
         answer: 1,
         why: "About a month — 27.3 days to go round once. The word 'month' comes from 'moon' for exactly this reason."
+      },
+      {
+        q: "Which planet is closest to the Sun?",
+        options: ["Venus", "Mercury", "Earth", "Mars"],
+        answer: 1,
+        why: "Mercury. Venus is next, and it is the one that looks brightest in our sky."
+      },
+      {
+        q: "What do we call the streak of light when a space rock burns in Earth's air?",
+        options: ["Asteroid", "Comet", "Meteor", "Satellite"],
+        answer: 2,
+        why: "A meteor is the streak. The rock in space is a meteoroid; if it hits the ground it is a meteorite."
       }
     ]
   },
@@ -163,6 +175,28 @@ var QUIZ_LEVELS = [
         options: ["Solid iron", "Ice, dust and rock", "Burning gas", "Compressed air"],
         answer: 1,
         why: "Ice, dust and rock — often called a dirty snowball. The tail appears when the Sun heats it and the ice turns straight to gas."
+      },
+      {
+        q: "What is an exoplanet?",
+        options: [
+          "A planet that used to be a moon",
+          "A planet orbiting a star other than the Sun",
+          "A planet without an atmosphere",
+          "A failed star"
+        ],
+        answer: 1,
+        why: "A planet around another star. Thousands are confirmed. They are named with the star plus a letter, starting at b."
+      },
+      {
+        q: "Why do distant galaxies look redder than nearby ones?",
+        options: [
+          "They are made of red stars",
+          "Expanding space stretches their light",
+          "Dust in the Milky Way paints them red",
+          "Telescopes add a red filter"
+        ],
+        answer: 1,
+        why: "Redshift. As space expands, the wavelength of travelling light stretches. Farther galaxies recede faster, so they look redder."
       }
     ]
   },
@@ -257,6 +291,28 @@ var QUIZ_LEVELS = [
         options: ["8 minutes", "About a day", "Tens of thousands of years", "One year"],
         answer: 2,
         why: "Tens of thousands of years. Energy bounces between particles in a slow random walk. The famous 8 minutes is only the trip from surface to Earth."
+      },
+      {
+        q: "What is the Summer Triangle?",
+        options: [
+          "Three planets lined up in June",
+          "The bright stars Altair, Vega and Deneb",
+          "A NASA mission to the Sun",
+          "The three belts of Orion"
+        ],
+        answer: 1,
+        why: "Altair (Aquila), Vega (Lyra) and Deneb (Cygnus). On northern summer nights they are the easiest bright landmark after the Moon."
+      },
+      {
+        q: "Where is Sagittarius A*?",
+        options: [
+          "At the centre of the Sun",
+          "At the centre of the Milky Way",
+          "Next to Jupiter",
+          "In the Andromeda galaxy only"
+        ],
+        answer: 1,
+        why: "It is the Milky Way's central supermassive black hole, about four million solar masses, in the direction of the constellation Sagittarius."
       }
     ]
   },
@@ -351,6 +407,23 @@ var QUIZ_LEVELS = [
         ],
         answer: 1,
         why: "A white dwarf tipping past the Chandrasekhar limit. Because they all detonate at nearly the same mass, they shine with nearly the same brightness — which makes them standard candles for measuring cosmic distances."
+      },
+      {
+        q: "About how much of the universe is ordinary atoms (baryonic matter)?",
+        options: ["About 95%", "About 50%", "About 5%", "About 0.001%"],
+        answer: 2,
+        why: "Only around 5%. The rest is dark matter and dark energy. Stars, planets and people are the rounding error."
+      },
+      {
+        q: "Why does JWST observe in infrared?",
+        options: [
+          "Infrared is brighter than visible light",
+          "The first galaxies are redshifted into infrared, and dust is more transparent there",
+          "Its mirror cannot reflect blue light",
+          "Infrared cameras are cheaper"
+        ],
+        answer: 1,
+        why: "Expansion stretches ancient light into infrared, and infrared slips through dust that hides star-forming regions in visible light."
       }
     ]
   }

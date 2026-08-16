@@ -142,6 +142,50 @@ var CONSTELLATIONS = [
     myth: "Crux has no Greek myth: it is too far south for the ancient Greeks to have seen it. To Aboriginal Australian peoples the dark cloud beside it forms the head of an emu in the sky, and its position through the year marks the emu breeding season. European sailors named it in the 1500s, and for centuries it was how ships found their way home across the southern oceans. It appears on the flags of Australia, New Zealand, Brazil and Samoa.",
     stars: [[48,52,1.9],[48,12,1.7],[66,30,1.7],[30,28,1.4],[42,38,0.9]],
     links: [[0,1],[2,3]]
+  },
+  {
+    name: "Canis Major",
+    latin: "The Great Dog",
+    season: "Winter",
+    hemisphere: "Both",
+    brightest: "Sirius (mag −1.46)",
+    find: "Follow Orion's belt down and left (in the north) to the brightest star in the night sky — that is Sirius, the dog's heart.",
+    myth: "This is Orion's hunting dog, set in the sky at his heels. Sirius was the Nile's warning star for ancient Egypt: when it rose just before the Sun, the flood was coming. It is not huge as stars go — it is simply nearby, about 8.6 light-years away.",
+    stars: [[28,18,1.2],[40,22,1.3],[52,20,2.2],[64,28,1.2],[48,38,1.4],[36,42,1.1],[58,46,1.1]],
+    links: [[0,1],[1,2],[2,3],[1,4],[4,5],[4,6],[2,4]]
+  },
+  {
+    name: "Andromeda",
+    latin: "The Chained Princess",
+    season: "Autumn",
+    hemisphere: "Northern",
+    brightest: "Alpheratz (mag 2.06)",
+    find: "Start from the Great Square of Pegasus. Andromeda streams off one corner. On a dark night you can see the Andromeda Galaxy as a faint oval — the farthest thing most people ever see with unaided eyes.",
+    myth: "Cassiopeia's daughter, chained to a rock as a sacrifice to the sea monster Cetus. Perseus found her, used Medusa's head, and took her home. The galaxy that shares her name is a real island of a trillion stars, 2.5 million light-years away, already on a slow collision course with the Milky Way.",
+    stars: [[18,40,1.6],[32,34,1.3],[48,28,1.4],[62,22,1.3],[76,16,1.2],[58,38,1.1],[70,44,1.0]],
+    links: [[0,1],[1,2],[2,3],[3,4],[2,5],[5,6]]
+  },
+  {
+    name: "Sagittarius",
+    latin: "The Archer",
+    season: "Summer",
+    hemisphere: "Both",
+    brightest: "Kaus Australis (mag 1.85)",
+    find: "Look for a teapot of stars in the south on summer nights. The Milky Way pours out of its spout — you are looking toward the centre of our galaxy.",
+    myth: "Usually drawn as a centaur archer. The teapot is the useful bit. Behind it, hidden by dust, sits Sagittarius A*, the Milky Way's central black hole, about four million times the Sun's mass. Radio and infrared telescopes see it; your eyes see the glow of billions of unmarked stars.",
+    stars: [[30,28,1.3],[42,22,1.4],[54,20,1.3],[66,26,1.5],[58,38,1.4],[44,40,1.3],[36,36,1.2],[72,18,1.2]],
+    links: [[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,0],[2,6],[3,7]]
+  },
+  {
+    name: "Aquila",
+    latin: "The Eagle",
+    season: "Summer",
+    hemisphere: "Both",
+    brightest: "Altair (mag 0.76)",
+    find: "Altair is the bright star with a fainter companion on each side, like a bird in flight. It makes the Summer Triangle with Vega and Deneb.",
+    myth: "Zeus's eagle, the bird that carried his thunderbolts. Altair is close as bright stars go — about 17 light-years — and it spins so fast it is flattened. Together with Vega in Lyra and Deneb in Cygnus it marks the three corners of the easiest summer asterism in the northern sky.",
+    stars: [[50,14,2.0],[38,28,1.3],[62,26,1.3],[50,40,1.2],[50,52,1.1],[28,36,1.0],[72,34,1.0]],
+    links: [[0,1],[0,2],[0,3],[3,4],[1,5],[2,6]]
   }
 ];
 

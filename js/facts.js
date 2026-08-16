@@ -39,7 +39,30 @@ var FACTS = [
 
   { cat: "Extremes", text: "Neptune has the fastest winds in the solar system, reaching about 2,100 km/h." },
   { cat: "Extremes", text: "Nothing that crosses a black hole's event horizon can escape — not even light, which is why they are black." },
-  { cat: "Extremes", text: "The coldest known place in the universe is the Boomerang Nebula at about −272 °C, colder than the leftover heat of the Big Bang." }
+  { cat: "Extremes", text: "The coldest known place in the universe is the Boomerang Nebula at about −272 °C, colder than the leftover heat of the Big Bang." },
+
+  { cat: "Life", text: "Earth is still the only world where life has been confirmed. Every other claim is a maybe — which is why the search is careful." },
+  { cat: "Life", text: "Europa, a moon of Jupiter, hides a global ocean under ice. NASA's Europa Clipper is on its way to study whether that ocean could support life." },
+  { cat: "Life", text: "Enceladus, a moon of Saturn, sprays water ice from cracks at its south pole — a sample of an underground ocean, flung into space." },
+  { cat: "Life", text: "Titan has lakes and rivers of liquid methane. It is the only other body in the solar system with stable liquid on the surface." },
+  { cat: "Life", text: "The Kepler and TESS missions found thousands of exoplanets. A few sit in their star's habitable zone, where liquid water could exist." },
+  { cat: "Life", text: "Venus may once have had oceans. A runaway greenhouse boiled them away and locked the planet into a 465 °C greenhouse." },
+
+  { cat: "Physics", text: "Nothing with mass can reach the speed of light in vacuum. Light itself has no rest mass, which is why it can." },
+  { cat: "Physics", text: "Time runs slightly slower in stronger gravity. GPS satellites have to correct for this or your maps would drift by kilometres a day." },
+  { cat: "Physics", text: "A black hole's event horizon is not a surface you can stand on. It is the point where escape would require faster-than-light speed." },
+  { cat: "Physics", text: "Most of the atoms in your body were made in stars. Hydrogen is older still — leftover from the first minutes after the Big Bang." },
+  { cat: "Physics", text: "Gravitational waves are ripples in spacetime. LIGO heard two black holes collide in 2015, a century after Einstein predicted the waves." },
+  { cat: "Physics", text: "The cosmic microwave background is about 2.7 K — leftover heat from when the universe became transparent, 380,000 years after the Big Bang." },
+
+  { cat: "Galaxies", text: "JWST sees infrared light, which lets it look through dust and back to some of the first galaxies." },
+  { cat: "Stars", text: "Polaris is not the brightest star in the night sky. It is famous because it sits almost still above Earth's north pole." },
+  { cat: "Space Travel", text: "James Webb orbits the Sun–Earth L2 point, about 1.5 million km from us, where it can stay cold enough to see faint infrared galaxies." },
+  { cat: "Solar System", text: "Pluto is a dwarf planet in the Kuiper Belt. It was reclassified in 2006 because it has not cleared its neighbourhood of other icy bodies." },
+  { cat: "Solar System", text: "Earth's Moon is unusually large compared with its planet. That is why we get total solar eclipses — the Moon just covers the Sun from here." },
+  { cat: "Stars", text: "Most stars in the galaxy are red dwarfs, smaller and cooler than the Sun. They can shine for trillions of years." },
+  { cat: "Extremes", text: "A magnetar is a neutron star with a magnetic field so strong it would erase a credit card from 100,000 km away." },
+  { cat: "Life", text: "The ingredients for life — carbon, water, organic molecules — show up in meteorites and in the clouds around young stars." }
 ];
 
 var QUIZ = [

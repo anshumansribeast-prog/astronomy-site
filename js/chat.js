@@ -280,10 +280,15 @@
     { match: ["eclipse"], reply: "A solar eclipse happens when the Moon passes between the Sun and Earth, blocking its light. A lunar eclipse happens when Earth passes between the Sun and Moon instead, casting Earth's shadow on the Moon." },
     { match: ["sun"], reply: "The Sun is a star — the closest one to Earth, about 150 million km away. About 1.3 million Earths could fit inside it, and its gravity holds the whole solar system in orbit." },
     { match: ["telescope"], reply: "Telescopes like Hubble and the James Webb Space Telescope collect far more light than an eye can, which is what lets them see objects that are impossibly faint and distant." },
+    { match: ["jwst", "james webb", "webb"], reply: "The James Webb Space Telescope sees infrared light from L2, 1.5 million km from Earth. That lets it look through dust and back toward some of the first galaxies." },
+    { match: ["exoplanet"], reply: "An exoplanet orbits a star other than the Sun. Thousands are confirmed. The habitable zone is where liquid water could exist — atmosphere still decides if it actually does." },
+    { match: ["dark matter"], reply: "Dark matter does not give off light we can see, but its gravity holds galaxies together. Most of the mass in a galaxy is this unseen stuff." },
+    { match: ["dark energy"], reply: "Dark energy is the name for whatever is making the universe's expansion speed up. We measure it. We do not yet know what it is." },
+    { match: ["learn", "astronomy"], reply: "Open the Learn page — eight short chapters on light, gravity, stars, planets, galaxies, life, the Big Bang, and how to observe." },
     { match: ["nasa"], reply: "NASA is the USA's space agency — it's run missions from the Apollo Moon landings to the Mars rovers to the James Webb telescope. The planet numbers on this site come from NASA's own fact sheets." },
     { match: ["bye"], reply: "Clear skies!" }
   ];
-  var DEFAULT_REPLY = "Not sure about that one — try a planet name, a constellation like 'Orion', 'moon', or 'fact'.";
+  var DEFAULT_REPLY = "Not sure about that one — try a planet, a constellation like 'Orion', 'moon', 'fact', or open the Learn page.";
 
   /* Real-data lookups first (accurate, instant, match this site's own
      numbers) — Ollama only runs for what none of those cover. Returns
