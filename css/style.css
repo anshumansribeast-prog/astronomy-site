@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Outfit:wght@400;500;600;700&display=swap");
+
 /* ===================================================================
    COSMOS — shared stylesheet
    Organised as:  1 tokens · 2 base · 3 layout · 4 header · 5 hero
@@ -9,37 +11,39 @@
    Every colour and size lives here as a CSS variable. Change a value
    once and the whole site follows. This is the single most useful
    habit in CSS.                                                      */
+
 :root {
-  --bg:          #04050e;
-  --bg-soft:     #090c1d;
-  --panel:       rgba(18, 22, 48, 0.55);
-  --panel-solid: #0d1130;
-  --line:        rgba(140, 160, 255, 0.16);
-  --line-bright: rgba(160, 180, 255, 0.38);
+  --bg:          #050308;
+  --bg-soft:     #0c0814;
+  --panel:       rgba(22, 14, 28, 0.58);
+  --panel-solid: #140e1c;
+  --line:        rgba(232, 196, 122, 0.16);
+  --line-bright: rgba(232, 196, 122, 0.42);
 
-  --text:        #e9ecff;
-  --muted:       #98a1c9;
+  --text:        #f4efe6;
+  --muted:       #b7a99a;
 
-  --purple:      #a78bfa;
-  --blue:        #60a5fa;
-  --teal:        #2dd4bf;
-  --pink:        #f472b6;
-  --gold:        #fbbf24;
+  --purple:      #c4a1ff;
+  --blue:        #7eb8ff;
+  --teal:        #e8c47a;
+  --pink:        #ff8a6a;
+  --gold:        #e8c47a;
 
-  --grad-cosmic: linear-gradient(120deg, #a78bfa 0%, #60a5fa 45%, #2dd4bf 100%);
-  --grad-panel:  linear-gradient(160deg, rgba(30,36,80,.62), rgba(10,13,34,.62));
+  --grad-cosmic: linear-gradient(120deg, #ff8a6a 0%, #e8c47a 42%, #c4a1ff 100%);
+  --grad-panel:  linear-gradient(165deg, rgba(48, 28, 38, .72), rgba(12, 8, 18, .72));
 
-  --radius:      18px;
-  --radius-sm:   11px;
+  --radius:      22px;
+  --radius-sm:   12px;
   --maxw:        1180px;
 
-  --shadow:      0 18px 50px rgba(0, 0, 0, 0.55);
-  --glow:        0 0 45px rgba(122, 110, 255, 0.28);
+  --shadow:      0 22px 55px rgba(0, 0, 0, 0.55);
+  --glow:        0 0 50px rgba(232, 196, 122, 0.18);
 
   --ease:        cubic-bezier(.22, 1, .36, 1);
 
-  --font:        "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
-  --font-myth:   Georgia, "Times New Roman", serif;
+  --font:        "Outfit", "Segoe UI", system-ui, sans-serif;
+  --font-display:"Instrument Serif", Georgia, "Times New Roman", serif;
+  --font-myth:   "Instrument Serif", Georgia, "Times New Roman", serif;
 }
 
 /* ---------- 2. BASE ------------------------------------------------ */
@@ -66,9 +70,9 @@ body::before {
   inset: 0;
   z-index: -2;
   background:
-    radial-gradient(70ch 55ch at 12% 8%,  rgba(118, 74, 220, 0.28), transparent 62%),
-    radial-gradient(60ch 50ch at 88% 22%, rgba(28, 120, 190, 0.22), transparent 60%),
-    radial-gradient(70ch 60ch at 45% 96%, rgba(20, 140, 140, 0.16), transparent 62%),
+    radial-gradient(80ch 60ch at 8% 0%,  rgba(180, 60, 40, 0.28), transparent 58%),
+    radial-gradient(70ch 55ch at 92% 12%, rgba(90, 40, 140, 0.32), transparent 60%),
+    radial-gradient(80ch 70ch at 50% 100%, rgba(232, 196, 122, 0.08), transparent 55%),
     var(--bg);
 }
 
@@ -81,13 +85,14 @@ body::before {
 }
 
 h1, h2, h3, h4 {
-  line-height: 1.18;
+  line-height: 1.12;
   margin: 0 0 .55em;
-  font-weight: 650;
-  letter-spacing: -0.015em;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  font-family: var(--font-display);
 }
-h1 { font-size: clamp(2.3rem, 6vw, 4.1rem); }
-h2 { font-size: clamp(1.7rem, 3.6vw, 2.5rem); }
+h1 { font-size: clamp(2.6rem, 7vw, 4.6rem); font-style: italic; }
+h2 { font-size: clamp(1.85rem, 3.8vw, 2.7rem); }
 h3 { font-size: 1.22rem; }
 
 p { margin: 0 0 1.05em; color: var(--muted); }
@@ -152,8 +157,8 @@ section { padding: clamp(3rem, 7vw, 5.5rem) 0; }
   position: sticky;
   top: 0;
   z-index: 100;
-  backdrop-filter: blur(14px);
-  background: rgba(4, 5, 14, 0.72);
+  backdrop-filter: blur(18px) saturate(1.2);
+  background: rgba(5, 3, 8, 0.62);
   border-bottom: 1px solid var(--line);
 }
 .nav {
@@ -166,8 +171,9 @@ section { padding: clamp(3rem, 7vw, 5.5rem) 0; }
 }
 .logo {
   display: flex; align-items: center; gap: .6rem;
-  font-weight: 700; font-size: 1.13rem;
-  color: var(--text); letter-spacing: .04em;
+  font-family: var(--font-display);
+  font-weight: 400; font-size: 1.28rem; font-style: italic;
+  color: var(--text); letter-spacing: .06em;
 }
 .logo:hover { color: var(--text); }
 .logo-mark {
@@ -269,8 +275,8 @@ section { padding: clamp(3rem, 7vw, 5.5rem) 0; }
   content: "";
   position: absolute;
   border-radius: 50%;
-  background: var(--teal);
-  box-shadow: 0 0 14px var(--teal);
+  background: var(--gold);
+  box-shadow: 0 0 14px var(--gold);
   width: 9px; height: 9px;
 }
 .hero-orbit::before { top: -5px; left: 50%; }
@@ -303,7 +309,7 @@ section { padding: clamp(3rem, 7vw, 5.5rem) 0; }
   border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 1.6rem;
-  backdrop-filter: blur(9px);
+  backdrop-filter: blur(14px);
   transition: transform .35s var(--ease), border-color .3s, box-shadow .35s;
 }
 .card:hover {
@@ -817,6 +823,18 @@ input[type="date"]:focus { outline: none; border-color: var(--teal); }
 }
 .timeline h4 { margin-bottom: .2rem; }
 .timeline p { margin-bottom: 0; font-size: .93rem; }
+
+.lesson {
+  max-width: 68ch;
+  margin: 0 auto 2.2rem;
+}
+.lesson h3 {
+  color: var(--gold);
+  font-size: 1.45rem;
+  margin-bottom: .4em;
+}
+.toc-grid a.card { color: inherit; }
+.toc-grid a.card h3 { color: var(--text); }
 
 /* ---------- 12. FOOTER ----------------------------------------------- */
 .site-footer {

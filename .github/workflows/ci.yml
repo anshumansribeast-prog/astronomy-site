@@ -84,7 +84,7 @@ jobs:
           # Every real page, not just the homepage. A build that only
           # copied index.html — or forgot the css/ or js/ folder —
           # would still pass a check that stopped there.
-          pages="/ /index.html /planets.html /constellations.html /moon.html /facts.html /quiz.html /about.html /beast.html /account.html /css/style.css /js/main.js"
+          pages="/ /index.html /planets.html /constellations.html /moon.html /facts.html /quiz.html /about.html /knowledge.html /beast.html /account.html /css/style.css /js/main.js"
           for page in $pages; do
             code=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:8899${page}")
             echo "GET ${page} -> ${code}"
