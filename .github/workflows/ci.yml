@@ -1,17 +1,8 @@
 # ===================================================================
 # ci.yml — the gate every change has to walk through.
 #
-# There is no unit-test stage here the way cosmos-v2 has one — this
-# site has no code to unit-test, just HTML, CSS and a handful of plain
-# scripts. So the gate that actually matters for a static site is
-# different: does it build into an image, and does that image really
-# hand out every real page when asked? That is what "smoke" checks
-# below, page by page, rather than stopping at the homepage and hoping
-# the rest copied correctly.
-#
-# The order is still cheapest-first:
-#   1. image   — build, then run it and ask it real questions
-#   2. publish — only then, and only on main, is it pushed
+# The gate is cheapest-first: unit/router tests, image build, real smoke
+# tests, then GHCR publish on main only.
 # ===================================================================
 
 name: CI
@@ -21,25 +12,17 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
-  # Lets you press the button by hand in the Actions tab.
   workflow_dispatch:
 
-# If two pushes land close together, cancel the older run. Nobody needs
-# the verdict on a commit that has already been replaced.
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
-# Least privilege, stated out loud — read the code, write packages
-# (the container registry), nothing else.
 permissions:
   contents: read
   packages: write
 
 jobs:
-  # -----------------------------------------------------------------
-  # BUILD THE IMAGE, THEN PROVE IT ACTUALLY SERVES THE SITE
-  # -----------------------------------------------------------------
   image:
     name: Build image and smoke-test it
     runs-on: ubuntu-latest
@@ -48,16 +31,12 @@ jobs:
       - name: Check out the code
         uses: actions/checkout@v5
 
+      - name: Test Beast fallback gate without secrets
+        run: python3 -m unittest test_beast_router.py
+
       - name: Build the image
         run: docker build -t astronomy-site:ci .
 
-      # A BUILD THAT SUCCEEDS PROVES ALMOST NOTHING.
-      #
-      # An image can build perfectly and still serve nothing useful:
-      # files copied to the wrong path, the database failing to open,
-      # a container that never actually reaches "ready". So it is
-      # started for real and asked the same questions a visitor's
-      # browser would ask.
       - name: Start the container
         run: |
           docker run -d --name astro -p 8899:8899 astronomy-site:ci
@@ -65,9 +44,6 @@ jobs:
 
       - name: Smoke test — does it really serve the site?
         run: |
-          # Poll rather than sleep for a fixed time — see cosmos-v2's
-          # ci.yml for why a fixed sleep is always either too slow or
-          # too short on a bad day.
           for i in $(seq 1 15); do
             if curl -fsS http://localhost:8899/ > /dev/null; then
               echo "up after ${i}s"
@@ -81,9 +57,6 @@ jobs:
             sleep 1
           done
 
-          # Every real page, not just the homepage. A build that only
-          # copied index.html — or forgot the css/ or js/ folder —
-          # would still pass a check that stopped there.
           pages="/ /index.html /planets.html /constellations.html /moon.html /facts.html /quiz.html /about.html /knowledge.html /beast.html /account.html /css/style.css /js/main.js"
           for page in $pages; do
             code=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:8899${page}")
@@ -95,9 +68,6 @@ jobs:
             fi
           done
 
-          # A page that was never going to exist should land on this
-          # site's own dark 404 page — that's server/app.js falling
-          # back to 404.html when a file isn't found.
           code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8899/does-not-exist)
           if [ "$code" != "404" ]; then
             echo "::error::expected 404 for a missing page, got ${code}"
@@ -108,10 +78,6 @@ jobs:
       - name: Smoke test — do accounts actually work?
         run: |
           jar=$(mktemp)
-
-          # Register a throwaway account and confirm the session cookie
-          # it sets really does mean "signed in" on the next request —
-          # not just that the endpoint returned 200.
           curl -fsS -c "$jar" -X POST http://localhost:8899/api/auth/register \
             -H "Content-Type: application/json" \
             -d '{"username":"ci_smoke_test","password":"ci-smoke-test-password"}' > /dev/null
@@ -119,32 +85,23 @@ jobs:
           me=$(curl -fsS -b "$jar" http://localhost:8899/api/auth/me)
           echo "$me" | grep -q "ci_smoke_test" || { echo "::error::registered but /api/auth/me didn't recognize the session"; docker logs astro; exit 1; }
 
-          # Log out, then confirm the SAME cookie no longer works — a
-          # logout that only clears the browser's copy but leaves the
-          # server-side session alive is a real, exploitable bug.
           curl -fsS -b "$jar" -X POST http://localhost:8899/api/auth/logout > /dev/null
           me_after=$(curl -fsS -b "$jar" http://localhost:8899/api/auth/me)
-          echo "$me_after" | grep -q '"user":null' || { echo "::error::session still valid after logout"; docker logs astro; exit 1; }
+          echo "$me_after" | grep -q '\"user\":null' || { echo "::error::session still valid after logout"; docker logs astro; exit 1; }
 
-          # A wrong password must be rejected, not quietly accepted.
           status=$(curl -s -o /dev/null -w "%{http_code}" -X POST http://localhost:8899/api/auth/login \
             -H "Content-Type: application/json" \
             -d '{"username":"ci_smoke_test","password":"the-wrong-password"}')
           [ "$status" = "401" ] || { echo "::error::wrong password returned ${status}, expected 401"; docker logs astro; exit 1; }
 
-          echo "accounts: register, session check, logout, and rejected login all behave correctly"
-
-          # Beast routes should respond even with no AI_API_KEY in CI.
           code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8899/api/beast/health)
           echo "GET /api/beast/health -> ${code}"
           [ "$code" = "200" ] || { echo "::error::Beast health check failed"; docker logs astro; exit 1; }
 
           learned=$(curl -fsS http://localhost:8899/api/beast/learned)
-          echo "$learned" | grep -q '"day"' || { echo "::error::Beast daily learning failed"; docker logs astro; exit 1; }
+          echo "$learned" | grep -q '\"day\"' || { echo "::error::Beast daily learning failed"; docker logs astro; exit 1; }
           echo "Beast daily brain: ok"
 
-      # Runs even if the smoke test failed — the logs are most wanted
-      # precisely when something went wrong.
       - name: Container logs
         if: always()
         run: docker logs astro || true
@@ -153,15 +110,10 @@ jobs:
         if: always()
         run: docker rm -f astro || true
 
-  # -----------------------------------------------------------------
-  # PUBLISH — only from main, only after the image above is green
-  # -----------------------------------------------------------------
   publish:
     name: Publish to GitHub Container Registry
     runs-on: ubuntu-latest
     needs: image
-    # Never publish from a pull request — see cosmos-v2's ci.yml for
-    # why: a PR is a proposed change, not an accepted one.
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     steps:
@@ -175,8 +127,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # TWO TAGS, ON PURPOSE — :latest for convenience, the commit SHA
-      # for the truth. See cosmos-v2's ci.yml for the full reasoning.
       - name: Build and push
         run: |
           OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
