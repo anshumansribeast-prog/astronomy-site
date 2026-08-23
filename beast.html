@@ -6,56 +6,25 @@
   <title>Beast — Cosmos</title>
   <meta name="description" content="Chat with Beast, an astronomy assistant that answers from this site's own planet, constellation, and Moon-phase data.">
   <link rel="stylesheet" href="css/style.css?v=20260823a">
+  <link rel="stylesheet" href="css/beast-mobile.css?v=20260823b">
 </head>
 <body>
-
 <canvas id="starfield" aria-hidden="true"></canvas>
-
 <header class="site-header">
   <nav class="wrap nav" aria-label="Main">
     <a class="logo" href="index.html"><span class="logo-mark" aria-hidden="true"></span> COSMOS</a>
     <button class="nav-toggle" aria-expanded="false" aria-controls="navLinks" aria-label="Toggle menu">☰</button>
     <ul class="nav-links" id="navLinks">
-      <li><a href="index.html">Home</a></li>
-      <li><a href="planets.html">Planets</a></li>
-      <li><a href="constellations.html">Constellations</a></li>
-      <li><a href="moon.html">Moon</a></li>
-      <li><a href="facts.html">Facts</a></li>
-      <li><a href="quiz.html">Quiz</a></li>
-      <li><a href="beast.html" aria-current="page">Beast</a></li>
-      <li><a href="knowledge.html">Learn</a></li>
-      <li><a href="about.html">About</a></li>
-      <li id="navAccount"></li>
+      <li><a href="index.html">Home</a></li><li><a href="planets.html">Planets</a></li><li><a href="constellations.html">Constellations</a></li><li><a href="moon.html">Moon</a></li><li><a href="facts.html">Facts</a></li><li><a href="quiz.html">Quiz</a></li><li><a href="beast.html" aria-current="page">Beast</a></li><li><a href="knowledge.html">Learn</a></li><li><a href="about.html">About</a></li><li id="navAccount"></li>
     </ul>
   </nav>
 </header>
-
 <main>
-  <section>
-    <div class="wrap">
-      <div class="section-head">
-        <span class="eyebrow">Ask away</span>
-        <h2>Chat with <span class="grad">Beast</span></h2>
-        <p>
-          Beast answers from the same real numbers every other page on this
-          site is built on — planets, constellations, tonight's actual Moon
-          phase. For anything else, it thinks it through itself.
-        </p>
-      </div>
-
-      <div id="beastChat"></div>
-    </div>
-  </section>
+  <section><div class="wrap">
+    <div class="section-head"><span class="eyebrow">Ask away</span><h2>Chat with <span class="grad">Beast</span></h2><p>Beast answers from the same real numbers every other page on this site is built on — planets, constellations, tonight's actual Moon phase. For anything else, it thinks it through itself.</p></div>
+    <div id="beastChat"></div>
+  </div></section>
 </main>
-
-
-<script src="js/starfield.js"></script>
-<script src="js/main.js"></script>
-<script src="js/planets.js"></script>
-<script src="js/constellations.js"></script>
-<script src="js/moon.js"></script>
-<script src="js/facts.js"></script>
-<script src="js/account.js"></script>
-<script src="js/chat.js"></script>
+<script src="js/starfield.js"></script><script src="js/main.js"></script><script src="js/planets.js"></script><script src="js/constellations.js"></script><script src="js/moon.js"></script><script src="js/facts.js"></script><script src="js/account.js"></script><script src="js/chat.js"></script>
 </body>
 </html>
