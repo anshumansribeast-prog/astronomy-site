@@ -1187,3 +1187,34 @@ input[type="date"]:focus { outline: none; border-color: var(--teal); }
 
 @media (max-width: 560px) { .cta-ladder li { flex-basis: 100%; } }
 
+
+/* ---------- MOBILE HARDENING ------------------------------------------
+   Phone-visitor fixes:
+   - never pan sideways
+   - iOS zooms into inputs under 16px — bump them on touch devices
+   - chat height uses dvh so mobile browser chrome can't squeeze it
+   - comfortable tap targets                                      */
+html, body { overflow-x: clip; }
+img, svg, video, iframe { max-width: 100%; }
+
+.beast-form input { font-size: 16px; }
+.nav-toggle { font-size: 1.4rem; line-height: 1; }
+
+@media (max-width: 720px) {
+  /* min() with plain 100vh overstates the visible height on phones
+     (the URL bar takes a cut) — dvh tracks the real viewport */
+  .beast-page {
+    height: auto;
+    min-height: 320px;
+    max-height: 70dvh;
+  }
+  .beast-log { max-height: 46dvh; }
+}
+
+@media (max-width: 560px) {
+  .wrap { padding-inline: 1rem; }
+  .hero h1 { font-size: clamp(2rem, 9vw, 2.8rem); }
+  .btn { padding-block: .75rem; }
+  .beast-form { gap: .45rem; padding: .7rem .8rem; }
+  .beast-send { padding: .65rem .95rem; }
+}
