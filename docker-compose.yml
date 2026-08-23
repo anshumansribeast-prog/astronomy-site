@@ -1,5 +1,7 @@
 # Cosmos + Beast's Ollama brain.
 # On the punah.pro box: docker compose pull && docker compose up -d
+# Set ADMIN_USERNAME in the deployment environment to the exact account
+# username that should be allowed into /backend. Do not put a password here.
 # First boot pulls llama3.2:3b (a few GB) into the ollama volume.
 
 services:
@@ -32,6 +34,7 @@ services:
       ASTRO_DATA_DIR: /data
       OLLAMA_URL: http://ollama:11434/api/generate
       OLLAMA_MODEL: llama3.2:3b
+      ADMIN_USERNAME: ${ADMIN_USERNAME:?Set ADMIN_USERNAME in the deployment environment}
     volumes:
       - astronomy-data:/data
     depends_on:
