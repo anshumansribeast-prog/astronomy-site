@@ -28,7 +28,7 @@ ENV ASTRO_DATA_DIR=/data
 # Beast answers through an OpenAI-compatible API (Groq default).
 # Pass AI_API_KEY at deploy time; without it Beast uses offline notes.
 ENV AI_API_URL=https://api.groq.com/openai/v1
-ENV AI_MODEL=llama-3.3-70b-versatile
+ENV AI_MODEL=openai/gpt-oss-120b
 
 # No dependencies to install (package.json declares none), so there's
 # no separate install-then-copy step to cache — just copy the source.

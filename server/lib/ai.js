@@ -11,7 +11,9 @@
 
 const AI_API_URL = (process.env.AI_API_URL || "https://api.groq.com/openai/v1").replace(/\/+$/, "");
 const AI_API_KEY = process.env.AI_API_KEY || "";
-const AI_MODEL = process.env.AI_MODEL || "llama-3.3-70b-versatile";
+/* llama-3.3-70b-versatile was retired by Groq — this is a model the
+   free tier actually serves today. Env var AI_MODEL still wins. */
+const AI_MODEL = process.env.AI_MODEL || "openai/gpt-oss-120b";
 
 export function aiEnabled() {
   return Boolean(AI_API_KEY);

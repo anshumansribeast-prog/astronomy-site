@@ -153,7 +153,10 @@ export async function beast(req, res, db) {
     const final = reply || fallbackReply(message);
     rememberConversation(db, message, final);
     return send(res, 200, { reply: final, source: "api" });
-  } catch {
+  } catch (err) {
+    // Silent failures here cost a whole debugging session (a retired
+    // model id looked like "the notes are fine") — log it loudly.
+    console.error("[beast] live model failed, answering from notes:", err.message);
     const reply = fallbackReply(message);
     return send(res, 200, { reply, source: "notes" });
   }
