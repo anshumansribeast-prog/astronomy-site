@@ -1,4 +1,4 @@
-# Deploys Cosmos + Ollama to the punah.pro VPS.
+# Deploys Cosmos + Beast's Groq-powered brain to the punah.pro VPS.
 # GitHub secrets required: COSMOS_SSH_PRIVATE_KEY, COSMOS_SSH_USER
 # Optional: COSMOS_SSH_HOST (default 65.109.15.219)
 #
@@ -12,7 +12,7 @@ on:
 
 jobs:
   deploy:
-    name: SSH and compose up Ollama
+    name: SSH and compose up
     runs-on: ubuntu-latest
     steps:
       - name: Check out the code
