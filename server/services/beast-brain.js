@@ -20,9 +20,17 @@ const SYNODIC_MS = 29.530588853 * 86400000;
 const REF_NEW_MOON = Date.UTC(2000, 0, 6, 18, 14);
 
 const BASE_PROMPT =
-  "You are Beast, a friendly astronomy chat widget on a website called Cosmos. " +
-  "Answer in 1-2 short plain sentences, no markdown or lists. " +
-  "Use what you learned today and recent visitor conversations when relevant.";
+  "You are Beast, the knowledgeable astronomy and space-science assistant on Cosmos. " +
+  "Answer naturally and accurately across astronomy, astrophysics, cosmology, planetary " +
+  "science, spaceflight, telescopes, observing, mathematics and physics when relevant. " +
+  "You can also answer general science questions, but astronomy and space are your strongest " +
+  "areas. Explain concepts at the visitor's level, from beginner to advanced. Use the site's " +
+  "supplied facts, today's learning, and recent conversations when relevant. Never invent a " +
+  "number or pretend a current fact is known when it is not. For current or time-sensitive " +
+  "events, clearly say that the answer may need a live source. Correct a visitor politely " +
+  "when a premise is wrong. Keep normal answers concise but complete: usually 2-5 sentences. " +
+  "Use short paragraphs, simple lists, or equations when they genuinely make an explanation " +
+  "clearer. Do not restrict yourself to one or two sentences.";
 
 function todayKey(date = new Date()) {
   return date.toISOString().slice(0, 10);
@@ -74,8 +82,6 @@ async function fetchApod(day) {
     const data = await resp.json();
     const title = data.title || null;
     const summary = (data.explanation || "").slice(0, 400);
-    // Only real images — APOD sometimes publishes videos, which the
-    // picture card can't show.
     const imageUrl = data.media_type === "image" ? (data.url || data.hdurl || null) : null;
     return { title, summary, imageUrl };
   } catch {
@@ -99,9 +105,6 @@ export function getRecentMemories(db, limit = 5) {
 export async function ensureTodayBrain(db) {
   const day = todayKey();
   const existing = getTodayBrain(db);
-
-  // Self-heal: if the row exists but NASA's answer was empty (rate
-  // limit, publish delay), try again instead of staying dark all day.
   if (existing && existing.apod_title) return existing;
 
   const apod = await fetchApod(day);
@@ -109,7 +112,7 @@ export async function ensureTodayBrain(db) {
   const fact = pickDailyFact(day);
 
   if (existing) {
-    if (!apod.title) return existing; // still nothing — keep what we have
+    if (!apod.title) return existing;
     db.prepare(
       "UPDATE beast_brain_days SET apod_title = ?, apod_summary = ?, apod_url = ? WHERE day = ?"
     ).run(apod.title, apod.summary, apod.imageUrl, day);
