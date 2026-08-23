@@ -17,6 +17,7 @@ import {
   learnedSummary,
 } from "../services/beast-brain.js";
 import { aiEnabled, pingAI, aiGenerate } from "../lib/ai.js";
+import { getTodayBrain as brainRow } from "../services/beast-brain.js";
 
 /* Server-side fallback: the same facts the rest of the site renders
    from, matched by keyword. Keeps Beast useful with no API key. */
@@ -85,6 +86,34 @@ export async function beastLearned(res, db) {
       daily_fact: brain.daily_fact,
     },
     summary: learnedSummary(brain),
+  });
+}
+
+/* Today's NASA picture, from the server's own cached daily brain.
+   The client used to call api.nasa.gov directly with the public
+   DEMO_KEY (30 requests/hour/IP — flaky); now every page shares the
+   one server-side fetch and its SQLite cache. */
+export async function beastApod(res, db) {
+  await ensureTodayBrain(db);
+  const brain = brainRow(db);
+  if (!brain || !brain.apod_title) {
+    return send(res, 200, {
+      data: {
+        date: brain ? brain.day : null,
+        title: null,
+        summary: null,
+        url: null,
+        note: "NASA's picture isn't in yet — usually arrives within a day.",
+      },
+    });
+  }
+  return send(res, 200, {
+    data: {
+      date: brain.day,
+      title: brain.apod_title,
+      summary: brain.apod_summary,
+      url: brain.apod_url,
+    },
   });
 }
 

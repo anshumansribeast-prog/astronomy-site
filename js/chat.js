@@ -299,9 +299,7 @@
       .finally(function () { clearTimeout(timer); });
   }
 
-  var NASA_API_KEY = "DEMO_KEY";
-  var NASA_APOD_BASE = "https://api.nasa.gov/planetary/apod?api_key=" + NASA_API_KEY;
-  var NASA_TIMEOUT_MS = 15000;
+  var APOD_TIMEOUT_MS = 15000;
   var APOD_CACHE_KEY = "cosmos_beast_apod_v1";
   var apodBubbleEl = null;
   var apodDateShown = null;
@@ -327,28 +325,38 @@
   function writeApodCache(result) {
     try { localStorage.setItem(APOD_CACHE_KEY, JSON.stringify({ date: result.date || todayDateString(), text: result.text, image: result.image || null })); } catch (err) {}
   }
-  function parseApodResponse(data) {
-    var text = (data.title || "NASA's Astronomy Picture of the Day") + (data.date ? " (" + data.date + ")" : "") + "\n" + (data.explanation || "");
-    var image = data.media_type === "image" ? (data.url || data.hdurl) : null;
-    if (data.media_type === "video") text += "\nToday's is a video — see it at " + data.url;
-    return { date: data.date || todayDateString(), text: text, image: image };
+  /* The picture comes from the site's own server (/api/beast/apod),
+     which fetches NASA once per day server-side and caches it. This
+     used to call api.nasa.gov directly with the public DEMO_KEY, which
+     ran out of requests and showed "couldn't reach NASA" — the server
+     route shares one fetch across every visitor instead. */
+  function parseApodPayload(data) {
+    var title = data.title || "NASA's Astronomy Picture of the Day";
+    var text = title + (data.date ? " (" + data.date + ")" : "") + "\n" + (data.summary || "");
+    return {
+      date: data.date || todayDateString(),
+      text: text,
+      image: data.url || null
+    };
   }
-  function fetchApodFromNasa(date) {
+  function fetchApodFromServer() {
     var controller = new AbortController();
-    var timer = setTimeout(function () { controller.abort(); }, NASA_TIMEOUT_MS);
-    var url = NASA_APOD_BASE + "&date=" + encodeURIComponent(date || todayDateString());
-    return fetch(url, { signal: controller.signal })
-      .then(function (resp) { if (!resp.ok) throw new Error("NASA HTTP " + resp.status); return resp.json(); })
-      .then(parseApodResponse)
-      .catch(function () { return { date: date || todayDateString(), text: "Couldn't reach NASA's picture-of-the-day service right now — try again in a bit.", image: null }; })
+    var timer = setTimeout(function () { controller.abort(); }, APOD_TIMEOUT_MS);
+    return fetch("/api/beast/apod", { signal: controller.signal })
+      .then(function (resp) { if (!resp.ok) throw new Error("Beast server HTTP " + resp.status); return resp.json(); })
+      .then(function (payload) { return parseApodPayload((payload && payload.data) || {}); })
+      .catch(function () { return { date: todayDateString(), text: "Couldn't reach today's NASA picture right now — try again in a bit.", image: null }; })
       .finally(function () { clearTimeout(timer); });
   }
   function fetchApod(forceRefresh) {
     if (!forceRefresh) {
       var cached = readApodCache();
-      if (cached) return Promise.resolve(cached);
+      if (cached && (cached.image || cached.text)) return Promise.resolve(cached);
     }
-    return fetchApodFromNasa(todayDateString()).then(function (result) { writeApodCache(result); return result; });
+    return fetchApodFromServer().then(function (result) {
+      if (result.image) writeApodCache(result);
+      return result;
+    });
   }
   function renderApodBubble(result) {
     if (!apodBubbleEl) {

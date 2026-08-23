@@ -34,5 +34,13 @@ export function openDatabase(file = "astronomy.db") {
   if (file !== ":memory:") db.exec("PRAGMA journal_mode = WAL");
   db.exec(readFileSync(join(here, "schema.sql"), "utf8"));
 
+  // Migration for databases created before apod_url existed:
+  // CREATE TABLE IF NOT EXISTS won't add the column to an old file.
+  try {
+    db.exec("ALTER TABLE beast_brain_days ADD COLUMN apod_url TEXT");
+  } catch {
+    /* column already exists */
+  }
+
   return db;
 }

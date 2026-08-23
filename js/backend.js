@@ -35,6 +35,104 @@
     window.speechSynthesis.speak(utterance);
   }
 
+  /* ---- stats dashboard ---------------------------------------------
+     Pulled from /api/admin/stats — the server only answers this for
+     the ADMIN_USERNAME account. Renders above the Jarvis chat:
+     visitors, Beast usage, accounts, and any errors visitors hit. */
+  async function loadStats(box) {
+    box.textContent = "Loading site stats…";
+    try {
+      const resp = await fetch("/api/admin/stats");
+      if (resp.status === 403) { box.textContent = "Stats need admin access."; return; }
+      if (!resp.ok) throw new Error("status " + resp.status);
+      const { data } = await resp.json();
+      drawStats(box, data);
+    } catch {
+      box.textContent = "Stats unavailable right now (server not reachable).";
+    }
+  }
+
+  function card(label, value, sub) {
+    const el = document.createElement("div");
+    el.className = "card";
+    el.style.padding = "1rem 1.2rem";
+    const l = document.createElement("span");
+    l.className = "eyebrow";
+    l.textContent = label;
+    const v = document.createElement("div");
+    v.textContent = value;
+    v.style.cssText = "font-size:2rem;font-weight:700;line-height:1.2;";
+    el.append(l, v);
+    if (sub) {
+      const s = document.createElement("small");
+      s.textContent = sub;
+      s.style.opacity = ".7";
+      el.append(s);
+    }
+    return el;
+  }
+
+  function listSection(title, rows) {
+    const wrap = document.createElement("div");
+    wrap.className = "card";
+    wrap.style.padding = "1rem 1.2rem";
+    const h = document.createElement("h3");
+    h.textContent = title;
+    h.style.marginBottom = ".6rem";
+    wrap.append(h);
+    if (!rows.length) {
+      const empty = document.createElement("p");
+      empty.textContent = "Nothing yet.";
+      empty.style.opacity = ".7";
+      wrap.append(empty);
+      return wrap;
+    }
+    const ul = document.createElement("ul");
+    ul.style.paddingLeft = "1.1rem";
+    rows.forEach(function (text) {
+      const li = document.createElement("li");
+      li.textContent = text;
+      ul.append(li);
+    });
+    wrap.append(ul);
+    return wrap;
+  }
+
+  function drawStats(box, data) {
+    box.replaceChildren();
+    box.style.display = "grid";
+    box.style.gap = "1rem";
+    box.style.marginBottom = "1.6rem";
+
+    const cards = document.createElement("div");
+    cards.className = "grid grid-4";
+    cards.append(
+      card("Visitors today", data.visitors.today,
+        "yesterday: " + data.visitors.yesterday),
+      card("Page views all time", data.visitors.total),
+      card("Beast messages today", data.beast.messages_today,
+        "all time: " + data.beast.messages_total),
+      card("Errors today", data.errors.today,
+        "accounts: " + data.accounts.total)
+    );
+    box.append(cards);
+
+    const lists = document.createElement("div");
+    lists.className = "grid grid-3";
+    lists.append(
+      listSection("Top pages",
+        data.visitors.top_pages.map(function (p) { return p.page + " — " + p.views + " views"; })),
+      listSection("Recent errors",
+        data.errors.recent.map(function (e) {
+          return "[" + e.day + "] " + (e.page || "?") + ": " + e.message + (e.source ? " (" + e.source + ":" + (e.line || "?") + ")" : "");
+        })),
+      listSection("Latest on Beast & signups",
+        data.beast.recent_questions.map(function (q) { return "\u201C" + q.question + "\u201D"; })
+          .concat(data.accounts.latest.map(function (u) { return "New account: " + u.username; })))
+    );
+    box.append(lists);
+  }
+
   function renderSignedOut() {
     pageSlot.replaceChildren();
     pageSlot.className = "";
@@ -60,6 +158,11 @@
   function renderAdmin() {
     pageSlot.replaceChildren();
     pageSlot.className = "beast-page";
+
+    const stats = document.createElement("div");
+    stats.id = "backendStats";
+    pageSlot.append(stats);
+    loadStats(stats);
 
     const log = document.createElement("div");
     log.className = "beast-log";

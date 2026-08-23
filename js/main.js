@@ -108,6 +108,46 @@
 })();
 
 /* ===================================================================
+   SITE STATS — one anonymous visit ping per page load, plus client
+   error reports. No cookies, no fingerprinting, nothing personal:
+   the server just bumps a (day, page) counter and keeps an error
+   log for the admin dashboard at /backend. Every call fails
+   silently when there's no server (e.g. opening files directly).
+   =================================================================== */
+(function () {
+  "use strict";
+
+  var page = (window.location.pathname.split("/").pop() || "index.html");
+
+  function report(path, payload) {
+    try {
+      fetch(path, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        keepalive: true,
+      }).catch(function () {});
+    } catch (e) { /* no server — ignore */ }
+  }
+
+  report("/api/stats/visit", { page: page });
+
+  // Window errors get reported once each, throttled, with a plain
+  // message so nobody's data ends up in the log.
+  var reported = 0;
+  window.addEventListener("error", function (e) {
+    if (reported >= 5) return;               // don't flood the server
+    reported++;
+    report("/api/stats/error", {
+      page: page,
+      message: String(e.message || "Script error").slice(0, 300),
+      source: e.filename ? String(e.filename).split("/").pop() : "",
+      line: e.lineno || null,
+    });
+  });
+})();
+
+/* ===================================================================
    RANK PILL — shows your quiz rank in the header on EVERY page.
 
    main.js loads everywhere, quiz.js only loads on quiz.html, so this

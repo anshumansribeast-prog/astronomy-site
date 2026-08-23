@@ -92,7 +92,7 @@ export function logout(req, res, db) {
 // me" access to /backend.
 const ADMIN_USERNAME = (process.env.ADMIN_USERNAME || "").toLowerCase();
 
-function isAdmin(user) {
+export function isAdmin(user) {
   return Boolean(ADMIN_USERNAME) && user.username.toLowerCase() === ADMIN_USERNAME;
 }
 

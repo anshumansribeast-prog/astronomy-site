@@ -70,19 +70,22 @@ async function fetchApod(day) {
     `https://api.nasa.gov/planetary/apod?api_key=${NASA_API_KEY}&date=${day}`;
   try {
     const resp = await fetch(url, { signal: AbortSignal.timeout(15_000) });
-    if (!resp.ok) return { title: null, summary: null };
+    if (!resp.ok) return { title: null, summary: null, imageUrl: null };
     const data = await resp.json();
     const title = data.title || null;
     const summary = (data.explanation || "").slice(0, 400);
-    return { title, summary };
+    // Only real images — APOD sometimes publishes videos, which the
+    // picture card can't show.
+    const imageUrl = data.media_type === "image" ? (data.url || data.hdurl || null) : null;
+    return { title, summary, imageUrl };
   } catch {
-    return { title: null, summary: null };
+    return { title: null, summary: null, imageUrl: null };
   }
 }
 
 export function getTodayBrain(db) {
   return db.prepare(
-    "SELECT day, apod_title, apod_summary, moon_phase, daily_fact, refreshed_at FROM beast_brain_days WHERE day = ?"
+    "SELECT day, apod_title, apod_summary, apod_url, moon_phase, daily_fact, refreshed_at FROM beast_brain_days WHERE day = ?"
   ).get(todayKey());
 }
 
@@ -96,16 +99,28 @@ export function getRecentMemories(db, limit = 5) {
 export async function ensureTodayBrain(db) {
   const day = todayKey();
   const existing = getTodayBrain(db);
-  if (existing) return existing;
+
+  // Self-heal: if the row exists but NASA's answer was empty (rate
+  // limit, publish delay), try again instead of staying dark all day.
+  if (existing && existing.apod_title) return existing;
 
   const apod = await fetchApod(day);
   const moon = moonPhaseFor(new Date());
   const fact = pickDailyFact(day);
 
+  if (existing) {
+    if (!apod.title) return existing; // still nothing — keep what we have
+    db.prepare(
+      "UPDATE beast_brain_days SET apod_title = ?, apod_summary = ?, apod_url = ? WHERE day = ?"
+    ).run(apod.title, apod.summary, apod.imageUrl, day);
+    console.log(`  Beast's NASA report arrived late but landed: ${apod.title}`);
+    return getTodayBrain(db);
+  }
+
   db.prepare(
-    `INSERT INTO beast_brain_days (day, apod_title, apod_summary, moon_phase, daily_fact)
-     VALUES (?, ?, ?, ?, ?)`
-  ).run(day, apod.title, apod.summary, moon, fact);
+    `INSERT INTO beast_brain_days (day, apod_title, apod_summary, apod_url, moon_phase, daily_fact)
+     VALUES (?, ?, ?, ?, ?, ?)`
+  ).run(day, apod.title, apod.summary, apod.imageUrl, moon, fact);
 
   console.log(`  Beast learned today's sky: ${apod.title || "no APOD"}, ${moon}`);
   return getTodayBrain(db);
