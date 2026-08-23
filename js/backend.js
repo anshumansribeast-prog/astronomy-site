@@ -127,17 +127,52 @@
           .concat(data.accounts.latest.map(function (u) { return "New account: " + u.username; })))
     );
     box.append(lists);
+  }
 
-    const refreshed = el("p", "panel-hint",
-      "Refreshed " + new Date().toLocaleTimeString() + " · ");
-    const again = el("a", "", "refresh");
-    again.href = "#";
-    again.addEventListener("click", function (e) {
-      e.preventDefault();
-      loadStats(box);
-    });
-    refreshed.append(again);
-    box.append(refreshed);
+  /* ---- the Semicolon panel -------------------------------------------
+   One dashboard, both sites. This server proxies semicolon's own
+   summary at /api/admin/semicolon — the shared token between the two
+   servers never reaches this browser. */
+  async function loadSemicolon(box) {
+    box.replaceChildren();
+    const head = el("h2", "", "Semicolon");
+    head.style.margin = ".4rem 0 .2rem";
+    box.append(head);
+
+    try {
+      const resp = await fetch("/api/admin/semicolon");
+      if (!resp.ok) throw new Error("status " + resp.status);
+      const payload = await resp.json();
+
+      if (!payload.data) {
+        box.append(el("p", "panel-hint", payload.note ||
+          "Semicolon stats not configured."));
+        return;
+      }
+      const d = payload.data;
+      const cards = el("div", "grid grid-4");
+      cards.append(
+        card("Visitors today", d.visitors.today),
+        card("Page views all time", d.visitors.total),
+        card("Ada messages today", d.ada.messages_today, "all time: " + d.ada.messages_total),
+        card("Errors today", d.errors.today)
+      );
+      box.append(cards);
+
+      const lists = el("div", "grid grid-3");
+      lists.append(
+        listSection("Top pages",
+          d.visitors.top_pages.map(function (p) { return p.page + " — " + p.views + " views"; })),
+        listSection("Recent errors",
+          d.errors.recent.map(function (e) {
+            return "[" + e.day + "] " + (e.page || "?") + ": " + e.message;
+          }))
+      );
+      box.append(lists);
+    } catch (err) {
+      box.append(el("p", "panel-hint",
+        "Couldn't reach Semicolon's stats right now (" + err.message + ")."));
+    }
   }
 
   function renderAdmin() {
@@ -149,9 +184,14 @@
     head.append(el("h2", "", "Site overview"));
     pageSlot.append(head);
 
-    const stats = el("div");
-    pageSlot.append(stats);
-    loadStats(stats);
+    const cosmosBox = el("div");
+    pageSlot.append(cosmosBox);
+    loadStats(cosmosBox);
+
+    const semiBox = el("div");
+    semiBox.style.marginTop = "2rem";
+    pageSlot.append(semiBox);
+    loadSemicolon(semiBox);
   }
 
   if (!window.AstroAccount) return; // account.js didn't load — nothing to gate on

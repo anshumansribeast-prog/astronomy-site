@@ -17,6 +17,37 @@ import { rateLimit, clientKey } from "../lib/rate-limit.js";
 
 const MAX_ERRORS_KEPT = 500;
 
+/* ---- Semicolon bridge ---------------------------------------------
+   ONE dashboard for both sites: this server proxies semicolon.punah.pro's
+   own stats summary. The shared token lives in env vars on THIS server
+   only — the browser authenticates with its normal admin session and
+   never sees or needs the token. Unset env = honest "not configured". */
+const SEMICOLON_STATS_URL = (process.env.SEMICOLON_STATS_URL || "").trim();
+const SEMICOLON_STATS_TOKEN = (process.env.SEMICOLON_STATS_TOKEN || "").trim();
+
+export async function semicolonStats(res) {
+  if (!SEMICOLON_STATS_URL || !SEMICOLON_STATS_TOKEN) {
+    return send(res, 200, {
+      data: null,
+      note: "Semicolon stats not configured. Set SEMICOLON_STATS_URL and " +
+            "SEMICOLON_STATS_TOKEN on this server to fold it into this dashboard.",
+    });
+  }
+  try {
+    const resp = await fetch(SEMICOLON_STATS_URL, {
+      headers: { Authorization: "Bearer " + SEMICOLON_STATS_TOKEN },
+      signal: AbortSignal.timeout(10_000),
+    });
+    if (!resp.ok) throw new Error("HTTP " + resp.status);
+    const payload = await resp.json();
+    return send(res, 200, { data: payload.data || null });
+  } catch (err) {
+    return send(res, 502, {
+      error: { code: "semicolon_unreachable", message: "Couldn't reach Semicolon's stats: " + err.message },
+    });
+  }
+}
+
 function todayKey(date = new Date()) {
   return date.toISOString().slice(0, 10);
 }

@@ -15,7 +15,7 @@
 import { send } from "../app.js";
 import { register, login, logout, me, isAdmin } from "./auth.js";
 import { beast, beastHealth, beastLearned, beastApod } from "./beast.js";
-import { recordVisit, recordError, adminStats } from "./stats.js";
+import { recordVisit, recordError, adminStats, semicolonStats } from "./stats.js";
 import { userForToken } from "../services/auth.js";
 import { SESSION_COOKIE, parseCookies } from "../lib/cookies.js";
 
@@ -51,6 +51,12 @@ export async function handleApi(req, res, url, db) {
         return send(res, 403, { error: { code: "forbidden", message: "Admin access required." } });
       }
       return adminStats(res, db);
+    }
+    if (path === "/api/admin/semicolon") {
+      if (!user || !isAdmin(user)) {
+        return send(res, 403, { error: { code: "forbidden", message: "Admin access required." } });
+      }
+      return semicolonStats(res);
     }
 
     return send(res, 404, { error: { code: "not_found", message: "No such endpoint." } });
