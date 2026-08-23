@@ -1,138 +1,24 @@
 /* ===================================================================
    js/backend.js — the private /backend admin page.
 
+   A real backend console now, not a chat toy: it shows live site
+   numbers from /api/admin/stats — visitors, top pages, Beast usage,
+   accounts, and any errors visitors' browsers reported.
+
    Gated by the site's real account system (see account.js): the
    server decides who's admin (one ADMIN_USERNAME env var, checked in
    server/routes/auth.js), never the client — this file only reads
-   that already-authorized answer and decides what to draw.
-
-   The chat panel here talks to backend_server.py, a local-only bridge
-   on this laptop (localhost:8423, same shape as Ada's/Beast's bridges).
-   That means it only works when /backend is opened FROM Anshuman's own
-   laptop — from anywhere else it fails honestly instead of pretending
-   to work, same as Ada and Beast already do.
+   that already-authorized answer and decides what to draw. The stats
+   endpoint re-checks every request server-side and returns 403 to
+   anyone else.
    =================================================================== */
 (function () {
   "use strict";
 
-  const BACKEND_URL = "http://localhost:8423/api/backend";
-  const HISTORY_LIMIT = 8;
-
   const pageSlot = document.getElementById("backendPage");
   if (!pageSlot) return; // not on backend.html
 
-  const history = [];
-
-  // Jarvis answers out loud here — the browser's own speech synthesis,
-  // no extra server or audio streaming needed. Text still shows too
-  // (so it's clear what was said, and works if speakers are off), but
-  // every real reply from Jarvis is spoken, not just displayed.
-  function speak(text) {
-    if (!window.speechSynthesis || !text) return;
-    window.speechSynthesis.cancel(); // don't overlap with a reply still talking
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 1;
-    window.speechSynthesis.speak(utterance);
-  }
-
-  /* ---- stats dashboard ---------------------------------------------
-     Pulled from /api/admin/stats — the server only answers this for
-     the ADMIN_USERNAME account. Renders above the Jarvis chat:
-     visitors, Beast usage, accounts, and any errors visitors hit. */
-  async function loadStats(box) {
-    box.textContent = "Loading site stats…";
-    try {
-      const resp = await fetch("/api/admin/stats");
-      if (resp.status === 403) { box.textContent = "Stats need admin access."; return; }
-      if (!resp.ok) throw new Error("status " + resp.status);
-      const { data } = await resp.json();
-      drawStats(box, data);
-    } catch {
-      box.textContent = "Stats unavailable right now (server not reachable).";
-    }
-  }
-
-  function card(label, value, sub) {
-    const el = document.createElement("div");
-    el.className = "card";
-    el.style.padding = "1rem 1.2rem";
-    const l = document.createElement("span");
-    l.className = "eyebrow";
-    l.textContent = label;
-    const v = document.createElement("div");
-    v.textContent = value;
-    v.style.cssText = "font-size:2rem;font-weight:700;line-height:1.2;";
-    el.append(l, v);
-    if (sub) {
-      const s = document.createElement("small");
-      s.textContent = sub;
-      s.style.opacity = ".7";
-      el.append(s);
-    }
-    return el;
-  }
-
-  function listSection(title, rows) {
-    const wrap = document.createElement("div");
-    wrap.className = "card";
-    wrap.style.padding = "1rem 1.2rem";
-    const h = document.createElement("h3");
-    h.textContent = title;
-    h.style.marginBottom = ".6rem";
-    wrap.append(h);
-    if (!rows.length) {
-      const empty = document.createElement("p");
-      empty.textContent = "Nothing yet.";
-      empty.style.opacity = ".7";
-      wrap.append(empty);
-      return wrap;
-    }
-    const ul = document.createElement("ul");
-    ul.style.paddingLeft = "1.1rem";
-    rows.forEach(function (text) {
-      const li = document.createElement("li");
-      li.textContent = text;
-      ul.append(li);
-    });
-    wrap.append(ul);
-    return wrap;
-  }
-
-  function drawStats(box, data) {
-    box.replaceChildren();
-    box.style.display = "grid";
-    box.style.gap = "1rem";
-    box.style.marginBottom = "1.6rem";
-
-    const cards = document.createElement("div");
-    cards.className = "grid grid-4";
-    cards.append(
-      card("Visitors today", data.visitors.today,
-        "yesterday: " + data.visitors.yesterday),
-      card("Page views all time", data.visitors.total),
-      card("Beast messages today", data.beast.messages_today,
-        "all time: " + data.beast.messages_total),
-      card("Errors today", data.errors.today,
-        "accounts: " + data.accounts.total)
-    );
-    box.append(cards);
-
-    const lists = document.createElement("div");
-    lists.className = "grid grid-3";
-    lists.append(
-      listSection("Top pages",
-        data.visitors.top_pages.map(function (p) { return p.page + " — " + p.views + " views"; })),
-      listSection("Recent errors",
-        data.errors.recent.map(function (e) {
-          return "[" + e.day + "] " + (e.page || "?") + ": " + e.message + (e.source ? " (" + e.source + ":" + (e.line || "?") + ")" : "");
-        })),
-      listSection("Latest on Beast & signups",
-        data.beast.recent_questions.map(function (q) { return "\u201C" + q.question + "\u201D"; })
-          .concat(data.accounts.latest.map(function (u) { return "New account: " + u.username; })))
-    );
-    box.append(lists);
-  }
-
+  /* ---- signed-out state -------------------------------------------- */
   function renderSignedOut() {
     pageSlot.replaceChildren();
     pageSlot.className = "";
@@ -155,123 +41,117 @@
     pageSlot.append(p);
   }
 
+  /* ---- small render helpers ---------------------------------------- */
+  function el(tag, className, text) {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined) node.textContent = text;
+    return node;
+  }
+
+  function card(label, value, sub) {
+    const box = el("div", "card");
+    box.style.padding = "1rem 1.2rem";
+    box.append(el("span", "eyebrow", label));
+    const valueEl = el("div", "", String(value));
+    valueEl.style.cssText = "font-size:2rem;font-weight:700;line-height:1.2;";
+    box.append(valueEl);
+    if (sub) {
+      const s = el("small", "", sub);
+      s.style.opacity = ".7";
+      box.append(s);
+    }
+    return box;
+  }
+
+  function listSection(title, rows) {
+    const wrap = el("div", "card");
+    wrap.style.padding = "1rem 1.2rem";
+    const h = el("h3", "", title);
+    h.style.marginBottom = ".6rem";
+    wrap.append(h);
+    if (!rows.length) {
+      const empty = el("p", "", "Nothing yet.");
+      empty.style.opacity = ".7";
+      wrap.append(empty);
+      return wrap;
+    }
+    const ul = el("ul");
+    ul.style.paddingLeft = "1.1rem";
+    rows.forEach(function (text) { ul.append(el("li", "", text)); });
+    wrap.append(ul);
+    return wrap;
+  }
+
+  /* ---- the dashboard ------------------------------------------------ */
+  async function loadStats(box) {
+    box.textContent = "Loading site stats…";
+    try {
+      const resp = await fetch("/api/admin/stats");
+      if (resp.status === 403) { box.textContent = "Stats need admin access."; return; }
+      if (!resp.ok) throw new Error("status " + resp.status);
+      const { data } = await resp.json();
+      drawStats(box, data);
+    } catch {
+      box.textContent = "Stats unavailable right now (server not reachable).";
+    }
+  }
+
+  function drawStats(box, data) {
+    box.replaceChildren();
+    box.style.display = "grid";
+    box.style.gap = "1rem";
+
+    const cards = el("div", "grid grid-4");
+    cards.append(
+      card("Visitors today", data.visitors.today, "yesterday: " + data.visitors.yesterday),
+      card("Page views all time", data.visitors.total),
+      card("Beast messages today", data.beast.messages_today, "all time: " + data.beast.messages_total),
+      card("Errors today", data.errors.today, "accounts: " + data.accounts.total)
+    );
+    box.append(cards);
+
+    const lists = el("div", "grid grid-3");
+    lists.append(
+      listSection("Top pages",
+        data.visitors.top_pages.map(function (p) {
+          return p.page + " — " + p.views + " views";
+        })),
+      listSection("Recent errors",
+        data.errors.recent.map(function (e) {
+          return "[" + e.day + "] " + (e.page || "?") + ": " + e.message +
+                 (e.source ? " (" + e.source + ":" + (e.line || "?") + ")" : "");
+        })),
+      listSection("Latest on Beast & signups",
+        data.beast.recent_questions.map(function (q) { return "\u201C" + q.question + "\u201D"; })
+          .concat(data.accounts.latest.map(function (u) { return "New account: " + u.username; })))
+    );
+    box.append(lists);
+
+    const refreshed = el("p", "panel-hint",
+      "Refreshed " + new Date().toLocaleTimeString() + " · ");
+    const again = el("a", "", "refresh");
+    again.href = "#";
+    again.addEventListener("click", function (e) {
+      e.preventDefault();
+      loadStats(box);
+    });
+    refreshed.append(again);
+    box.append(refreshed);
+  }
+
   function renderAdmin() {
     pageSlot.replaceChildren();
-    pageSlot.className = "beast-page";
+    pageSlot.className = "";
 
-    const stats = document.createElement("div");
-    stats.id = "backendStats";
+    const head = el("div", "section-head");
+    head.append(el("span", "eyebrow", "Live"));
+    head.append(el("h2", "", "Site overview"));
+    pageSlot.append(head);
+
+    const stats = el("div");
     pageSlot.append(stats);
     loadStats(stats);
-
-    const log = document.createElement("div");
-    log.className = "beast-log";
-    log.id = "backendLog";
-
-    const form = document.createElement("form");
-    form.className = "beast-form";
-    const input = document.createElement("input");
-    input.type = "text";
-    input.placeholder = "Talk to Jarvis…";
-    input.autocomplete = "off";
-
-    // Speaking to Jarvis, not just typing — mic button uses the
-    // browser's built-in speech recognition, same "no extra server"
-    // approach as the speak() output side. Only added if the browser
-    // actually supports it (Chrome/Brave/Edge do; not every browser
-    // does), so this degrades to text-only rather than showing a
-    // button that doesn't work.
-    const SpeechRecognitionCtor = window.SpeechRecognition || window.webkitSpeechRecognition;
-    let recognizer = null;
-    let mic = null;
-    if (SpeechRecognitionCtor) {
-      mic = document.createElement("button");
-      mic.type = "button";
-      mic.className = "btn btn-quiet beast-send";
-      mic.textContent = "🎤";
-      mic.setAttribute("aria-label", "Speak to Jarvis");
-      mic.addEventListener("click", function () {
-        if (recognizer) return; // already listening
-        recognizer = new SpeechRecognitionCtor();
-        recognizer.lang = "en-US";
-        recognizer.interimResults = false;
-        recognizer.maxAlternatives = 1;
-        mic.textContent = "●";
-        recognizer.onresult = function (e) {
-          input.value = e.results[0][0].transcript;
-          form.requestSubmit();
-        };
-        recognizer.onerror = recognizer.onend = function () {
-          mic.textContent = "🎤";
-          recognizer = null;
-        };
-        recognizer.start();
-      });
-    }
-
-    const send = document.createElement("button");
-    send.type = "submit";
-    send.className = "btn btn-primary beast-send";
-    send.textContent = "Send";
-    form.append(input);
-    if (mic) form.append(mic);
-    form.append(send);
-
-    pageSlot.append(log, form);
-
-    function addBubble(text, kind) {
-      const el = document.createElement("div");
-      el.className = "beast-bubble beast-" + kind;
-      el.textContent = text;
-      log.appendChild(el);
-      log.scrollTop = log.scrollHeight;
-      return el;
-    }
-
-    const greeting =
-      "Jarvis here — you can also call me Friday. I only answer while backend_server.py is running on Anshuman's laptop and you're viewing this page from that same machine.";
-    addBubble(greeting, "bot");
-    speak(greeting);
-
-    form.addEventListener("submit", async function (e) {
-      e.preventDefault();
-      const text = input.value.trim();
-      if (!text) return;
-
-      addBubble(text, "user");
-      history.push({ role: "user", content: text });
-      input.value = "";
-      input.disabled = true;
-      send.disabled = true;
-      const thinking = addBubble("Thinking…", "bot");
-      thinking.classList.add("beast-thinking");
-
-      try {
-        const resp = await fetch(BACKEND_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: text, history: history.slice(-HISTORY_LIMIT) })
-        });
-        if (!resp.ok) throw new Error("bad status " + resp.status);
-        const data = await resp.json();
-        const reply = data.reply || "I didn't get that — try again?";
-        thinking.textContent = reply;
-        thinking.classList.remove("beast-thinking");
-        history.push({ role: "assistant", content: data.reply || "" });
-        speak(reply);
-      } catch (err) {
-        const offline =
-          "Jarvis is offline — this only works while backend_server.py is running on Anshuman's laptop, " +
-          "and only when you're viewing this page from that same machine.";
-        thinking.textContent = offline;
-        thinking.classList.remove("beast-thinking");
-        speak(offline);
-      } finally {
-        input.disabled = false;
-        send.disabled = false;
-        input.focus();
-      }
-    });
   }
 
   if (!window.AstroAccount) return; // account.js didn't load — nothing to gate on
