@@ -1068,6 +1068,60 @@ input[type="date"]:focus { outline: none; border-color: var(--teal); }
   border: 1px solid var(--line);
 }
 
+/* Beast Markdown & Code Blocks */
+.beast-code-block {
+  margin: 0.75rem 0;
+  background: #070a13;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  overflow: hidden;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.beast-code-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.35rem 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.72rem;
+  color: #8b949e;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.beast-copy-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #c9d1d9;
+  border-radius: 4px;
+  padding: 0.18rem 0.5rem;
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.beast-copy-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+.beast-code-block pre {
+  margin: 0;
+  padding: 0.75rem 0.85rem;
+  overflow-x: auto;
+  font-size: 0.84rem;
+  line-height: 1.5;
+  color: #7ee787;
+  white-space: pre;
+}
+.beast-inline-code {
+  background: rgba(255, 255, 255, 0.12);
+  padding: 0.15rem 0.35rem;
+  border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.86em;
+  color: #79c0ff;
+}
+
+
 .beast-form {
   display: flex; gap: .6rem; padding: .9rem 1rem;
   border-top: 1px solid var(--line);

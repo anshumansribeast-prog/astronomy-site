@@ -1,17 +1,8 @@
-"""Beast's brain — a tiny local HTTP server bridging astronomy-site's
-Beast chat widget (js/chat.js) to Ollama, the same local AI model Ada
-and Jarvis use. A static site's browser JS can't reach Ollama directly
-(it only listens on localhost with no CORS headers, and a JSON POST
-triggers a CORS preflight Ollama doesn't answer), so this fills that
-gap — same fix as Ada's ada_server.py, adapted for Beast.
+"""Beast's brain — local HTTP server bridging Cosmos astronomy-site's
+Beast chat widget (js/chat.js) to Ollama.
+Powered by the custom trained `beast-astronomy` model.
 
-Run:  python beast_server.py     (needs `ollama serve` already running)
-
-This only serves localhost. Beast's AI fallback only answers while THIS
-machine is running this script — it does not make it work for a real
-visitor on the deployed site unless this computer is itself the public
-server. Zero extra dependencies: stdlib only, same spirit as Cosmos v2's
-server and ada_server.py.
+Run: py beast_server.py
 """
 
 import json
@@ -21,21 +12,29 @@ from urllib.error import URLError
 
 PORT = 8422
 OLLAMA_URL = "http://localhost:11434/api/generate"
-OLLAMA_MODEL = "llama3.2:3b"
-SYSTEM_PROMPT = (
-    "You are Beast, a friendly astronomy chat widget on a website. "
-    "Answer in 1-2 short plain sentences, no markdown or lists."
-)
+OLLAMA_MODEL = "beast-astronomy:latest"
 
 
 class BeastHandler(BaseHTTPRequestHandler):
     def _cors(self):
         self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Access-Control-Allow-Methods", "POST, OPTIONS")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type, Accept")
 
     def do_OPTIONS(self):
         self.send_response(204)
+        self._cors()
+        self.end_headers()
+
+    def do_GET(self):
+        if self.path in ("/api/health", "/api/beast/health", "/health"):
+            self._reply(200, {
+                "status": "online",
+                "model": OLLAMA_MODEL,
+                "server": "Cosmos Beast Astronomy Server"
+            })
+            return
+        self.send_response(404)
         self._cors()
         self.end_headers()
 
@@ -63,24 +62,26 @@ class BeastHandler(BaseHTTPRequestHandler):
                 data=json.dumps({
                     "model": OLLAMA_MODEL,
                     "prompt": message,
-                    "system": SYSTEM_PROMPT,
                     "stream": False,
                 }).encode(),
                 headers={"Content-Type": "application/json"},
             )
             with urlreq.urlopen(req, timeout=120) as resp:
                 reply = json.loads(resp.read()).get("response", "").strip()
-        except (URLError, TimeoutError, ValueError):
-            self._reply(502, {"error": "Ollama isn't reachable - is `ollama serve` running?"})
+        except (URLError, TimeoutError, ValueError) as err:
+            self._reply(502, {"error": f"Ollama unreachable ({err}) - is Ollama running with '{OLLAMA_MODEL}'?"})
             return
 
-        self._reply(200, {"reply": reply or "Hmm, I've got nothing - try rephrasing that?"})
+        self._reply(200, {
+            "reply": reply or "The cosmos is vast and silent on this — try asking another astronomical question!",
+            "model": OLLAMA_MODEL
+        })
 
     def _reply(self, status, payload):
-        data = json.dumps(payload).encode()
+        data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
         self.send_response(status)
         self._cors()
-        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(data)))
         self.end_headers()
         self.wfile.write(data)
