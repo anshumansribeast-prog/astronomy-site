@@ -41,10 +41,64 @@
   var form = container.querySelector("#beastForm");
   var input = container.querySelector("#beastInput");
 
+  function formatBeastMarkdown(text) {
+    if (!text) return "";
+    var html = text
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+
+    // Code blocks with language tag and copy button
+    html = html.replace(/```([a-zA-Z0-9_-]*)\n?([\s\S]*?)```/g, function (match, lang, code) {
+      lang = lang || "code";
+      return (
+        '<div class="beast-code-block">' +
+          '<div class="beast-code-head">' +
+            '<span>' + lang + '</span>' +
+            '<button type="button" class="beast-copy-btn">Copy</button>' +
+          '</div>' +
+          '<pre><code>' + code.trim() + '</code></pre>' +
+        '</div>'
+      );
+    });
+
+    // Inline code
+    html = html.replace(/`([^`]+)`/g, '<code class="beast-inline-code">$1</code>');
+
+    // Bold & italic
+    html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+
+    // Format newlines outside code blocks
+    var parts = html.split(/(<div class="beast-code-block">[\s\S]*?<\/div>)/g);
+    html = parts.map(function (part) {
+      if (part.startsWith('<div class="beast-code-block">')) return part;
+      return part.replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>');
+    }).join("");
+
+    return html;
+  }
+
   function addMessage(text, from, imageUrl) {
     var bubble = document.createElement("div");
     bubble.className = "beast-bubble beast-" + from;
-    bubble.textContent = text;
+
+    if (from === "bot") {
+      bubble.innerHTML = formatBeastMarkdown(text);
+      bubble.querySelectorAll(".beast-copy-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          var codeEl = btn.closest(".beast-code-block").querySelector("code");
+          if (!codeEl) return;
+          navigator.clipboard.writeText(codeEl.innerText || codeEl.textContent).then(function () {
+            btn.textContent = "✓ Copied!";
+            setTimeout(function () { btn.textContent = "Copy"; }, 2000);
+          }).catch(function () {});
+        });
+      });
+    } else {
+      bubble.textContent = text;
+    }
+
     if (imageUrl) {
       var img = document.createElement("img");
       img.src = imageUrl;
