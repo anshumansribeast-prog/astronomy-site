@@ -11,7 +11,7 @@ const OPENAI_API_URL = (process.env.OPENAI_API_URL || "https://api.openai.com/v1
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY || "";
 const OPENAI_MODEL = process.env.OPENAI_MODEL || "";
 const OUT_OF_KNOWLEDGE = "[OUT_OF_KNOWLEDGE]";
-const UNCERTAIN = /(?:^|\s)(?:i\s+(?:don't|do not)\s+know|i\s+(?:cannot|can't)\s+answer|i\s+(?:cannot|can't)\s+verify|not\s+enough\s+information|outside\s+my\s+knowledge|unknown\s+to\s+me)(?:\s|[.!?,]|$)/i;
+const UNCERTAIN = /(?:^|\s)(?:i\s+(?:don't|do not)\s+know|i\s+(?:cannot|can't)\s+answer|i\s+(?:cannot|can't)\s+verify|i['’]?m\s+not\s+sure|i\s+am\s+not\s+sure|not\s+sure|not\s+enough\s+information|outside\s+my\s+knowledge|unknown\s+to\s+me)(?:\s|[.!?,]|$)/i;
 
 export function aiEnabled() { return Boolean(AI_API_KEY); }
 
