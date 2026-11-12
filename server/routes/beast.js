@@ -18,6 +18,8 @@ import {
 } from "../services/beast-brain.js";
 import { aiEnabled, pingAI, aiGenerate } from "../lib/ai.js";
 import { getTodayBrain as brainRow } from "../services/beast-brain.js";
+import { lookupSiteAnswer } from "../lib/site-knowledge.js";
+import { normalizePage } from "../lib/personas.js";
 
 /* Server-side fallback: the same facts the rest of the site renders
    from, matched by keyword. Keeps Beast useful with no API key. */
@@ -45,6 +47,9 @@ const FALLBACK_TOPICS = [
 ];
 
 function fallbackReply(message) {
+  const fromSite = lookupSiteAnswer(message);
+  if (fromSite) return fromSite;
+
   const lower = " " + message.toLowerCase().replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ") + " ";
   let best = null;
   let bestScore = 0;
@@ -131,6 +136,7 @@ export async function beast(req, res, db) {
 
   const history = Array.isArray(body.value.history) ? body.value.history.slice(-6) : [];
   const visitor = (body.value.visitor || "").trim().slice(0, 64) || null;
+  const page = normalizePage(body.value.page || "beast.html");
 
   const brain = await ensureTodayBrain(db);
 
@@ -139,7 +145,7 @@ export async function beast(req, res, db) {
     return send(res, 200, { reply, source: "notes" });
   }
 
-  const system = buildSystemPrompt(db, brain, visitor);
+  const system = buildSystemPrompt(db, brain, visitor, { page, message });
 
   let prompt = "";
   for (const turn of history) {

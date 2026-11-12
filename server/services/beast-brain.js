@@ -11,6 +11,8 @@
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { BEAST_PERSONA, cosmosPagePerspective } from "../lib/personas.js";
+import { relevantSiteNotes } from "../lib/site-knowledge.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const FACTS_PATH = join(here, "..", "..", "js", "facts.js");
@@ -19,18 +21,7 @@ const NASA_API_KEY = process.env.NASA_API_KEY || "DEMO_KEY";
 const SYNODIC_MS = 29.530588853 * 86400000;
 const REF_NEW_MOON = Date.UTC(2000, 0, 6, 18, 14);
 
-const BASE_PROMPT =
-  "You are Beast, the knowledgeable astronomy and space-science assistant on Cosmos. " +
-  "Answer naturally and accurately across astronomy, astrophysics, cosmology, planetary " +
-  "science, spaceflight, telescopes, observing, mathematics and physics when relevant. " +
-  "You can also answer general science questions, but astronomy and space are your strongest " +
-  "areas. Explain concepts at the visitor's level, from beginner to advanced. Use the site's " +
-  "supplied facts, today's learning, and recent conversations when relevant. Never invent a " +
-  "number or pretend a current fact is known when it is not. For current or time-sensitive " +
-  "events, clearly say that the answer may need a live source. Correct a visitor politely " +
-  "when a premise is wrong. Keep normal answers concise but complete: usually 2-5 sentences. " +
-  "Use short paragraphs, simple lists, or equations when they genuinely make an explanation " +
-  "clearer. Do not restrict yourself to one or two sentences.";
+const BASE_PROMPT = BEAST_PERSONA;
 
 function todayKey(date = new Date()) {
   return date.toISOString().slice(0, 10);
@@ -146,8 +137,12 @@ export function rememberConversation(db, question, answer) {
   }
 }
 
-export function buildSystemPrompt(db, brain, visitorName) {
-  const parts = [BASE_PROMPT, `Today is ${brain.day}.`];
+export function buildSystemPrompt(db, brain, visitorName, { page, message } = {}) {
+  const parts = [
+    BASE_PROMPT,
+    cosmosPagePerspective(page),
+    `Today is ${brain.day}.`,
+  ];
 
   if (visitorName) {
     parts.push(`The visitor's name is ${visitorName}. Use it naturally when greeting them.`);
@@ -161,6 +156,11 @@ export function buildSystemPrompt(db, brain, visitorName) {
   }
   if (brain.apod_title) {
     parts.push(`NASA picture of the day — ${brain.apod_title}: ${brain.apod_summary || ""}`);
+  }
+
+  const notes = relevantSiteNotes(message, page);
+  if (notes) {
+    parts.push("SITE DATA (canonical — do not contradict these numbers):\n" + notes);
   }
 
   const memories = getRecentMemories(db, 5);

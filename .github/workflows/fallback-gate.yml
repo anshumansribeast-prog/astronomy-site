@@ -15,3 +15,4 @@ jobs:
         with:
           node-version: 24
       - run: node tests/ai-fallback-gate.test.js
+      - run: node tests/persona-training.test.js

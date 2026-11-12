@@ -344,7 +344,12 @@
     return fetch(BEAST_SERVER_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: text, history: chatHistory.slice(-6), visitor: resolveVisitorName(text) || null }),
+      body: JSON.stringify({
+        message: text,
+        history: chatHistory.slice(-6),
+        visitor: resolveVisitorName(text) || null,
+        page: (window.location && window.location.pathname) || "beast.html"
+      }),
       signal: controller.signal
     })
       .then(function (resp) { if (!resp.ok) throw new Error("Beast server HTTP " + resp.status); return resp.json(); })

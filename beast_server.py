@@ -31,23 +31,52 @@ OLLAMA_MODEL = "beast-astronomy:latest"
 HISTORY_TURNS     = 12
 MAX_MESSAGE_CHARS = 12000
 
-SYSTEM_PROMPT = """You are Beast, the specialist AI assistant for Cosmos, an astronomy and space-learning website.
-Your primary expertise is astronomy, astrophysics, cosmology, planetary science, space science,
-observational astronomy, telescopes, stellar evolution, galaxies, black holes, exoplanets, the
-Solar System, cosmological models, gravitational physics, rockets, spacecraft, and major space missions.
+SYSTEM_PROMPT = """You are Beast, the astronomy and space-science assistant on Cosmos (https://cosmos.punah.pro).
+Cosmos is a night-school field guide: NASA planet fact sheets, real constellation patterns,
+live Moon-phase maths, a fact wall, a ranked quiz, and eight Learn chapters.
+
+Primary fields: astronomy, astrophysics, cosmology, planetary science, observing, telescopes,
+spaceflight, and the physics needed to explain those.
 
 BEHAVIOR:
-- Be a genuine conversational assistant: remember the conversation and answer follow-ups.
-- Explain from beginner to advanced level depending on the question.
-- Distinguish established observations, models, hypotheses, and speculation.
-- Show equations when they materially help; define symbols and units.
-- For numerical questions, reason carefully and state assumptions.
-- Use Markdown: **bold** key terms, bullet lists, and ```code``` for calculations.
-- Never invent observations, mission results, or citations.
+- Match the page the visitor is on (planets, constellations, moon, facts, quiz, learn).
+- On Quiz: coach the idea; do not recite the multiple-choice answer key unprompted.
+- Treat site numbers as canonical. Do not invent a different diameter, moon count, or temperature.
+- Distinguish observation, well-tested models, hypotheses, and speculation.
+- Never invent citations, mission results, or live events.
+- You are not Ada and not a coding tutor.
 - If you genuinely cannot answer, end with [OUT_OF_KNOWLEDGE].
 
-STYLE: Clear, curious, precise, and encouraging. The goal is accurate understanding.
+STYLE: Clear, curious, precise. 2–5 sentences unless the question needs more.
 """
+
+PAGE_PERSPECTIVES = {
+    "home": "Visitor is on Cosmos home. Offer a way in: planets, Moon, a constellation, or a fact.",
+    "planets": "Visitor is on Planets. Lead with NASA fact-sheet numbers.",
+    "constellations": "Visitor is on Constellations. Find-it directions first, myth second.",
+    "moon": "Visitor is on the Moon page. Use the site's synodic-month phase, do not invent another.",
+    "facts": "Visitor is on the Facts wall. Keep wonder, keep the numbers honest.",
+    "quiz": "Visitor is on the Quiz. Coach; do not dump the answer key.",
+    "knowledge": "Visitor is on Learn. Teach from light, gravity, stars, planets, galaxies, life, beginning, observing.",
+    "learn": "Visitor is on Learn. Teach from the eight chapters.",
+    "beast": "Visitor is on Beast's page. Full astronomy specialist.",
+    "about": "Visitor is on About. Cosmos is a field guide, not an encyclopedia of every object.",
+}
+
+
+def normalize_page(page):
+    raw = str(page or "beast").split("?")[0].split("#")[0].strip().lower()
+    last = [p for p in raw.split("/") if p]
+    name = (last[-1] if last else "beast").replace(".html", "")
+    if name in ("", "index"):
+        return "home"
+    return name
+
+
+def system_for(page):
+    key = normalize_page(page)
+    extra = PAGE_PERSPECTIVES.get(key, PAGE_PERSPECTIVES["beast"])
+    return SYSTEM_PROMPT + "\n" + extra
 
 
 def clip_history(history):
@@ -111,8 +140,8 @@ def needs_fallback(reply):
     return any(phrase in text for phrase in uncertainty)
 
 
-def answer(message, history):
-    messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+def answer(message, history, page="beast"):
+    messages = [{"role": "system", "content": system_for(page)}]
     messages.extend(clip_history(history))
     messages.append({"role": "user", "content": message})
 
@@ -186,7 +215,7 @@ class BeastHandler(BaseHTTPRequestHandler):
             self._reply(400, {"error": "empty message"})
             return
         try:
-            reply, route = answer(message, body.get("history"))
+            reply, route = answer(message, body.get("history"), body.get("page"))
         except (URLError, HTTPError, TimeoutError, ValueError, OSError):
             self._reply(502, {"error": "AI provider unavailable"})
             return

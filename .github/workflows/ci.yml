@@ -26,6 +26,12 @@ jobs:
       - name: Test Beast fallback gate without secrets
         run: node test_beast_ai.mjs
 
+      - name: Test persona training
+        run: node tests/persona-training.test.js
+
+      - name: Test Ada and Beast page perspectives
+        run: python3 tests/ada_page_training.test.py
+
       - name: Test legacy Beast router helper
         run: python3 -m unittest test_beast_router.py
 
