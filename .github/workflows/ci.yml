@@ -32,6 +32,12 @@ jobs:
       - name: Test Ada and Beast page perspectives
         run: python3 tests/ada_page_training.test.py
 
+      - name: Collect and check training corpora
+        run: node tools/collect-training-data.js --check
+
+      - name: Test training corpus
+        run: node tests/training-corpus.test.js
+
       - name: Test legacy Beast router helper
         run: python3 -m unittest test_beast_router.py
 

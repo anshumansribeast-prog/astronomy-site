@@ -16,3 +16,4 @@ jobs:
           node-version: 24
       - run: node tests/ai-fallback-gate.test.js
       - run: node tests/persona-training.test.js
+      - run: node tests/training-corpus.test.js

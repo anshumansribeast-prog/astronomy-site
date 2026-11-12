@@ -95,6 +95,14 @@ export function constellationCatalog() {
   return load().constellations;
 }
 
+export function factCatalog() {
+  return load().facts;
+}
+
+export function lessonCatalog() {
+  return load().lessons;
+}
+
 function compactPlanetLine(p) {
   return (
     p.name + ": " + p.tag + ", " + p.diameter + " km across, " +
