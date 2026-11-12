@@ -63,7 +63,7 @@ export async function aiGenerate({ prompt, system }) {
     const resp = await fetch(AI_API_URL + "/chat/completions", {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: "Bearer " + AI_API_KEY },
-      body: JSON.stringify({ model: AI_MODEL, messages, temperature: 0.6, max_tokens: 300 }),
+      body: JSON.stringify({ model: AI_MODEL, messages, temperature: 0.4, max_tokens: 900 }),
       signal: AbortSignal.timeout(30_000),
     });
     if (!resp.ok) throw new Error(`AI API HTTP ${resp.status}`);

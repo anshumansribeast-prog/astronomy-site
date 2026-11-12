@@ -12,8 +12,8 @@ def get(path):
         return json.loads(r.read().decode())
 
 
-def ask(message, history=None):
-    body = {"message": message, "history": history or []}
+def ask(message, history=None, page="beast.html"):
+    body = {"message": message, "history": history or [], "page": page}
     req = Request(BASE + "/api/beast", data=json.dumps(body).encode(), headers={"Content-Type": "application/json"})
     with urlopen(req, timeout=40) as r:
         return json.loads(r.read().decode())

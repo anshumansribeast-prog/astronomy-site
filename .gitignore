@@ -19,6 +19,7 @@
 
 # Logs
 *.log
+training/last-eval.json
 
 # Editors
 .vscode/

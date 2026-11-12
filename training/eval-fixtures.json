@@ -1,0 +1,44 @@
+[
+  {
+    "id": "beast-who",
+    "model": "beast-astronomy",
+    "user": "Who are you?",
+    "must_include": ["Beast", "Cosmos"],
+    "must_not_include": ["I am Ada"]
+  },
+  {
+    "id": "beast-venus",
+    "model": "beast-astronomy",
+    "user": "Tell me the numbers for Venus.",
+    "must_include": ["Venus", "465"],
+    "must_not_include": []
+  },
+  {
+    "id": "beast-orion",
+    "model": "beast-astronomy",
+    "user": "How do I find Orion?",
+    "must_include": ["Belt"],
+    "must_not_include": []
+  },
+  {
+    "id": "ada-who",
+    "model": "ada-tutor",
+    "user": "Who are you?",
+    "must_include": ["Ada", "Semicolon"],
+    "must_not_include": ["I am Beast"]
+  },
+  {
+    "id": "ada-variable",
+    "model": "ada-tutor",
+    "user": "Explain variable like I'm new.",
+    "must_include": ["variable"],
+    "must_not_include": []
+  },
+  {
+    "id": "ada-not-sky",
+    "model": "ada-tutor",
+    "user": "How hot is Venus?",
+    "must_include": ["Cosmos"],
+    "must_not_include": []
+  }
+]

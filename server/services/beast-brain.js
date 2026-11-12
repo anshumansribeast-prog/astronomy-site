@@ -11,6 +11,8 @@
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { BEAST_PERSONA, cosmosPagePerspective } from "../lib/personas.js";
+import { relevantSiteNotes } from "../lib/site-knowledge.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const FACTS_PATH = join(here, "..", "..", "js", "facts.js");
@@ -19,18 +21,7 @@ const NASA_API_KEY = process.env.NASA_API_KEY || "DEMO_KEY";
 const SYNODIC_MS = 29.530588853 * 86400000;
 const REF_NEW_MOON = Date.UTC(2000, 0, 6, 18, 14);
 
-const BASE_PROMPT =
-  "You are Beast, the knowledgeable astronomy and space-science assistant on Cosmos. " +
-  "Answer naturally and accurately across astronomy, astrophysics, cosmology, planetary " +
-  "science, spaceflight, telescopes, observing, mathematics and physics when relevant. " +
-  "You can also answer general science questions, but astronomy and space are your strongest " +
-  "areas. Explain concepts at the visitor's level, from beginner to advanced. Use the site's " +
-  "supplied facts, today's learning, and recent conversations when relevant. Never invent a " +
-  "number or pretend a current fact is known when it is not. For current or time-sensitive " +
-  "events, clearly say that the answer may need a live source. Correct a visitor politely " +
-  "when a premise is wrong. Keep normal answers concise but complete: usually 2-5 sentences. " +
-  "Use short paragraphs, simple lists, or equations when they genuinely make an explanation " +
-  "clearer. Do not restrict yourself to one or two sentences.";
+const BASE_PROMPT = BEAST_PERSONA;
 
 function todayKey(date = new Date()) {
   return date.toISOString().slice(0, 10);
@@ -102,6 +93,22 @@ export function getRecentMemories(db, limit = 5) {
   ).all(limit);
 }
 
+export function upsertTodayBrain(db, { day, title, summary, url, moon, fact }) {
+  db.prepare(
+    `INSERT INTO beast_brain_days (day, apod_title, apod_summary, apod_url, moon_phase, daily_fact)
+     VALUES (?, ?, ?, ?, ?, ?)
+     ON CONFLICT(day) DO UPDATE SET
+       apod_title = COALESCE(excluded.apod_title, beast_brain_days.apod_title),
+       apod_summary = COALESCE(excluded.apod_summary, beast_brain_days.apod_summary),
+       apod_url = COALESCE(excluded.apod_url, beast_brain_days.apod_url),
+       moon_phase = COALESCE(beast_brain_days.moon_phase, excluded.moon_phase),
+       daily_fact = COALESCE(beast_brain_days.daily_fact, excluded.daily_fact)`
+  ).run(day, title, summary, url, moon, fact);
+  return db.prepare(
+    "SELECT day, apod_title, apod_summary, apod_url, moon_phase, daily_fact, refreshed_at FROM beast_brain_days WHERE day = ?"
+  ).get(day);
+}
+
 export async function ensureTodayBrain(db) {
   const day = todayKey();
   const existing = getTodayBrain(db);
@@ -111,22 +118,18 @@ export async function ensureTodayBrain(db) {
   const moon = moonPhaseFor(new Date());
   const fact = pickDailyFact(day);
 
-  if (existing) {
-    if (!apod.title) return existing;
-    db.prepare(
-      "UPDATE beast_brain_days SET apod_title = ?, apod_summary = ?, apod_url = ? WHERE day = ?"
-    ).run(apod.title, apod.summary, apod.imageUrl, day);
-    console.log(`  Beast's NASA report arrived late but landed: ${apod.title}`);
-    return getTodayBrain(db);
-  }
+  if (existing && !apod.title) return existing;
 
-  db.prepare(
-    `INSERT INTO beast_brain_days (day, apod_title, apod_summary, apod_url, moon_phase, daily_fact)
-     VALUES (?, ?, ?, ?, ?, ?)`
-  ).run(day, apod.title, apod.summary, apod.imageUrl, moon, fact);
-
-  console.log(`  Beast learned today's sky: ${apod.title || "no APOD"}, ${moon}`);
-  return getTodayBrain(db);
+  const row = upsertTodayBrain(db, {
+    day,
+    title: apod.title,
+    summary: apod.summary,
+    url: apod.imageUrl,
+    moon,
+    fact,
+  });
+  console.log(`  Beast learned today's sky: ${row.apod_title || "no APOD"}, ${row.moon_phase}`);
+  return row;
 }
 
 export function rememberConversation(db, question, answer) {
@@ -146,8 +149,12 @@ export function rememberConversation(db, question, answer) {
   }
 }
 
-export function buildSystemPrompt(db, brain, visitorName) {
-  const parts = [BASE_PROMPT, `Today is ${brain.day}.`];
+export function buildSystemPrompt(db, brain, visitorName, { page, message } = {}) {
+  const parts = [
+    BASE_PROMPT,
+    cosmosPagePerspective(page),
+    `Today is ${brain.day}.`,
+  ];
 
   if (visitorName) {
     parts.push(`The visitor's name is ${visitorName}. Use it naturally when greeting them.`);
@@ -161,6 +168,11 @@ export function buildSystemPrompt(db, brain, visitorName) {
   }
   if (brain.apod_title) {
     parts.push(`NASA picture of the day — ${brain.apod_title}: ${brain.apod_summary || ""}`);
+  }
+
+  const notes = relevantSiteNotes(message, page);
+  if (notes) {
+    parts.push("SITE DATA (canonical — do not contradict these numbers):\n" + notes);
   }
 
   const memories = getRecentMemories(db, 5);
