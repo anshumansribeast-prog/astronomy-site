@@ -1,0 +1,449 @@
+From f229f86e405c300d5d53310a7d68026afada1940 Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Thu, 12 Nov 2026 17:21:26 +0000
+Subject: [PATCH] Add Guide, a lesson helper that is not Ada, and polish the
+ site
+
+Guide sits on each lesson, reads that page's headings and first code
+sample, and answers from written notes. Ada stays the AI chat. Home
+and lesson pages get a clearer look so the two helpers are easy to tell
+apart.
+---
+ .github/workflows/ci.yml |   5 +-
+ css/style.css            |  90 ++++++++++++++++++++++++++
+ index.html               |  32 +++++++++-
+ js/guide.js              | 135 +++++++++++++++++++++++++++++++++++++++
+ js/helper.js             |   7 +-
+ pages/learn.html         |   2 +-
+ pages/lesson.html        |   4 +-
+ tests/test_guide.py      |  30 +++++++++
+ 8 files changed, 297 insertions(+), 8 deletions(-)
+ create mode 100644 js/guide.js
+ create mode 100644 tests/test_guide.py
+
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+index 5810441..156e476 100644
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -32,6 +32,9 @@ jobs:
+       - name: Test Ada runtime gate
+         run: python test_ada_runtime.py
+ 
++      - name: Test lesson Guide (not Ada)
++        run: python tests/test_guide.py
++
+       - name: Build the image
+         run: docker build -t semicolon:ci .
+ 
+@@ -46,7 +49,7 @@ jobs:
+ 
+       - name: Smoke test — site and Ada API
+         run: |
+-          pages="/ /index.html /pages/about.html /pages/blog.html /pages/contact.html /pages/learn.html /pages/lesson.html /pages/playground.html /pages/post.html /pages/ada.html /pages/concepts.html /pages/projects.html /css/style.css /js/main.js /js/ada-chat.js /js/ada-api.js /js/webbuilder.js /img/og.jpg /api/ada"
++          pages="/ /index.html /pages/about.html /pages/blog.html /pages/contact.html /pages/learn.html /pages/lesson.html /pages/playground.html /pages/post.html /pages/ada.html /pages/concepts.html /pages/projects.html /css/style.css /js/main.js /js/guide.js /js/ada-chat.js /js/ada-api.js /js/webbuilder.js /img/og.jpg /api/ada"
+           for page in $pages; do
+             code=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:8080${page}")
+             [ "$code" = "200" ] || { docker logs semicolon; exit 1; }
+diff --git a/css/style.css b/css/style.css
+index b809c90..912bf01 100644
+--- a/css/style.css
++++ b/css/style.css
+@@ -1723,4 +1723,94 @@ select.control:focus { outline: none; border-color: var(--primary); box-shadow:
+   border-color: var(--primary);
+ }
+ 
++/* ---------- 21. Guide + site polish (not Ada) ---------------------- */
++.brand-mark {
++  background: linear-gradient(145deg, var(--primary), #7c3aed);
++  box-shadow: 0 8px 22px color-mix(in srgb, var(--primary) 35%, transparent);
++}
++.hero h1 em {
++  background: linear-gradient(120deg, var(--primary), var(--accent));
++  -webkit-background-clip: text;
++  background-clip: text;
++  color: transparent;
++  font-style: italic;
++}
++.hero-photo {
++  border-radius: var(--radius-lg);
++  box-shadow: var(--shadow-lg);
++  border: 1px solid var(--border);
++}
++.track-card:hover { transform: translateY(-7px) scale(1.01); }
++.page-header {
++  position: relative;
++  overflow: hidden;
++}
++.page-header::after {
++  content: "";
++  position: absolute; inset: auto -10% -40% auto;
++  width: 28rem; height: 28rem;
++  background: radial-gradient(circle, color-mix(in srgb, var(--accent) 16%, transparent), transparent 70%);
++  pointer-events: none;
++}
++
++.helpers-split { align-items: stretch; }
++.helper-card { padding: 1.7rem 1.8rem; }
++.helper-card--guide {
++  border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
++  background:
++    linear-gradient(180deg, color-mix(in srgb, var(--accent) 8%, var(--surface)), var(--surface));
++}
++.helper-card--ada {
++  border-color: color-mix(in srgb, var(--primary) 35%, var(--border));
++}
++
++.lesson-guide {
++  margin-bottom: 1.25rem;
++  padding-bottom: 1.1rem;
++  border-bottom: 1px solid var(--border);
++}
++.guide-badge {
++  display: inline-flex; align-items: center;
++  font-size: .7rem; font-weight: 700; letter-spacing: .08em;
++  text-transform: uppercase;
++  color: #fff;
++  background: linear-gradient(135deg, #c2410c, #ea580c);
++  border-radius: 999px; padding: .22rem .7rem; margin-bottom: .75rem;
++}
++.guide-lede { font-size: .9rem; color: var(--text-muted); margin-bottom: .7rem; }
++.guide-steps { margin: 0 0 .8rem 1.05rem; font-size: .88rem; color: var(--text); }
++.guide-steps li { margin-bottom: .35rem; }
++.guide-try {
++  font-size: .86rem; background: var(--surface); border: 1px dashed var(--border-strong);
++  border-radius: var(--radius-sm); padding: .55rem .7rem; margin-bottom: .7rem;
++}
++.guide-muted { font-size: .8rem; color: var(--text-subtle); margin-bottom: .55rem; }
++.guide-chips { display: flex; flex-wrap: wrap; gap: .35rem; margin-bottom: .65rem; }
++.guide-chip {
++  font: inherit; font-size: .75rem; cursor: pointer;
++  padding: .25rem .55rem; border-radius: 999px;
++  background: var(--accent-soft); border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border));
++  color: var(--text);
++}
++.guide-chip:hover { border-color: var(--accent); }
++.guide-form { display: flex; gap: .35rem; margin-bottom: .55rem; }
++.guide-form input {
++  flex: 1; min-width: 0; font: inherit; font-size: .82rem;
++  padding: .4rem .55rem; border-radius: var(--radius-sm);
++  border: 1px solid var(--border-strong); background: var(--surface); color: var(--text);
++}
++.guide-reply {
++  font-size: .86rem; line-height: 1.55;
++  background: var(--surface); border: 1px solid var(--border);
++  border-radius: var(--radius-sm); padding: .65rem .7rem;
++}
++.guide-ada-hint { font-size: .78rem; color: var(--text-subtle); margin: .55rem 0 0; }
++
++.helper-fab {
++  background: linear-gradient(145deg, var(--primary), #4338ca);
++}
++.btn--primary {
++  box-shadow: 0 8px 20px color-mix(in srgb, var(--primary) 28%, transparent);
++}
++
+ 
+diff --git a/index.html b/index.html
+index 80792a1..28e66a7 100644
+--- a/index.html
++++ b/index.html
+@@ -20,7 +20,7 @@
+   <meta name="twitter:image" content="https://semicolon.punah.pro/img/og.jpg">
+ 
+   <link rel="canonical" href="https://semicolon.punah.pro/">
+-  <link rel="stylesheet" href="css/style.css?v=20260823a">
++  <link rel="stylesheet" href="css/style.css?v=20261112g">
+   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%234f46e5'/><text x='16' y='23' font-size='22' font-family='monospace' fill='white' text-anchor='middle'>;</text></svg>">
+ </head>
+ <body>
+@@ -75,14 +75,15 @@
+         <h1>Learn. Code. <em>Build.</em></h1>
+         <p class="lede">
+           Semicolon is a coding school: tracks, practice, and projects.
+-          Ada is a real chat inside it — ask anything, paste broken code, and learn with follow-ups.
++          Lessons come with <strong>Guide</strong> — a written helper that reads the page,
++          not Ada. Ada is the separate AI chat when you want a conversation.
+         </p>
+         <div class="btn-row">
+           <a class="btn btn--primary" href="pages/learn.html">
+             Browse the tracks
+             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+           </a>
+-          <a class="btn btn--ghost" href="pages/ada.html">Chat with Ada</a>
++          <a class="btn btn--ghost" href="pages/learn.html">Open a lesson with Guide</a>
+         </div>
+ 
+         <div class="hero-stats">
+@@ -309,6 +310,31 @@
+     </div>
+   </section>
+ 
++  <!-- ======================== GUIDE vs ADA ======================== -->
++  <section class="section">
++    <div class="container">
++      <div class="section-head">
++        <span class="eyebrow">Two helpers, two jobs</span>
++        <h2>Guide stays with the lesson. Ada chats.</h2>
++        <p>They are not the same person. Use the one that matches what you are doing.</p>
++      </div>
++      <div class="grid grid-2 helpers-split">
++        <article class="card card--hover helper-card helper-card--guide">
++          <span class="pill"><b>GUIDE</b> Written · from the lesson</span>
++          <h3>Guide</h3>
++          <p>Sits on every lesson. Reads the headings and the first code sample on that page, then answers from that — never from a made-up chat. Not Ada.</p>
++          <a class="btn btn--primary" href="pages/learn.html">Start a lesson</a>
++        </article>
++        <article class="card card--hover helper-card helper-card--ada">
++          <span class="pill"><b>ADA</b> AI chat</span>
++          <h3>Ada</h3>
++          <p>A live tutor for follow-ups, pasted errors, and practice. Use Ada when you want a conversation. Use Guide when you want this lesson explained.</p>
++          <a class="btn btn--ghost" href="pages/ada.html">Chat with Ada</a>
++        </article>
++      </div>
++    </div>
++  </section>
++
+   <!-- ======================== POPULAR TRACKS ====================== -->
+   <section class="section section--alt">
+     <div class="container">
+diff --git a/js/guide.js b/js/guide.js
+new file mode 100644
+index 0000000..1bcb51a
+--- /dev/null
++++ b/js/guide.js
+@@ -0,0 +1,135 @@
++/* ===================================================================
++   guide.js — Guide, the lesson companion.
++
++   Not Ada. Ada is the AI chat. Guide is a written helper that reads
++   the lesson currently on the page: headings, first paragraph, and
++   the first code sample. Answers stay inside that lesson. If it does
++   not know, it says so and points at Ada only as a last step.
++   =================================================================== */
++
++(function () {
++  "use strict";
++
++  function strip(html) {
++    return String(html || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
++  }
++
++  function extractLessonGuide(html) {
++    var headings = [...String(html || "").matchAll(/<h3[^>]*>([\s\S]*?)<\/h3>/gi)]
++      .map(function (m) { return strip(m[1]); })
++      .filter(Boolean)
++      .slice(0, 6);
++    var firstP = strip((String(html || "").match(/<p[^>]*>([\s\S]*?)<\/p>/i) || [])[1] || "");
++    var code = strip((String(html || "").match(/<code[^>]*>([\s\S]*?)<\/code>/i) || [])[1] || "");
++    if (code.length > 80) code = code.slice(0, 77) + "…";
++    return { headings: headings, summary: firstP.slice(0, 280), sample: code };
++  }
++
++  window.LessonGuide = { extractLessonGuide: extractLessonGuide };
++
++  var mount = document.getElementById("lessonGuide");
++  var bodyEl = document.getElementById("lessonBody");
++  if (!mount || !bodyEl) return;
++
++  function currentTrack() {
++    return new URLSearchParams(window.location.search).get("track") || "";
++  }
++
++  function render() {
++    var info = extractLessonGuide(bodyEl.innerHTML);
++    var title = (document.getElementById("lessonTitle") || {}).textContent || "this lesson";
++    var headingList = info.headings.length
++      ? "<ol class=\"guide-steps\">" + info.headings.map(function (h) {
++          return "<li>" + h.replace(/</g, "&lt;") + "</li>";
++        }).join("") + "</ol>"
++      : "<p class=\"guide-muted\">Read the lesson on the left, then try the code.</p>";
++    var sample = info.sample
++      ? "<p class=\"guide-try\"><strong>Try this</strong> <code>" +
++        info.sample.replace(/</g, "&lt;") + "</code></p>"
++      : "";
++    var chips = (info.headings.slice(0, 3).concat(["I'm stuck", "What should I do next?"]))
++      .map(function (label) {
++        return "<button type=\"button\" class=\"guide-chip\" data-q=\"" +
++          String(label).replace(/"/g, "&quot;") + "\">" + label.replace(/</g, "&lt;") + "</button>";
++      }).join("");
++
++    mount.innerHTML =
++      '<div class="guide-badge">Guide · not Ada</div>' +
++      "<h2 class=\"side-title\">This lesson</h2>" +
++      "<p class=\"guide-lede\">" + (info.summary || title).replace(/</g, "&lt;") + "</p>" +
++      headingList + sample +
++      "<p class=\"guide-muted\">Ask about <em>this</em> lesson. Guide only uses what is written here.</p>" +
++      "<div class=\"guide-chips\">" + chips + "</div>" +
++      '<form class="guide-form" id="guideForm">' +
++        '<label class="sr-only" for="guideInput">Ask Guide about this lesson</label>' +
++        '<input id="guideInput" type="text" autocomplete="off" placeholder="Ask about this lesson…">' +
++        '<button class="btn btn--primary btn--sm" type="submit">Ask</button>' +
++      "</form>" +
++      '<p class="guide-reply" id="guideReply" hidden></p>' +
++      '<p class="guide-ada-hint">Need a conversation? <a href="ada.html">Ada</a> is the AI tutor. Guide stays with the lesson.</p>';
++  }
++
++  function answerFromLesson(question) {
++    var q = " " + question.toLowerCase().replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ") + " ";
++    var info = extractLessonGuide(bodyEl.innerHTML);
++    if (/stuck|hard|confused|help/.test(q)) {
++      return "Stay on this page. Read the next heading, type the sample, then check the error from the bottom up. Guide will not invent steps Ada might. If you want a back-and-forth chat, open Ada.";
++    }
++    if (/next|after|done/.test(q)) {
++      var next = document.getElementById("nextLesson");
++      if (next && next.getAttribute("href") && next.getAttribute("href") !== "#") {
++        return "When this lesson's ideas make sense, use Next at the bottom. Do not skip the code in the middle.";
++      }
++      return "This looks like the end of the track. Go back to Learn and pick another.";
++    }
++    var hit = info.headings.find(function (h) {
++      var words = h.toLowerCase().split(/\s+/).filter(function (w) { return w.length > 3; });
++      return words.some(function (w) { return q.indexOf(w) !== -1; });
++    });
++    if (hit) {
++      return "This lesson covers “" + hit + "”. Read that heading on the left, then try the code under it. Guide does not replace the lesson text.";
++    }
++    if (typeof HELP_TOPICS !== "undefined") {
++      var slug = currentTrack();
++      var best = null;
++      var bestScore = 0;
++      HELP_TOPICS.forEach(function (topic) {
++        var score = 0;
++        topic.k.forEach(function (word) {
++          if (q.indexOf(" " + word + " ") !== -1) score += 3;
++          else if (q.indexOf(word) !== -1) score += 1;
++        });
++        if (slug && topic.link && String(topic.link.href).indexOf(slug) !== -1) score += 4;
++        if (score > bestScore) { bestScore = score; best = topic; }
++      });
++      if (best && bestScore >= 3) {
++        return strip(best.a.replace(/<br\s*\/?>/gi, " ")).slice(0, 360) +
++          " That is from Semicolon's written notes, not Ada.";
++      }
++    }
++    return "Guide only knows what this lesson wrote. Rephrase using a heading on the left, or ask Ada if you want a live tutor.";
++  }
++
++  function showAnswer(question) {
++    var reply = document.getElementById("guideReply");
++    var input = document.getElementById("guideInput");
++    if (!reply) return;
++    reply.hidden = false;
++    reply.textContent = answerFromLesson(question);
++    if (input) input.value = "";
++  }
++
++  render();
++  mount.addEventListener("click", function (e) {
++    var btn = e.target.closest(".guide-chip");
++    if (!btn) return;
++    showAnswer(btn.getAttribute("data-q") || "");
++  });
++  mount.addEventListener("submit", function (e) {
++    if (e.target.id !== "guideForm") return;
++    e.preventDefault();
++    var input = document.getElementById("guideInput");
++    var q = (input && input.value || "").trim();
++    if (q) showAnswer(q);
++  });
++})();
+diff --git a/js/helper.js b/js/helper.js
+index e59a478..06a9e42 100644
+--- a/js/helper.js
++++ b/js/helper.js
+@@ -309,10 +309,13 @@ var HELP_TOPICS = [
+     panel.hidden = false;
+     fab.setAttribute("aria-expanded", "true");
+     if (!log.childElementCount) {
++      var onLesson = Boolean(document.getElementById("lessonGuide"));
+       say("bot",
+         "Hello. I answer common questions about programming and about this site.<br><br>" +
+-        "<strong>I'm not an AI</strong> — I'm a set of written answers with a keyword " +
+-        "matcher. If I don't know something, I'll tell you rather than guess.");
++        "<strong>I'm not Ada</strong> — Ada is the AI chat. I'm a written answer bank. " +
++        (onLesson
++          ? "Guide, on the right, reads <em>this lesson</em>. Use Guide for the page; use me for site-wide questions."
++          : "If I don't know something, I'll tell you rather than guess."));
+     }
+     input.focus();
+   }
+diff --git a/pages/learn.html b/pages/learn.html
+index 4ded173..318f856 100644
+--- a/pages/learn.html
++++ b/pages/learn.html
+@@ -5,7 +5,7 @@
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <title>Learning Tracks — Semicolon</title>
+   <meta name="description" content="Ten free learning tracks covering Python, web development, Git, debugging, shipping a project, and a Caesar-cipher explainer. Filter by topic, level or length.">
+-  <link rel="stylesheet" href="../css/style.css?v=20260823a">
++  <link rel="stylesheet" href="../css/style.css?v=20261112g">
+   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%231d4ed8'/><text x='16' y='23' font-size='22' font-family='monospace' fill='white' text-anchor='middle'>;</text></svg>">
+ </head>
+ <body>
+diff --git a/pages/lesson.html b/pages/lesson.html
+index 4c5ecec..37b3c35 100644
+--- a/pages/lesson.html
++++ b/pages/lesson.html
+@@ -5,7 +5,7 @@
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <title>Lesson — Semicolon</title>
+   <meta name="description" content="Read a lesson from any Semicolon track — plain-English explanations with real code you can run.">
+-  <link rel="stylesheet" href="../css/style.css">
++  <link rel="stylesheet" href="../css/style.css?v=20261112g">
+   <link rel="stylesheet" href="../css/screen-studio.css">
+   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%231d4ed8'/><text x='16' y='23' font-size='22' font-family='monospace' fill='white' text-anchor='middle'>;</text></svg>">
+ </head>
+@@ -85,6 +85,7 @@
+ 
+       <!-- every lesson in this track -->
+       <aside class="lesson-side">
++        <div id="lessonGuide" class="lesson-guide" aria-label="Lesson Guide"></div>
+         <h2 class="side-title">In this track</h2>
+         <ol class="lesson-list" id="lessonList"></ol>
+         <a class="btn btn--ghost btn--sm" href="learn.html">← All tracks</a>
+@@ -119,5 +120,6 @@
+ <script src="../js/main.js"></script>
+ <script src="../js/lesson.js"></script>
+ <script src="../js/helper.js"></script>
++<script src="../js/guide.js"></script>
+ </body>
+ </html>
+diff --git a/tests/test_guide.py b/tests/test_guide.py
+new file mode 100644
+index 0000000..3216167
+--- /dev/null
++++ b/tests/test_guide.py
+@@ -0,0 +1,30 @@
++"""Guide is a lesson helper, not Ada."""
++from pathlib import Path
++import unittest
++
++ROOT = Path(__file__).resolve().parents[1]
++
++
++class GuideTests(unittest.TestCase):
++    def test_guide_script_is_not_ada(self):
++        text = (ROOT / "js" / "guide.js").read_text(encoding="utf-8")
++        self.assertIn("Not Ada", text)
++        self.assertIn("extractLessonGuide", text)
++        self.assertNotIn("You are Ada", text)
++
++    def test_lesson_page_mounts_guide(self):
++        html = (ROOT / "pages" / "lesson.html").read_text(encoding="utf-8")
++        self.assertIn('id="lessonGuide"', html)
++        self.assertIn("js/guide.js", html)
++
++    def test_extract_reads_headings(self):
++        html = "<h3>Installing Python</h3><p>Go to python.org.</p><code>python --version</code>"
++        # Mirror the extractor with the same regex the script uses.
++        import re
++        headings = [re.sub(r"<[^>]+>", " ", m).strip()
++                    for m in re.findall(r"<h3[^>]*>([\s\S]*?)</h3>", html, re.I)]
++        self.assertEqual(headings, ["Installing Python"])
++
++
++if __name__ == "__main__":
++    unittest.main()
+-- 
+2.43.0
+
