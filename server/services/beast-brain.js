@@ -93,6 +93,22 @@ export function getRecentMemories(db, limit = 5) {
   ).all(limit);
 }
 
+export function upsertTodayBrain(db, { day, title, summary, url, moon, fact }) {
+  db.prepare(
+    `INSERT INTO beast_brain_days (day, apod_title, apod_summary, apod_url, moon_phase, daily_fact)
+     VALUES (?, ?, ?, ?, ?, ?)
+     ON CONFLICT(day) DO UPDATE SET
+       apod_title = COALESCE(excluded.apod_title, beast_brain_days.apod_title),
+       apod_summary = COALESCE(excluded.apod_summary, beast_brain_days.apod_summary),
+       apod_url = COALESCE(excluded.apod_url, beast_brain_days.apod_url),
+       moon_phase = COALESCE(beast_brain_days.moon_phase, excluded.moon_phase),
+       daily_fact = COALESCE(beast_brain_days.daily_fact, excluded.daily_fact)`
+  ).run(day, title, summary, url, moon, fact);
+  return db.prepare(
+    "SELECT day, apod_title, apod_summary, apod_url, moon_phase, daily_fact, refreshed_at FROM beast_brain_days WHERE day = ?"
+  ).get(day);
+}
+
 export async function ensureTodayBrain(db) {
   const day = todayKey();
   const existing = getTodayBrain(db);
@@ -102,22 +118,18 @@ export async function ensureTodayBrain(db) {
   const moon = moonPhaseFor(new Date());
   const fact = pickDailyFact(day);
 
-  if (existing) {
-    if (!apod.title) return existing;
-    db.prepare(
-      "UPDATE beast_brain_days SET apod_title = ?, apod_summary = ?, apod_url = ? WHERE day = ?"
-    ).run(apod.title, apod.summary, apod.imageUrl, day);
-    console.log(`  Beast's NASA report arrived late but landed: ${apod.title}`);
-    return getTodayBrain(db);
-  }
+  if (existing && !apod.title) return existing;
 
-  db.prepare(
-    `INSERT INTO beast_brain_days (day, apod_title, apod_summary, apod_url, moon_phase, daily_fact)
-     VALUES (?, ?, ?, ?, ?, ?)`
-  ).run(day, apod.title, apod.summary, apod.imageUrl, moon, fact);
-
-  console.log(`  Beast learned today's sky: ${apod.title || "no APOD"}, ${moon}`);
-  return getTodayBrain(db);
+  const row = upsertTodayBrain(db, {
+    day,
+    title: apod.title,
+    summary: apod.summary,
+    url: apod.imageUrl,
+    moon,
+    fact,
+  });
+  console.log(`  Beast learned today's sky: ${row.apod_title || "no APOD"}, ${row.moon_phase}`);
+  return row;
 }
 
 export function rememberConversation(db, question, answer) {

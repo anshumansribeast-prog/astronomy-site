@@ -15,7 +15,8 @@ import {
   lookupSiteAnswer,
   relevantSiteNotes,
 } from "../server/lib/site-knowledge.js";
-import { buildSystemPrompt } from "../server/services/beast-brain.js";
+import { buildSystemPrompt, upsertTodayBrain } from "../server/services/beast-brain.js";
+import { openDatabase } from "../server/db/client.js";
 
 assert.match(BEAST_PERSONA, /Beast/);
 assert.match(BEAST_PERSONA, /astronomy/i);
@@ -80,5 +81,28 @@ assert.match(prompt, /Planets page/);
 assert.match(prompt, /Saturn/);
 assert.match(prompt, /Anshuman/);
 assert.doesNotMatch(prompt, /Ada, the coding tutor/);
+
+const mem = openDatabase(":memory:");
+const first = upsertTodayBrain(mem, {
+  day: "2026-11-12",
+  title: null,
+  summary: null,
+  url: null,
+  moon: "Waxing Crescent, about 9% lit",
+  fact: "A light-year is a distance.",
+});
+assert.equal(first.moon_phase, "Waxing Crescent, about 9% lit");
+const second = upsertTodayBrain(mem, {
+  day: "2026-11-12",
+  title: "NASA Science",
+  summary: "A nebula.",
+  url: "https://example.test/apod.jpg",
+  moon: "should not replace",
+  fact: "should not replace",
+});
+assert.equal(second.apod_title, "NASA Science");
+assert.equal(second.moon_phase, "Waxing Crescent, about 9% lit");
+assert.equal(second.daily_fact, "A light-year is a distance.");
+mem.close();
 
 console.log("Persona training: all tests passed");

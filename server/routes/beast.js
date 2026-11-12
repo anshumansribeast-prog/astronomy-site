@@ -80,7 +80,11 @@ export async function beastHealth(res) {
 }
 
 export async function beastLearned(res, db) {
-  await ensureTodayBrain(db);
+  try {
+    await ensureTodayBrain(db);
+  } catch (err) {
+    console.error("[beast] daily brain refresh failed:", err.message);
+  }
   const brain = getTodayBrain(db);
   if (!brain) return send(res, 200, { learned: null, summary: "Beast is waking up…" });
   return send(res, 200, {
