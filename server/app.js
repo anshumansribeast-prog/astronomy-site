@@ -16,6 +16,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 // The astronomy-site static files (HTML/CSS/JS) live one level up from
 // server/ — the same folder that used to be served by nginx alone.
 const CLIENT_DIR = join(here, "..");
+const SEMICOLON_DIR = join(CLIENT_DIR, ".semicolon-patch", "semicolon-site");
 
 const MIME = {
   ".html": "text/html; charset=utf-8",
@@ -53,10 +54,17 @@ export function createApp(db) {
 async function serveStatic(rel, res) {
   if (rel === "" || rel.endsWith("/")) rel += "index.html";
 
+  let root = CLIENT_DIR;
+  if (rel === "semicolon" || rel.startsWith("semicolon/")) {
+    root = SEMICOLON_DIR;
+    rel = rel === "semicolon" || rel === "semicolon/" ? "index.html" : rel.slice("semicolon/".length);
+    if (rel === "" || rel.endsWith("/")) rel += "index.html";
+  }
+
   // Path traversal guard — without this, a request for
   // ../server/db/astronomy.db would happily hand back the database.
-  const full = normalize(join(CLIENT_DIR, rel));
-  if (!full.startsWith(normalize(CLIENT_DIR))) {
+  const full = normalize(join(root, rel));
+  if (!full.startsWith(normalize(root))) {
     return send(res, 403, { error: { code: "forbidden", message: "Nope." } });
   }
 

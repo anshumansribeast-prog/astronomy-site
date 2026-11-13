@@ -11,6 +11,10 @@ for (const persona of account.personas) {
 const beast = account.personas.find((p) => p.id === "beast");
 const mira = account.personas.find((p) => p.id === "mira");
 const helper = account.personas.find((p) => p.id === "helper");
+assert.equal(beast.site, "cosmos");
+assert.equal(mira.site, "semicolon");
+assert.equal(helper.site, "semicolon");
+assert.equal(account.sites.length, 2);
 assert.ok(beast.learned > 30);
 assert.ok(beast.remaining > 0);
 assert.ok(mira.learned > 15);
@@ -26,6 +30,9 @@ const page = readFileSync("knowledge.html", "utf8");
 assert.equal((page.match(/class="lesson-code"/g) || []).length, 9);
 assert.match(page, /id="semicolon-story"/);
 assert.match(page, /data-knowledge-account/);
+assert.match(readFileSync("ada.html", "utf8"), /data-knowledge-account/);
+assert.match(readFileSync(".semicolon-patch/semicolon-site/pages/ada.html", "utf8"), /data-knowledge-account/);
+assert.match(readFileSync(".semicolon-patch/semicolon-site/pages/account.html", "utf8"), /data-knowledge-account/);
 
 console.log("Knowledge account tests passed", {
   beast: beast.learned + "/" + beast.total,
