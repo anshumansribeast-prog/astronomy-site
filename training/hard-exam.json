@@ -1,0 +1,16 @@
+[
+  {"id": "beast-neptune-moons", "model": "beast-astronomy", "user": "How many moons does Neptune have according to this site's NASA fact sheet?", "must_include": ["16"], "must_not_include": ["14 moons"]},
+  {"id": "beast-uranus-tilt", "model": "beast-astronomy", "user": "Why does Uranus have such long polar days and nights?", "must_include": ["98"], "must_not_include": []},
+  {"id": "beast-mars-red", "model": "beast-astronomy", "user": "Why is Mars red?", "must_include": ["iron", "oxide"], "must_not_include": []},
+  {"id": "beast-light-year", "model": "beast-astronomy", "user": "What does a light-year measure?", "must_include": ["distance", "trillion"], "must_not_include": ["a year of time", "billion km"]},
+  {"id": "beast-mercury-not-hottest", "model": "beast-astronomy", "user": "Which planet is hottest, Mercury or Venus, and why?", "must_include": ["Venus"], "must_not_include": []},
+  {"id": "beast-jwst", "model": "beast-astronomy", "user": "Where does the James Webb Space Telescope orbit?", "must_include": ["L2"], "must_not_include": []},
+  {"id": "beast-identity", "model": "beast-astronomy", "user": "Who are you?", "must_include": ["Beast"], "must_not_include": ["I am Ada"]},
+  {"id": "ada-git", "model": "ada-tutor", "user": "Explain git commit like I'm new.", "must_include": ["commit"], "must_not_include": []},
+  {"id": "ada-html", "model": "ada-tutor", "user": "Explain HTML like I'm new.", "must_include": ["structure"], "must_not_include": []},
+  {"id": "ada-indent", "model": "ada-tutor", "user": "What is an IndentationError in Python?", "must_include": ["space"], "must_not_include": []},
+  {"id": "ada-input-type", "model": "ada-tutor", "user": "Does Python input() give a number or text?", "must_include": ["text"], "must_not_include": []},
+  {"id": "ada-print-return", "model": "ada-tutor", "user": "What is the difference between print and return?", "must_include": ["return"], "must_not_include": []},
+  {"id": "ada-identity", "model": "ada-tutor", "user": "Who are you?", "must_include": ["Ada"], "must_not_include": ["I am Beast"]},
+  {"id": "ada-not-sky", "model": "ada-tutor", "user": "How hot is Venus?", "must_include": ["Cosmos"], "must_not_include": []}
+]

@@ -49,7 +49,7 @@ function beastCorpus() {
   ));
 
   for (const p of planetCatalog()) {
-    const gold = ["Mercury", "Venus", "Earth", "Jupiter", "Saturn"].includes(p.name);
+    const gold = true;
     const moons = p.moons === 0
       ? "no confirmed moons"
       : p.moons + (p.moons === 1 ? " confirmed moon" : " confirmed moons");
@@ -66,8 +66,16 @@ function beastCorpus() {
       "planet-" + p.name.toLowerCase() + "-moons", "cosmos", "planets",
       "How many moons does " + p.name + " have?",
       p.name + " has " + moons + " on this site's NASA fact sheet.",
-      gold && p.name === "Saturn"
+      true
     ));
+    if (p.name === "Venus") {
+      rows.push(pair(
+        "planet-venus-temp", "cosmos", "planets",
+        "Tell me the numbers for Venus.",
+        "Venus is a terrestrial world. Diameter 12,104 km, 0.72 AU from the Sun (108.2 million km), year 225 Earth days, day 243 Earth days, no confirmed moons, 465 °C (nearly constant), gravity 8.9 m/s². The hottest planet in the solar system, and it spins backwards.",
+        true
+      ));
+    }
   }
 
   for (const c of constellationCatalog()) {
@@ -95,10 +103,28 @@ function beastCorpus() {
       "learn-" + lesson.id, "cosmos", "knowledge",
       "Teach me the Learn chapter on " + lesson.id + ".",
       lesson.title + ". " + lesson.text.slice(0, 420),
-      ["light", "gravity", "stars"].includes(lesson.id)
+      ["gravity", "stars"].includes(lesson.id)
     ));
   }
 
+  rows.push(pair(
+    "beast-light-year", "cosmos", "facts",
+    "What does a light-year measure?",
+    "A light-year is distance, not time: how far light travels in one year, about 9.46 trillion km. Proxima Centauri is 4.24 light-years away.",
+    true
+  ));
+  rows.push(pair(
+    "beast-light-year-km", "cosmos", "facts",
+    "How many kilometres is a light-year?",
+    "About 9.46 trillion kilometres. Not billion — trillion. That is the distance light covers in one year.",
+    true
+  ));
+  rows.push(pair(
+    "beast-light-year-not-time", "cosmos", "facts",
+    "Is a light-year a unit of time?",
+    "No. A light-year is a unit of distance: about 9.46 trillion km.",
+    true
+  ));
   rows.push(pair(
     "beast-moon-maths", "cosmos", "moon",
     "How does this site know the Moon phase?",
@@ -150,7 +176,9 @@ function adaCorpus() {
       "ada-topic-" + i, "semicolon", "lesson",
       user,
       t.answer.replace(/%\(name\)s/g, "AnshX"),
-      i < 8
+      i < 8 || t.keys.some(function (k) {
+        return /^(html|css|git|javascript|function|list)$/i.test(k);
+      })
     ));
   });
 
@@ -175,7 +203,7 @@ function escapeTriple(s) {
 }
 
 function buildModelfile({ from, params, system, perspective, rows }) {
-  const gold = rows.filter((r) => r.gold).slice(0, 28);
+  const gold = rows.filter((r) => r.gold).slice(0, 48);
   const lines = [
     "FROM " + from,
     "",

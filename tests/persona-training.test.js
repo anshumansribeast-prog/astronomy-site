@@ -22,6 +22,7 @@ assert.match(BEAST_PERSONA, /Beast/);
 assert.match(BEAST_PERSONA, /astronomy/i);
 assert.match(BEAST_PERSONA, /cosmos\.punah\.pro/);
 assert.match(BEAST_PERSONA, /you are not a coding tutor/i);
+assert.match(BEAST_PERSONA, /9\.46 trillion/);
 assert.doesNotMatch(BEAST_PERSONA, /You are Ada/);
 assert.equal(BEAST_SITE, "https://cosmos.punah.pro");
 
