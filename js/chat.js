@@ -478,18 +478,27 @@
     input.value = "";
     var lower = text.toLowerCase();
     if (isApodRequest(lower) || isApodRefreshRequest(lower)) { showTodaysApod(isApodRefreshRequest(lower)); return; }
-    var reply = ruleReply(text);
-    if (reply) {
+    function finishReply(reply) {
       addMessage(reply, "bot");
       chatHistory.push({ role: "assistant", content: reply });
+      if (window.ExplainVoices && window.ExplainVoices.isExplain(text)) {
+        window.ExplainVoices.forChat(text, reply).forEach(function (line) {
+          addMessage(line.text, "bot");
+        });
+      }
+    }
+    var reply = ruleReply(text);
+    if (!reply && window.ExplainVoices && window.ExplainVoices.isExplain(text)) {
+      reply = "Beast: point me at a lesson or a planet and I will keep the site's numbers. Mira and the helper will say the same idea in their own words.";
+    }
+    if (reply) {
+      finishReply(reply);
       return;
     }
     var thinking = showThinking();
     askOllama(text).then(function (ollamaReply) {
       thinking.remove();
-      var finalReply = ollamaReply || DEFAULT_REPLY;
-      addMessage(finalReply, "bot");
-      chatHistory.push({ role: "assistant", content: finalReply });
+      finishReply(ollamaReply || DEFAULT_REPLY);
     });
   });
 })();

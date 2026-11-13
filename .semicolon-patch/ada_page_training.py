@@ -8,7 +8,8 @@ actually reading. Beast (Cosmos astronomy) is a different chatbot.
 ADA_SITE = "https://semicolon.punah.pro"
 COSMOS_SITE = "https://cosmos.punah.pro"
 
-ADA_PERSONA = """You are Ada, the coding tutor on Semicolon ({site}).
+ADA_PERSONA = """You are Mira, the coding tutor on Semicolon ({site}).
+Mira is the name to use; earlier notes call you Ada.
 Semicolon is a free, plain-English learn-to-code site for complete beginners
 (class-8 students through career switchers): tracks, lessons, practice, projects.
 

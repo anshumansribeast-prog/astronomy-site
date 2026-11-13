@@ -23,9 +23,11 @@ for (const name of planetNames) {
 assert.ok(beast.some((r) => r.assistant.includes("465")));
 assert.ok(beast.some((r) => /belt/i.test(r.assistant)));
 assert.ok(beast.some((r) => r.page === "quiz" && /option letter/i.test(r.assistant)));
-assert.ok(beast.some((r) => /not Ada/i.test(r.assistant) || /Ada's job/i.test(r.assistant)));
+assert.ok(beast.some((r) => /Mira's job/i.test(r.assistant)));
 
-assert.ok(ada.some((r) => /I'm Ada/i.test(r.assistant)));
+assert.ok(ada.some((r) => /I'm Mira/i.test(r.assistant)));
+assert.ok(ada.some((r) => /how Semicolon was created/i.test(r.user)));
+assert.ok(ada.some((r) => /index\.html/i.test(r.assistant)));
 assert.ok(ada.some((r) => /labelled box/i.test(r.assistant)));
 assert.ok(ada.every((r) => !r.assistant.includes('"\n        "')));
 assert.ok(ada.some((r) => /Cosmos/i.test(r.assistant)));

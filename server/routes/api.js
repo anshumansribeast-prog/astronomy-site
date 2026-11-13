@@ -15,6 +15,7 @@
 import { send } from "../app.js";
 import { register, login, logout, me, isAdmin } from "./auth.js";
 import { beast, beastHealth, beastLearned, beastApod } from "./beast.js";
+import { readKnowledgeAccount } from "../lib/knowledge-account.js";
 import { recordVisit, recordError, adminStats, semicolonStats } from "./stats.js";
 import { userForToken } from "../services/auth.js";
 import { SESSION_COOKIE, parseCookies } from "../lib/cookies.js";
@@ -42,6 +43,7 @@ export async function handleApi(req, res, url, db) {
     if (path === "/api/beast/health")  return beastHealth(res);
     if (path === "/api/beast/learned") return await beastLearned(res, db);
     if (path === "/api/beast/apod")    return await beastApod(res, db);
+    if (path === "/api/knowledge-account") return send(res, 200, { data: readKnowledgeAccount() });
     if (path === "/api/auth/me")       return me(res, user);
 
     // Admin-only: the session's isAdmin flag is decided by the server
