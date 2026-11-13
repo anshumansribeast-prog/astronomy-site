@@ -341,9 +341,13 @@ function accountRow(id, name, rows, extra) {
 
 const helperLessons = ["light", "gravity", "stars", "planets-idea", "galaxies", "life", "beginning", "observe", "semicolon-story"];
 const account = {
+  sites: [
+    { id: "cosmos", name: "Cosmos", href: "/account.html" },
+    { id: "semicolon", name: "Semicolon", href: "/semicolon/pages/account.html" },
+  ],
   personas: [
-    accountRow("beast", "Beast", beast),
-    accountRow("mira", "Mira", ada, { alsoKnownAs: "Ada" }),
+    accountRow("beast", "Beast", beast, { site: "cosmos" }),
+    accountRow("mira", "Mira", ada, { alsoKnownAs: "Ada", site: "semicolon" }),
     {
       id: "helper",
       name: "Helper",
@@ -354,6 +358,7 @@ const account = {
       total: helperLessons.length,
       lessons: helperLessons,
       renameable: true,
+      site: "semicolon",
     },
   ],
 };

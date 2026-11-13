@@ -58,7 +58,7 @@ jobs:
 
       - name: Smoke test — site and APIs
         run: |
-          pages="/ /index.html /planets.html /constellations.html /moon.html /facts.html /quiz.html /about.html /knowledge.html /beast.html /account.html /css/style.css /js/main.js"
+          pages="/ /index.html /planets.html /constellations.html /moon.html /facts.html /quiz.html /about.html /knowledge.html /beast.html /account.html /ada.html /semicolon/ /semicolon/pages/ada.html /semicolon/pages/account.html /css/style.css /js/main.js"
           for page in $pages; do
             code=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:8899${page}")
             echo "GET ${page} -> ${code}"
@@ -86,6 +86,9 @@ jobs:
           [ "$code" = "200" ] || { docker logs astro; exit 1; }
           learned=$(curl -fsS http://localhost:8899/api/beast/learned)
           echo "$learned" | grep -q '\"day\"' || { docker logs astro; exit 1; }
+          ka=$(curl -fsS http://localhost:8899/api/knowledge-account)
+          echo "$ka" | grep -q '"Mira"' || { docker logs astro; exit 1; }
+          echo "$ka" | grep -q '"semicolon"' || { docker logs astro; exit 1; }
 
       - name: Container logs
         if: always()

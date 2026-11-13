@@ -1283,6 +1283,20 @@ img, svg, video, iframe { max-width: 100%; }
   background: var(--grad-panel);
 }
 .knowledge-account h3 { margin: .2rem 0 .8rem; }
+.ka-site {
+  margin: .9rem 0 1.1rem;
+  padding: .75rem .85rem .85rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+}
+.ka-site h4 {
+  margin: 0 0 .35rem;
+  display: flex;
+  justify-content: space-between;
+  gap: .6rem;
+  align-items: baseline;
+}
+.ka-site-link { font-size: .82rem; font-weight: 500; color: var(--teal, #5ee0c5); }
 .ka-list { list-style: none; margin: 0; padding: 0; display: grid; gap: .85rem; }
 .ka-name { font-weight: 650; }
 .ka-alias { font-weight: 450; color: var(--muted); font-size: .85rem; }

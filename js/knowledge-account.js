@@ -51,13 +51,31 @@
     );
   }
 
+  function siteBlock(live, site) {
+    var people = live.personas.filter(function (p) { return p.site === site.id; });
+    if (!people.length) return "";
+    var gained = people.reduce(function (s, p) { return s + p.gained; }, 0);
+    var left = people.reduce(function (s, p) { return s + p.remaining; }, 0);
+    return (
+      '<section class="ka-site">' +
+        "<h4>" + site.name + ' <a class="ka-site-link" href="' + site.href + '">account</a></h4>' +
+        '<p class="ka-counts">This row: <strong>' + gained + "</strong> learned · <strong>" + left + "</strong> still to learn</p>" +
+        '<ul class="ka-list">' + people.map(bar).join("") + "</ul>" +
+      "</section>"
+    );
+  }
+
   function paint(root, account) {
     var live = withHelperProgress(account);
     var helper = live.personas.filter(function (p) { return p.id === "helper"; })[0];
+    var sites = live.sites || [
+      { id: "cosmos", name: "Cosmos", href: "/account.html" },
+      { id: "semicolon", name: "Semicolon", href: "/semicolon/pages/account.html" }
+    ];
     root.innerHTML =
       '<p class="eyebrow">Knowledge account</p>' +
-      "<h3>What each persona has learned</h3>" +
-      '<ul class="ka-list">' + live.personas.map(bar).join("") + "</ul>" +
+      "<h3>Cosmos row and Semicolon row</h3>" +
+      sites.map(function (site) { return siteBlock(live, site); }).join("") +
       '<p class="ka-total">Total knowledge gained: <strong>' + live.totalGained + "</strong>" +
         " · still to learn: <strong>" + live.totalRemaining + "</strong></p>" +
       '<form class="ka-name" data-ka-form>' +
@@ -66,7 +84,7 @@
           '" value="' + (readName() || "") + '"></label>' +
         '<button class="btn btn-ghost" type="submit">Save name</button>' +
       "</form>" +
-      '<p class="ka-hint">Henwin, Switi, Mira, or any name. Say “explain me this” and this helper speaks beside Beast and Mira.</p>';
+      '<p class="ka-hint">Henwin, Switi, Mira, or any name. Both sites show Beast, Mira (Ada), and this helper.</p>';
     var form = root.querySelector("[data-ka-form]");
     form.addEventListener("submit", function (e) {
       e.preventDefault();

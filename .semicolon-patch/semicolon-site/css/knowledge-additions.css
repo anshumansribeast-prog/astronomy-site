@@ -8,6 +8,20 @@
   background: var(--grad-panel);
 }
 .knowledge-account h3 { margin: .2rem 0 .8rem; }
+.ka-site {
+  margin: .9rem 0 1.1rem;
+  padding: .75rem .85rem .85rem;
+  border: 1px solid var(--line, #e5e7eb);
+  border-radius: 10px;
+}
+.ka-site h4 {
+  margin: 0 0 .35rem;
+  display: flex;
+  justify-content: space-between;
+  gap: .6rem;
+  align-items: baseline;
+}
+.ka-site-link { font-size: .82rem; font-weight: 500; }
 .ka-list { list-style: none; margin: 0; padding: 0; display: grid; gap: .85rem; }
 .ka-name { font-weight: 650; }
 .ka-alias { font-weight: 450; color: var(--muted); font-size: .85rem; }

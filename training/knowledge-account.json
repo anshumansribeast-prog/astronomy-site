@@ -1,4 +1,16 @@
 {
+  "sites": [
+    {
+      "id": "cosmos",
+      "name": "Cosmos",
+      "href": "/account.html"
+    },
+    {
+      "id": "semicolon",
+      "name": "Semicolon",
+      "href": "/semicolon/pages/account.html"
+    }
+  ],
   "personas": [
     {
       "id": "beast",
@@ -6,7 +18,8 @@
       "learned": 40,
       "remaining": 65,
       "gained": 40,
-      "total": 105
+      "total": 105,
+      "site": "cosmos"
     },
     {
       "id": "mira",
@@ -15,7 +28,8 @@
       "remaining": 59,
       "gained": 22,
       "total": 81,
-      "alsoKnownAs": "Ada"
+      "alsoKnownAs": "Ada",
+      "site": "semicolon"
     },
     {
       "id": "helper",
@@ -36,7 +50,8 @@
         "observe",
         "semicolon-story"
       ],
-      "renameable": true
+      "renameable": true,
+      "site": "semicolon"
     }
   ],
   "totalGained": 62,
