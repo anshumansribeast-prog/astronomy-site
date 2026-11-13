@@ -30,9 +30,11 @@ const page = readFileSync("knowledge.html", "utf8");
 assert.equal((page.match(/class="lesson-code"/g) || []).length, 9);
 assert.match(page, /id="semicolon-story"/);
 assert.match(page, /data-knowledge-account/);
-assert.match(readFileSync("ada.html", "utf8"), /data-knowledge-account/);
-assert.match(readFileSync(".semicolon-patch/semicolon-site/pages/ada.html", "utf8"), /data-knowledge-account/);
-assert.match(readFileSync(".semicolon-patch/semicolon-site/pages/account.html", "utf8"), /data-knowledge-account/);
+assert.match(readFileSync("ada.html", "utf8"), /data-knowledge-account="semicolon"/);
+assert.match(readFileSync("account.html", "utf8"), /data-knowledge-account="cosmos"/);
+assert.match(readFileSync(".semicolon-patch/semicolon-site/pages/ada.html", "utf8"), /data-knowledge-account="semicolon"/);
+assert.match(readFileSync(".semicolon-patch/semicolon-site/pages/account.html", "utf8"), /data-knowledge-account="semicolon"/);
+assert.doesNotMatch(readFileSync(".semicolon-patch/semicolon-site/pages/account.html", "utf8"), /data-knowledge-account="cosmos"/);
 
 console.log("Knowledge account tests passed", {
   beast: beast.learned + "/" + beast.total,

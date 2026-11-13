@@ -67,31 +67,41 @@
 
   function paint(root, account) {
     var live = withHelperProgress(account);
+    var which = (root.getAttribute("data-knowledge-account") || "cosmos").toLowerCase();
+    if (which !== "semicolon") which = "cosmos";
     var helper = live.personas.filter(function (p) { return p.id === "helper"; })[0];
-    var sites = live.sites || [
-      { id: "cosmos", name: "Cosmos", href: "/account.html" },
-      { id: "semicolon", name: "Semicolon", href: "/semicolon/pages/account.html" }
-    ];
+    var sites = (live.sites || []).filter(function (site) { return site.id === which; });
+    if (!sites.length) {
+      sites = [{ id: which, name: which === "semicolon" ? "Semicolon" : "Cosmos", href: which === "semicolon" ? "/semicolon/pages/account.html" : "/account.html" }];
+    }
+    var people = live.personas.filter(function (p) { return p.site === which; });
+    var gained = people.reduce(function (s, p) { return s + p.gained; }, 0);
+    var left = people.reduce(function (s, p) { return s + p.remaining; }, 0);
+    var helperForm = which === "semicolon"
+      ? ('<form class="ka-name" data-ka-form>' +
+          '<label>Helper name <input name="helperName" maxlength="24" autocomplete="off" placeholder="' +
+            (helper && helper.defaultName ? helper.defaultName : "Henwin") +
+            '" value="' + (readName() || "") + '"></label>' +
+          '<button class="btn btn-ghost" type="submit">Save name</button>' +
+        "</form>" +
+        '<p class="ka-hint">Henwin, Switi, Mira, or any name. Beast lives on Cosmos, not here.</p>')
+      : '<p class="ka-hint">Beast only. Mira and Ada live on Semicolon.</p>';
     root.innerHTML =
       '<p class="eyebrow">Knowledge account</p>' +
-      "<h3>Cosmos row and Semicolon row</h3>" +
+      "<h3>" + (which === "semicolon" ? "Semicolon" : "Cosmos") + "</h3>" +
       sites.map(function (site) { return siteBlock(live, site); }).join("") +
-      '<p class="ka-total">Total knowledge gained: <strong>' + live.totalGained + "</strong>" +
-        " · still to learn: <strong>" + live.totalRemaining + "</strong></p>" +
-      '<form class="ka-name" data-ka-form>' +
-        '<label>Helper name <input name="helperName" maxlength="24" autocomplete="off" placeholder="' +
-          (helper && helper.defaultName ? helper.defaultName : "Henwin") +
-          '" value="' + (readName() || "") + '"></label>' +
-        '<button class="btn btn-ghost" type="submit">Save name</button>' +
-      "</form>" +
-      '<p class="ka-hint">Henwin, Switi, Mira, or any name. Both sites show Beast, Mira (Ada), and this helper.</p>';
+      '<p class="ka-total">This site gained: <strong>' + gained + "</strong>" +
+        " · still to learn: <strong>" + left + "</strong></p>" +
+      helperForm;
     var form = root.querySelector("[data-ka-form]");
-    form.addEventListener("submit", function (e) {
-      e.preventDefault();
-      var input = form.querySelector("input");
-      writeName((input.value || "").trim());
-      paint(root, account);
-    });
+    if (form) {
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        var input = form.querySelector("input");
+        writeName((input.value || "").trim());
+        paint(root, account);
+      });
+    }
   }
 
   function mounts() {
