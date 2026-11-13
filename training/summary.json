@@ -1,8 +1,9 @@
 {
-  "beast_examples": 98,
-  "beast_gold": 34,
-  "ada_examples": 77,
-  "ada_gold": 18,
+  "beast_examples": 105,
+  "beast_gold": 40,
+  "ada_examples": 81,
+  "ada_gold": 22,
   "planets": 8,
-  "constellations": 16
+  "constellations": 16,
+  "total_gained": 62
 }
