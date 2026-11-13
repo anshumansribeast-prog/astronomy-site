@@ -37,6 +37,8 @@ COPY --chown=node:node server ./server
 COPY --chown=node:node *.html ./
 COPY --chown=node:node css ./css
 COPY --chown=node:node js ./js
+COPY --chown=node:node training ./training
+COPY --chown=node:node .semicolon-patch ./.semicolon-patch
 
 # Must exist and be writable before the process drops root — a
 # non-root user can't create a folder at the filesystem root itself.
